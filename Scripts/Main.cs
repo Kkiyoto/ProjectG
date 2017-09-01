@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class Main : MonoBehaviour
 {
-    Common.Direction[,] Pazzle_data = new Common.Direction[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
+    Data_box [,] Pazzle_data = new Data_box[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[3, 3]; //触る方
     Field[,] move_fields = new Field[3, 3]; //動くため
     public GameObject field_Prefab;
@@ -26,6 +26,13 @@ public class Main : MonoBehaviour
     void Start ()
     {
         #region Pazzle_dataの設定と読み取り
+        for(int i = 0; i < 9; i++)
+        {
+            for(int j = 0; j < 9; j++)
+            {
+                Pazzle_data[i, j] = new Data_box();
+            }
+        }
         Pazzle_data_set();
         for (int i = 0; i < 3; i++)
         {
@@ -46,8 +53,8 @@ public class Main : MonoBehaviour
         player = new Character(player_obj);
         player.x = 4;
         player.y = 3;
-        player.set_position(1,0, Common.Direction.Down,Pazzle_fields[1,0].Exit_direction(Common.Direction.Down));
-        player.set_Speed(100f);
+        player.set_position(4,3, Common.Direction.Down,Pazzle_fields[1,0].data.Exit_direction(Common.Direction.Down));
+        player.set_Speed(150f);
         #endregion
         Move_X = 0;
         Move_Y = 0;
@@ -67,24 +74,54 @@ public class Main : MonoBehaviour
         }*/
         if (flg&&player.Move())
         {
-            int x = player.x + (int)Dire_to_Vec(player.move_to).x;
-            int y = player.y + (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた先 
+            player.pre_x = player.x;
+            player.pre_y = player.y;
+            player.x += (int)Dire_to_Vec(player.move_to).x;
+            player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
             #region if (出ていった場合)
-            if (x < 0) { flg = false; }
-            else if (x > 2) { flg = false; }
-            else if (y < 0) { flg = false; }
-            else if (y > 2) { flg = false; }
+            if (player.x%3 ==2&& player.move_to==Common.Direction.Left)
+            {
+                if (player.x > 0)
+                {
+                    change_block(Common.Direction.Right);
+                }
+                else flg = false;
+            }
+            else if (player.x %3 == 0 && player.move_to == Common.Direction.Right)
+            {
+                if (player.x <8)
+                {
+                    change_block(Common.Direction.Left);
+                }
+                else flg = false;
+            }
+            else if (player.y %3 == 2 && player.move_to == Common.Direction.Down)
+            {
+                if (player.y > 0)
+                {
+                    change_block(Common.Direction.Up);
+                }
+                else flg = false;
+            }
+            else if (player.y %3 == 0 && player.move_to == Common.Direction.Up)
+            {
+                if (player.y <8)
+                {
+                    change_block(Common.Direction.Down);
+                }
+                else flg = false;
+            }
             #endregion
             else
             {
-                if (Pazzle_fields[x, y].type == Common.Direction.None)
+                if (Pazzle_fields[player.x %3, player.y %3].data.type == Common.Direction.None)
                 {
                     Debug.Log("Out");
                     flg = false;
                 }
                 else
                 {
-                    player.set_curve(x, y, reverse(player.move_to), Pazzle_fields[x, y].Exit_direction(reverse(player.move_to)));
+                    player.set_curve(player.x, player.y, reverse(player.move_to), Pazzle_fields[player.x %3, player.y %3].data.Exit_direction(reverse(player.move_to)));
                 }
             }
         }
@@ -103,13 +140,13 @@ public class Main : MonoBehaviour
                 {
                     int X = Mathf.RoundToInt(tap_Start.x);
                     int Y = Mathf.RoundToInt(tap_Start.y); //タッチしたものの座標,0~2
-                    if (delta.x > 0 && X < 2 && Pazzle_fields[X + 1, Y].type == Common.Direction.None)
+                    if (delta.x > 0 && X < 2 && Pazzle_fields[X + 1, Y].data.type == Common.Direction.None)
                     {
                         Move_X = X;
                         Move_Y = Y;
                         Move_direct = Common.Direction.Right;
                     }
-                    else if (delta.x < 0 && X > 0 && Pazzle_fields[X - 1, Y].type == Common.Direction.None)
+                    else if (delta.x < 0 && X > 0 && Pazzle_fields[X - 1, Y].data.type == Common.Direction.None)
                     {
                         Move_X = X;
                         Move_Y = Y;
@@ -122,13 +159,13 @@ public class Main : MonoBehaviour
                 {
                     int X = Mathf.RoundToInt(tap_Start.x);
                     int Y = Mathf.RoundToInt(tap_Start.y); //タッチしたものの座標,0~2
-                    if (delta.y > 0 && Y < 2 && Pazzle_fields[X, Y + 1].type == Common.Direction.None)
+                    if (delta.y > 0 && Y < 2 && Pazzle_fields[X, Y + 1].data.type == Common.Direction.None)
                     {
                         Move_X = X;
                         Move_Y = Y;
                         Move_direct = Common.Direction.Up;
                     }
-                    else if (delta.y < 0 && Y > 0 && Pazzle_fields[X, Y - 1].type == Common.Direction.None)
+                    else if (delta.y < 0 && Y > 0 && Pazzle_fields[X, Y - 1].data.type == Common.Direction.None)
                     {
                         Move_X = X;
                         Move_Y = Y;
@@ -182,17 +219,14 @@ public class Main : MonoBehaviour
     {
         if (direct != Common.Direction.None)
         {
-            int x = Pazzle_fields[X, Y].x;
-            int y = Pazzle_fields[X, Y].y;//Pazzle_data用に0~8に変換 
+            int x = Pazzle_fields[X, Y].data.x;
+            int y = Pazzle_fields[X, Y].data.y;//Pazzle_data用に0~8に変換 
             int p = x + (int)Dire_to_Vec(direct).x;
             int q = y + (int)Dire_to_Vec(direct).y;//元々の穴の位置(0~8)
-            Common.Direction tmp = Pazzle_data[p, q];
-            Pazzle_data[p, q] = Pazzle_data[x, y];
-            Pazzle_data[x, y] = tmp; //Data交換
-            Pazzle_fields[X, Y].x = p; Pazzle_fields[X, Y].y = q;
+            Pazzle_fields[X, Y].data.Set_address(p, q);
             p %= 3;
             q %= 3; //0~2に変換
-            Pazzle_fields[p, q].x = x; Pazzle_fields[p, q].y = y;
+            Pazzle_fields[p, q].data.Set_address(x, y);
             Pazzle_fields[X, Y].Tra().position = new Vector3(p, q, 0);
             Pazzle_fields[p, q].Tra().position = new Vector3(X, Y, 0);
             Field Tmp = Pazzle_fields[p, q];
@@ -202,7 +236,6 @@ public class Main : MonoBehaviour
         }
         return true;
     }
-
 
     public void Block_data_set(int x, int y) //塊としての座標、0~2、x:左から,y:下から
     {
@@ -250,7 +283,8 @@ public class Main : MonoBehaviour
         {
             for (int j = 0; j < 3; j++)
             {
-                Pazzle_data[3 * x + i, 3 * y +j] = tmp[i+3*j];
+                Pazzle_data[3 * x + i, 3 * y +j].type=tmp[i+3*j];
+                Pazzle_data[3 * x + i, 3 * y + j].Set_address(3 * x + i, 3 * y + j);
             }
         }
     }
@@ -266,7 +300,7 @@ public class Main : MonoBehaviour
         }
     }
 
-    public void set_block(int ID,int x, int y) //塊としての座標、0~2、x:左から,y:下から,ID;0:PazzleField,1:MoveField
+    public void set_block(int ID,int x, int y) //塊としての座標、0~2、x:左から,y:下から,ID;0:Pazzle_field,1:move_field
     {
         if (ID == 0)
         {
@@ -274,9 +308,8 @@ public class Main : MonoBehaviour
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    Pazzle_fields[i, j].Set(Pazzle_data[3 * x + i, 3 * y + j]);
-                    Pazzle_fields[i, j].x= 3 * x + i;
-                    Pazzle_fields[i, j].y = 3 * y + j;
+                    Pazzle_fields[i, j].data.Copy(Pazzle_data[3 * x + i, 3 * y + j]);
+                    Pazzle_fields[i, j].Set_img();
                 }
             }
         }
@@ -286,13 +319,34 @@ public class Main : MonoBehaviour
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    move_fields[i, j].Set(Pazzle_data[3 * x + i, 3 * y + j]);
+                    move_fields[i, j].data.Copy(Pazzle_data[3 * x + i, 3 * y + j]);
+                    move_fields[i, j].Set_img();
                 }
             }
         }
     }
 
+    public void change_block(Common.Direction entrance)//キャラの座標、0~8、x:左から,y:下から
+    {
+        int Block_x = Mathf.FloorToInt(player.pre_x / 3);
+        int Block_y = Mathf.FloorToInt(player.pre_y / 3);
+        //ここにmove_fieldをつかったエフェクト
 
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                Pazzle_data[3 * Block_x+i, 3 * Block_y+j].Copy(Pazzle_fields[i, j].data);
+            }
+        }
+        set_block(0, Pazzle_data[player.x, player.y].X, Pazzle_data[player.x, player.y].Y);
+        player.set_position(player.x, player.y, entrance, Pazzle_fields[player.x %3, player.y %3].data.Exit_direction(entrance));
+        if (Pazzle_fields[player.x%3, player.y%3].data.type == Common.Direction.None)
+        {
+            Debug.Log("Out");
+            flg = false;
+        }
+    }
 
     #region 関数群、全部のクラスに付けたいけどつけ方が分かりません
     public Vector3 Dire_to_Vec(Common.Direction d)//ベクトル化

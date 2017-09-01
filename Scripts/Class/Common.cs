@@ -18,12 +18,20 @@ public class Common : MonoBehaviour
         Down,
     }
 
-    public Vector3 DireToVec(Direction d)
+    public enum Action
     {
-        if(d==Direction.Straight||d==Direction.Up)return new Vector3(0, 1, 0);
-        else if(d==Direction.Down)return new Vector3(0, -1, 0);
-        else if(d==Direction.Right)return new Vector3(1,0, 0);
-        else if(d==Direction.Left)return new Vector3(-1,0, 0);
-        else return new Vector3(0, 0, 0);
+        Walk=0, //行動
+        Battle, //バトル時
+        Happy, //勝利、宝、ゴール
+        Stop, //構え、一時停止時
+        Sad, //タイムオーバー
+    }
+
+    public enum Condition
+    {
+        None=0,
+        Enemy,
+        Treasure,
+        Block,
     }
 }

@@ -10,73 +10,29 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    public int x, y;//x:左から,y:下から。0スタート
+    public int x, y;//x:左から,y:下から。0~8
+    public int pre_x, pre_y;//1つ前の座標、0~8
     float speed;
-    GameObject chara;//chara:画像を持つもの,arrow:方向を持つもの
+    GameObject obj;//chara:画像を持つもの,arrow:方向を持つもの
     Sprite img;
     int count;
     public Common.Direction move_from,move_to;
 
     public Character(GameObject Image_obj)
     {
-        chara = Image_obj;
+        obj = Image_obj;
     }
     
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)
     {
         set_curve(X, Y, entrance, exit);
-        if (entrance == Common.Direction.Down)
-        {
-            chara.transform.position = new Vector3(X, Y - 0.5f, 0);
-        }
-        else if (entrance == Common.Direction.Up)
-        {
-            chara.transform.position = new Vector3(X, Y + 0.5f, 0);
-        }
-        else if (entrance == Common.Direction.Right)
-        {
-            chara.transform.position = new Vector3((float)X + 0.5f, Y, 0);
-        }
-        else if (entrance == Common.Direction.Left)
-        {
-            chara.transform.position = new Vector3(X - 0.5f, Y, 0);
-        }
-
+        obj.transform.position = new Vector3(X%3, Y%3, 0)+Dire_to_Vec(entrance)/2f;
     }
 
     public void set_Speed(float Speed)//速さを変える
     {
         speed = Speed;
     }
-
-    /*
-    public bool Move(Common.Direction Curve_direction) //曲がる方向を入れたらまわっていく
-    {
-        float curve = 0;
-        Vector3 delta = new Vector3(0, 1f / speed, 0);
-        if (Curve_direction == Common.Direction.Right)
-        {
-            curve = -90f / speed;
-            delta = new Vector3(0, Mathf.Sin(curve), 0);
-        }
-        else if (Curve_direction == Common.Direction.Left)
-        {
-            curve = 90f / speed;
-            delta = new Vector3(0, Mathf.Sin(curve), 0);
-        }
-        arrow.transform.Rotate(new Vector3(0, 0, curve));
-        arrow.transform.Translate(delta);
-        chara.transform.localRotation = new Quaternion(0, 0, 0, 0);
-        count++;
-        bool EndBool = false;
-        if (count > speed)
-        {
-            count = 0;
-            EndBool = true;
-        }
-        return EndBool;
-    }
-    */
 
     public bool Move() //かくかく曲がる
     {
@@ -96,7 +52,7 @@ public class Character : MonoBehaviour
             EndBool = true;
         }
         count++;
-        chara.transform.Translate(delta);
+        obj.transform.Translate(delta);
         return EndBool;
     }
 
