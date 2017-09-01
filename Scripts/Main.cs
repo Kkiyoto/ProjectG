@@ -2,38 +2,56 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Main
+ * Directorオブジェクトにアタッチ
+ * Directorはからのオブジェクト
+ * 主にゲーム動かす部分にしています。
+ */
+
 public class Main : MonoBehaviour
 {
-    Common.Direction[,] PazzleData = new Common.Direction[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
-    Field[,] PazzleFields = new Field[3, 3]; //触る方
-    Field[,] MoveFields = new Field[3, 3]; //動くため
-    public GameObject FieldPrefab;
+    Common.Direction[,] Pazzle_data = new Common.Direction[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
+    Field[,] Pazzle_fields = new Field[3, 3]; //触る方
+    Field[,] move_fields = new Field[3, 3]; //動くため
+    public GameObject field_Prefab;
     Character player;
     //Character[] enemy;
-    Vector3 tapStart;
-    int MoveX, MoveY;
-    Common.Direction MoveDirect;
+    Vector3 tap_Start;
+    int Move_X, Move_Y;
+    Common.Direction Move_direct;
+
+    bool flg = true;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの
 
     // Use this for initialization
     void Start ()
     {
-        PazzleDataSet();
+        #region Pazzle_dataの設定と読み取り
+        Pazzle_data_set();
         for (int i = 0; i < 3; i++)
         {
             for(int j = 0; j < 3; j++)
             {
-                GameObject o = Instantiate(FieldPrefab) as GameObject;
-                PazzleFields[i, j] = new Field(o);
-                PazzleFields[i, j].Tra().position = new Vector3(i, j);
-                o = Instantiate(FieldPrefab) as GameObject;
-                MoveFields[i, j] = new Field(o);
-                MoveFields[i, j].Tra().position = new Vector3(5,0);
+                GameObject o = Instantiate(field_Prefab) as GameObject;
+                Pazzle_fields[i, j] = new Field(o);
+                Pazzle_fields[i, j].Tra().position = new Vector3(i, j);
+                o = Instantiate(field_Prefab) as GameObject;
+                move_fields[i, j] = new Field(o);
+                move_fields[i, j].Tra().position = new Vector3(5,0); //見えないところへ
             }
         }
-        SetBlock(0, 1,1);
-        MoveX = 0;
-        MoveY = 0;
-        MoveDirect = Common.Direction.None;
+        set_block(0, 1,1);
+        #endregion
+        #region playerの設定
+        GameObject player_obj = GameObject.Find("Player");
+        player = new Character(player_obj);
+        player.x = 4;
+        player.y = 3;
+        player.set_position(1,0, Common.Direction.Down,Pazzle_fields[1,0].Exit_direction(Common.Direction.Down));
+        player.set_Speed(100f);
+        #endregion
+        Move_X = 0;
+        Move_Y = 0;
+        Move_direct = Common.Direction.None;
 	}
 	
 	// Update is called once per frame
@@ -47,92 +65,148 @@ public class Main : MonoBehaviour
                 Debug.Log("i,j " + i + " " + j + "   t " + PazzleFields[i, j].type);
             }
         }*/
-
-        if (Move(MoveX, MoveY, MoveDirect, 8f))
+        if (flg&&player.Move())
+        {
+            int x = player.x + (int)Dire_to_Vec(player.move_to).x;
+            int y = player.y + (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた先 
+            #region if (出ていった場合)
+            if (x < 0) { flg = false; }
+            else if (x > 2) { flg = false; }
+            else if (y < 0) { flg = false; }
+            else if (y > 2) { flg = false; }
+            #endregion
+            else
+            {
+                if (Pazzle_fields[x, y].type == Common.Direction.None)
+                {
+                    Debug.Log("Out");
+                    flg = false;
+                }
+                else
+                {
+                    player.set_curve(x, y, reverse(player.move_to), Pazzle_fields[x, y].Exit_direction(reverse(player.move_to)));
+                }
+            }
+        }
+        if (Move(Move_X, Move_Y, Move_direct, 8f))
         {
             if (Input.GetMouseButtonDown(0))
             {
-                tapStart = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                tap_Start = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
-            if (Input.GetMouseButtonUp(0)&& Physics2D.OverlapPoint(tapStart))
+            if (Input.GetMouseButtonUp(0) && Physics2D.OverlapPoint(tap_Start))
             {
-                Vector3 tapTarminal = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                Vector3 delta = tapTarminal - tapStart;
+                Vector3 tap_Tarminal = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 delta = tap_Tarminal - tap_Start;
+                #region 横方向スライド
                 if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y) && Mathf.Abs(delta.x) > 0.8f)
                 {
-                    int X = Mathf.RoundToInt(tapStart.x);
-                    int Y = Mathf.RoundToInt(tapStart.y); //タッチしたものの座標,0~2
-                    if (delta.x > 0 &&X<2&& PazzleFields[X + 1, Y].type == 0)
+                    int X = Mathf.RoundToInt(tap_Start.x);
+                    int Y = Mathf.RoundToInt(tap_Start.y); //タッチしたものの座標,0~2
+                    if (delta.x > 0 && X < 2 && Pazzle_fields[X + 1, Y].type == Common.Direction.None)
                     {
-                        MoveX = X;
-                        MoveY = Y;
-                        MoveDirect = Common.Direction.Right;
+                        Move_X = X;
+                        Move_Y = Y;
+                        Move_direct = Common.Direction.Right;
                     }
-                    else if (delta.x < 0 &&X>0&& PazzleFields[X - 1, Y].type == 0)
+                    else if (delta.x < 0 && X > 0 && Pazzle_fields[X - 1, Y].type == Common.Direction.None)
                     {
-                        MoveX = X;
-                        MoveY = Y;
-                        MoveDirect = Common.Direction.Left;
+                        Move_X = X;
+                        Move_Y = Y;
+                        Move_direct = Common.Direction.Left;
                     }
                 }
+                #endregion
+                #region 縦方向スライド 
                 else if (Mathf.Abs(delta.x) < Mathf.Abs(delta.y) && Mathf.Abs(delta.y) > 0.8f)
                 {
-                    int X = Mathf.RoundToInt(tapStart.x);
-                    int Y = Mathf.RoundToInt(tapStart.y); //タッチしたものの座標,0~2
-                    if (delta.y > 0 &&Y<2&& PazzleFields[X, Y + 1].type == 0)
+                    int X = Mathf.RoundToInt(tap_Start.x);
+                    int Y = Mathf.RoundToInt(tap_Start.y); //タッチしたものの座標,0~2
+                    if (delta.y > 0 && Y < 2 && Pazzle_fields[X, Y + 1].type == Common.Direction.None)
                     {
-                        MoveX = X;
-                        MoveY = Y;
-                        MoveDirect = Common.Direction.Up;
+                        Move_X = X;
+                        Move_Y = Y;
+                        Move_direct = Common.Direction.Up;
                     }
-                    else if (delta.y < 0 &&Y>0&& PazzleFields[X, Y - 1].type == 0)
+                    else if (delta.y < 0 && Y > 0 && Pazzle_fields[X, Y - 1].type == Common.Direction.None)
                     {
-                        MoveX = X;
-                        MoveY = Y;
-                        MoveDirect = Common.Direction.Down;
+                        Move_X = X;
+                        Move_Y = Y;
+                        Move_direct = Common.Direction.Down;
                     }
+                    #endregion
                 }
             }
         }
 	}
 
+    /* ゆっくり動く方、キャラ動かすのを作るためにいったんコメントアウト
+     * 
     public bool Move(int X, int Y, Common.Direction direct, float speed)//動かしたいものの座標、0~2、x:左から,y:下から、speed小さい方が早い
     {
-        Vector3 pos = PazzleFields[X, Y].Tra().position;
+        Vector3 pos = Pazzle_fields[X, Y].Tra().position;
         if(direct == Common.Direction.None)
         {
             return true;
         }
-        else if ((pos - DireToVec(direct) - new Vector3(X, Y, 0)).magnitude > 0.05f)
+        else if ((pos - Dire_to_Vec(direct) - new Vector3(X, Y, 0)).magnitude > 0.05f)
         {
-            PazzleFields[X, Y].Tra().position = (pos * speed + DireToVec(direct) + new Vector3(X, Y, 0)) / (1 + speed);
+            Pazzle_fields[X, Y].Tra().position = (pos * speed + Dire_to_Vec(direct) + new Vector3(X, Y, 0)) / (1 + speed);
             return false;
         }
         else  //動き終わり、データ交換
         {
-            int x = PazzleFields[X, Y].x;
-            int y = PazzleFields[X, Y].y;//PazzleData用に0~8に変換 
-            int p = x + (int)DireToVec(direct).x;
-            int q = y + (int)DireToVec(direct).y;//元々の穴の位置(0~8)
-            Common.Direction tmp = PazzleData[p, q];
-            PazzleData[p, q] = PazzleData[x, y];
-            PazzleData[x, y] = tmp; //Data交換
-            PazzleFields[X, Y].x = p;PazzleFields[X, Y].y = q;
+            int x = Pazzle_fields[X, Y].x;
+            int y = Pazzle_fields[X, Y].y;//PazzleData用に0~8に変換 
+            int p = x + (int)Dire_to_Vec(direct).x;
+            int q = y + (int)Dire_to_Vec(direct).y;//元々の穴の位置(0~8)
+            Common.Direction tmp = Pazzle_data[p, q];
+            Pazzle_data[p, q] = Pazzle_data[x, y];
+            Pazzle_data[x, y] = tmp; //Data交換
+            Pazzle_fields[X, Y].x = p;Pazzle_fields[X, Y].y = q;
             p %= 3;
             q %= 3; //0~2に変換
-            PazzleFields[p, q].x = x; PazzleFields[p, q].y = y;
-            PazzleFields[X, Y].Tra().position = new Vector3(p, q, 0);
-            PazzleFields[p, q].Tra().position = new Vector3(X, Y, 0);
-            Field Tmp = PazzleFields[p, q];
-            PazzleFields[p, q] = PazzleFields[X, Y];
-            PazzleFields[X, Y] = Tmp; //Field交換
-            MoveDirect = Common.Direction.None;
+            Pazzle_fields[p, q].x = x; Pazzle_fields[p, q].y = y;
+            Pazzle_fields[X, Y].Tra().position = new Vector3(p, q, 0);
+            Pazzle_fields[p, q].Tra().position = new Vector3(X, Y, 0);
+            Field Tmp = Pazzle_fields[p, q];
+            Pazzle_fields[p, q] = Pazzle_fields[X, Y];
+            Pazzle_fields[X, Y] = Tmp; //Field交換
+            Move_direct = Common.Direction.None;
             return true;
         }
     }
+    */
 
-    public void BlockDataSet(int x, int y) //塊としての座標、0~2、x:左から,y:下から
+    public bool Move(int X, int Y, Common.Direction direct, float speed)//動かしたいものの座標、0~2、x:左から,y:下から、speed小さい方が早い
     {
+        if (direct != Common.Direction.None)
+        {
+            int x = Pazzle_fields[X, Y].x;
+            int y = Pazzle_fields[X, Y].y;//Pazzle_data用に0~8に変換 
+            int p = x + (int)Dire_to_Vec(direct).x;
+            int q = y + (int)Dire_to_Vec(direct).y;//元々の穴の位置(0~8)
+            Common.Direction tmp = Pazzle_data[p, q];
+            Pazzle_data[p, q] = Pazzle_data[x, y];
+            Pazzle_data[x, y] = tmp; //Data交換
+            Pazzle_fields[X, Y].x = p; Pazzle_fields[X, Y].y = q;
+            p %= 3;
+            q %= 3; //0~2に変換
+            Pazzle_fields[p, q].x = x; Pazzle_fields[p, q].y = y;
+            Pazzle_fields[X, Y].Tra().position = new Vector3(p, q, 0);
+            Pazzle_fields[p, q].Tra().position = new Vector3(X, Y, 0);
+            Field Tmp = Pazzle_fields[p, q];
+            Pazzle_fields[p, q] = Pazzle_fields[X, Y];
+            Pazzle_fields[X, Y] = Tmp; //Field交換
+            Move_direct = Common.Direction.None;
+        }
+        return true;
+    }
+
+
+    public void Block_data_set(int x, int y) //塊としての座標、0~2、x:左から,y:下から
+    {
+        #region tmp[] = 8個の道の構成
         Common.Direction[] tmp = new Common.Direction[9];
         tmp[1] = Common.Direction.Straight;
         tmp[2] = Common.Direction.Straight;
@@ -145,7 +219,9 @@ public class Main : MonoBehaviour
         int ran = Random.Range(0, 3);
         if (ran == 1) tmp[6] = Common.Direction.Left; //Leftが多い場合
         else if (ran == 2) tmp[4] = Common.Direction.Straight;//Straightが多い場合
-        float[] random = new float[8];//ここからシャッフル
+        #endregion
+        #region tmpのシャッフル
+        float[] random = new float[8];
         for(int i = 0; i < 8; i++)
         {
             random[i] = Random.value;
@@ -165,7 +241,8 @@ public class Main : MonoBehaviour
                 }
                 else break;
             }
-        }//ここまでシャッフル
+        }
+        #endregion
         int hole = 4;//ここが穴になる、後でランダム化
         for (int i = 0; i < hole; i++) tmp[i] = tmp[i + 1];
         tmp[hole] = Common.Direction.None;
@@ -173,23 +250,23 @@ public class Main : MonoBehaviour
         {
             for (int j = 0; j < 3; j++)
             {
-                PazzleData[3 * x + i, 3 * y +j] = tmp[i+3*j];
+                Pazzle_data[3 * x + i, 3 * y +j] = tmp[i+3*j];
             }
         }
     }
 
-    public void PazzleDataSet()
+    public void Pazzle_data_set() //全部のブロックについて入れていく
     {
         for(int i = 0; i < 3; i++)
         {
             for(int j = 0; j < 3; j++)
             {
-                BlockDataSet(i, j);
+                Block_data_set(i, j);
             }
         }
     }
 
-    public void SetBlock(int ID,int x, int y) //塊としての座標、0~2、x:左から,y:下から,ID;0:PazzleField,1:MoveField
+    public void set_block(int ID,int x, int y) //塊としての座標、0~2、x:左から,y:下から,ID;0:PazzleField,1:MoveField
     {
         if (ID == 0)
         {
@@ -197,9 +274,9 @@ public class Main : MonoBehaviour
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    PazzleFields[i, j].Set(PazzleData[3 * x + i, 3 * y + j]);
-                    PazzleFields[i, j].x= 3 * x + i;
-                    PazzleFields[i, j].y = 3 * y + j;
+                    Pazzle_fields[i, j].Set(Pazzle_data[3 * x + i, 3 * y + j]);
+                    Pazzle_fields[i, j].x= 3 * x + i;
+                    Pazzle_fields[i, j].y = 3 * y + j;
                 }
             }
         }
@@ -209,14 +286,16 @@ public class Main : MonoBehaviour
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    MoveFields[i, j].Set(PazzleData[3 * x + i, 3 * y + j]);
+                    move_fields[i, j].Set(Pazzle_data[3 * x + i, 3 * y + j]);
                 }
             }
         }
     }
 
 
-    public Vector3 DireToVec(Common.Direction d)
+
+    #region 関数群、全部のクラスに付けたいけどつけ方が分かりません
+    public Vector3 Dire_to_Vec(Common.Direction d)//ベクトル化
     {
         if (d == Common.Direction.Straight || d == Common.Direction.Up) return new Vector3(0, 1, 0);
         else if (d == Common.Direction.Down) return new Vector3(0, -1, 0);
@@ -224,4 +303,15 @@ public class Main : MonoBehaviour
         else if (d == Common.Direction.Left) return new Vector3(-1, 0, 0);
         else return new Vector3(0, 0, 0);
     }
+
+    public Common.Direction reverse(Common.Direction direct)//逆向き化
+    {
+        if (direct == Common.Direction.Down) return Common.Direction.Up;
+        else if (direct == Common.Direction.Up) return Common.Direction.Down;
+        else if (direct == Common.Direction.Right) return Common.Direction.Left;
+        else if (direct == Common.Direction.Left) return Common.Direction.Right;
+        else return Common.Direction.None;
+    }
+
+    #endregion
 }

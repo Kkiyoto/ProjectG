@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Common
+ * 何かしらの用語の定義とかに使えたらと、、
+ * 上手い使い方は分かっていないです
+ */ 
 public class Common : MonoBehaviour
 {
     public enum Direction
     {
-        Straight = 0,
+        None = 0,
+        Straight,
         Right,
         Left,
         Up,
         Down,
-        None,
     }
 
     public Vector3 DireToVec(Direction d)

@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Field
+ * GameObjectのスライド部分で、実態を持つもののクラス
+ * スライド部分のGameObjectのかわりに使う。
+ * objの部分に実態を入れる。アタッチなし
+ */
+
 public class Field : MonoBehaviour
 {
     GameObject obj;
     public int x, y;//どこにいるか、0~8
     Sprite[] sprites = new Sprite[4]; //下からの道が、0:None,1:Straight,2:Right,3:Left
-    public int type; //下からの道が、0:None,1:Straight,2:Right,3:Leftで場合分け
+    public Common.Direction type; //下からの道が、0:None,1:Straight,2:Right,3:Leftで場合分け
 
     public Field(GameObject o)
     {
@@ -18,33 +24,36 @@ public class Field : MonoBehaviour
         }
     }
 
-    public void Set(Common.Direction FromDown)//形を入れたらデータを作る
+    public void Set(Common.Direction from_Down)//形を入れたらデータを作る
     {
+        /* typeをint 型にしたい場合
         type = 0;
         if (FromDown == Common.Direction.Straight) type = 1;
         else if (FromDown == Common.Direction.Right) type = 2;
         else if (FromDown == Common.Direction.Left) type = 3;
-        obj.GetComponent<SpriteRenderer>().sprite = sprites[type];
+        */
+        type= from_Down;
+        obj.GetComponent<SpriteRenderer>().sprite = sprites[(int)type];
     }
 
-    public Common.Direction ExitDirection(Common.Direction entrance)//どこから入ったらどこに出るか
+    public Common.Direction Exit_direction(Common.Direction entrance)//どこから入ったらどこに出るか
     {
         Common.Direction exit=Common.Direction.None;
-        if (type == 1)//まっすぐ
+        if (type == Common.Direction.Straight)//まっすぐ
         {
             if (entrance == Common.Direction.Down) exit = Common.Direction.Up;
             else if (entrance == Common.Direction.Up) exit = Common.Direction.Down;
             else if (entrance == Common.Direction.Right) exit = Common.Direction.Left;
             else if (entrance == Common.Direction.Left) exit = Common.Direction.Right;
         }
-        else if (type == 2)//右
+        else if (type == Common.Direction.Right)//右
         {
             if (entrance == Common.Direction.Down) exit = Common.Direction.Right;
             else if (entrance == Common.Direction.Up) exit = Common.Direction.Left;
             else if (entrance == Common.Direction.Right) exit = Common.Direction.Down;
             else if (entrance == Common.Direction.Left) exit = Common.Direction.Up;
         }
-        else if (type == 3)//左
+        else if (type == Common.Direction.Left)//左
         {
             if (entrance == Common.Direction.Down) exit = Common.Direction.Left;
             else if (entrance == Common.Direction.Up) exit = Common.Direction.Right;
@@ -55,19 +64,19 @@ public class Field : MonoBehaviour
     }
 
 
-    public Common.Direction CurveDirection(Common.Direction entrance)//どこから入ったらどう曲がるか
+    public Common.Direction Curve_direction(Common.Direction entrance)//どこから入ったらどう曲がるか
     {
         Common.Direction curve = Common.Direction.None;
-        if (type == 1)//まっすぐ
+        if (type == Common.Direction.Straight)//まっすぐ
         {
             curve = Common.Direction.Straight;
         }
-        else if (type == 2)//右
+        else if (type == Common.Direction.Right)//右
         {
             if (entrance == Common.Direction.Down || entrance == Common.Direction.Up) curve = Common.Direction.Right;
             else if (entrance == Common.Direction.Right || entrance == Common.Direction.Left) curve = Common.Direction.Left;
         }
-        else if (type == 3)//右
+        else if (type == Common.Direction.Left)//左
         {
             if (entrance == Common.Direction.Down || entrance == Common.Direction.Up) curve = Common.Direction.Left;
             else if (entrance == Common.Direction.Right || entrance == Common.Direction.Left) curve = Common.Direction.Right;
