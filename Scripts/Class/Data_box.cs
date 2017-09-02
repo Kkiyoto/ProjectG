@@ -13,6 +13,7 @@ public class Data_box : MonoBehaviour
     public int x, y;//どこにいるか、0~8
     public int X,Y;//どの塊にいるか、0~2
     public Common.Direction type;//下からの道が、0:None,1:Straight,2:Right,3:Leftで場合分け
+    public Common.Condition condition;
     
     public void Set_address(int p,int q)//p:左からq:下から,0~8
     {
@@ -21,7 +22,6 @@ public class Data_box : MonoBehaviour
         X = Mathf.FloorToInt(p / 3);
         Y = Mathf.FloorToInt(q / 3);
     }
-
 
     public Common.Direction Exit_direction(Common.Direction entrance)//どこから入ったらどこに出るか
     {
@@ -74,5 +74,6 @@ public class Data_box : MonoBehaviour
     {
         Set_address(original.x, original.y);
         this.type = original.type;
+        this.condition = original.condition;
     }
 }

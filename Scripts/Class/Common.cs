@@ -29,9 +29,18 @@ public class Common : MonoBehaviour
 
     public enum Condition
     {
-        None=0,
+        Normal=0,
+        Hole,
+        Moving, 
+        Player,
         Enemy,
-        Treasure,
-        Block,
+    }
+
+    public enum Thema
+    {
+        Sky=0,
+        Mine,
+        Magma,
+        Poison
     }
 }

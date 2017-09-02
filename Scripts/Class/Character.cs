@@ -34,7 +34,7 @@ public class Character : MonoBehaviour
         speed = Speed;
     }
 
-    public bool Move() //かくかく曲がる
+    /*public bool Move() //かくかく曲がる
     {
         bool EndBool = false;
         Vector3 delta=new Vector3(0,0,0);
@@ -53,6 +53,24 @@ public class Character : MonoBehaviour
         }
         count++;
         obj.transform.Translate(delta);
+        return EndBool;
+    }*/
+
+    public bool Move() //円状に曲がる
+    {
+        bool EndBool = false;
+        if (count < speed)
+        {
+            float theta = Mathf.PI * count / 2f / speed;
+            Vector3 delta = Dire_to_Vec(move_from) * (1f - Mathf.Sin(theta)) + Dire_to_Vec(move_to) * (1f - Mathf.Cos(theta));
+            obj.transform.position = new Vector3(x % 3, y % 3, 0) + delta/2f;
+        }
+        else
+        {
+            count = -1;
+            EndBool = true;
+        }
+        count++;
         return EndBool;
     }
 

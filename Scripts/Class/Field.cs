@@ -12,21 +12,20 @@ public class Field : MonoBehaviour
 {
     GameObject obj;
     Sprite[] sprites = new Sprite[4]; //下からの道が、0:None,1:Straight,2:Right,3:Left
-    public Data_box data; //データをたくさん入れてます
+    public int data_x,data_y; //pazzle_fields[data_x,data_y]にデータをたくさん入れてます
 
     public Field(GameObject o)
     {
         obj = o;
-        data = new Data_box();
         for (int i = 0; i < 4; i++)
         {
             sprites[i] = Resources.Load<Sprite>("Images/GameScene/Road"+i);
         }
     }
     
-    public void Set_img()//形を入れたらデータを作る
+    public void Set_img(Common.Direction img_type)//形を入れたらデータを作る
     {
-        obj.GetComponent<SpriteRenderer>().sprite = sprites[(int)data.type];
+        obj.GetComponent<SpriteRenderer>().sprite = sprites[(int)img_type];
     }
 
 
