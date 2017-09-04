@@ -28,9 +28,18 @@ public class Field : MonoBehaviour
         obj.GetComponent<SpriteRenderer>().sprite = sprites[(int)img_type];
     }
 
+    public void Layer(int layer)
+    {
+        obj.GetComponent<SpriteRenderer>().sortingOrder = layer;
+    }
 
     public Transform Tra()
     {
         return obj.transform;
+    }
+
+    public SpriteRenderer Sprite()
+    {
+        return obj.GetComponent<SpriteRenderer>();
     }
 }

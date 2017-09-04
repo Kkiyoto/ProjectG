@@ -27,13 +27,21 @@ public class Common : MonoBehaviour
         Sad, //タイムオーバー
     }
 
+    public enum Type
+    {
+        Player,
+        Walk=0,
+        Fly,
+        Stop
+    }
+
     public enum Condition
     {
         Normal=0,
         Hole,
         Moving, 
         Player,
-        Enemy,
+        //Enemy,
     }
 
     public enum Thema

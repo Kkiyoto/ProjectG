@@ -17,16 +17,20 @@ public class Character : MonoBehaviour
     Sprite img;
     int count;
     public Common.Direction move_from,move_to;
+    public Common.Action act;
+    public Common.Type type;
 
-    public Character(GameObject Image_obj)
+    public Character(GameObject Image_obj,Common.Type t)
     {
         obj = Image_obj;
+        act = Common.Action.Walk;
+        type = t;
     }
     
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)
     {
         set_curve(X, Y, entrance, exit);
-        obj.transform.position = new Vector3(X%3, Y%3, 0)+Dire_to_Vec(entrance)/2f;
+        obj.transform.position = new Vector3(X, Y, 0)+Dire_to_Vec(entrance)/2f;
     }
 
     public void set_Speed(float Speed)//速さを変える
@@ -56,14 +60,14 @@ public class Character : MonoBehaviour
         return EndBool;
     }*/
 
-    public bool Move() //円状に曲がる
+    public bool Move(Vector3 field_pos) //円状に曲がる
     {
         bool EndBool = false;
         if (count < speed)
         {
             float theta = Mathf.PI * count / 2f / speed;
             Vector3 delta = Dire_to_Vec(move_from) * (1f - Mathf.Sin(theta)) + Dire_to_Vec(move_to) * (1f - Mathf.Cos(theta));
-            obj.transform.position = new Vector3(x % 3, y % 3, 0) + delta/2f;
+            obj.transform.position = field_pos + delta/2f;
         }
         else
         {
@@ -72,6 +76,11 @@ public class Character : MonoBehaviour
         }
         count++;
         return EndBool;
+    }
+
+    public void OutScreen()
+    {
+        obj.transform.position = new Vector3(0, -10);
     }
 
     public void set_curve(int X,int Y,Common.Direction entrance, Common.Direction exit)
@@ -89,5 +98,15 @@ public class Character : MonoBehaviour
         else if (d == Common.Direction.Right) return new Vector3(1, 0, 0);
         else if (d == Common.Direction.Left) return new Vector3(-1, 0, 0);
         else return new Vector3(0, 0, 0);
+    }
+
+    public Transform Tra()
+    {
+        return obj.transform;
+    }
+
+    public SpriteRenderer Sprite()
+    {
+        return obj.GetComponent<SpriteRenderer>();
     }
 }
