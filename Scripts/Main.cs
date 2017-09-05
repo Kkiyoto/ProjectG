@@ -18,7 +18,7 @@ public class Main : MonoBehaviour
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
-    int Move_X, Move_Y;
+    int Move_X, Move_Y,touch_ID;
     Common.Direction Move_direct,Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
@@ -47,7 +47,7 @@ public class Main : MonoBehaviour
                 Pazzle_fields[i, j] = new Field(o);
                 o = Instantiate(field_Prefab) as GameObject;
                 move_fields[i, j] = new Field(o);
-                move_fields[i, j].Tra().position = new Vector3(-5,0); //見えないところへ
+                move_fields[i, j].Pos=new Vector3(-5,0); //見えないところへ
             }
         }
         set_block(0, 1,1);
@@ -61,35 +61,39 @@ public class Main : MonoBehaviour
         player.set_Speed(150f);
         Pazzle_data[4,3].condition = Common.Condition.Player;
         #endregion
-        #region enemyの設定
-        enemy = new Character[3];
-        Common.Type[] types = { Common.Type.Walk, Common.Type.Stop, Common.Type.Fly };
-        for (int i = 0; i < 3; i++)
-        {
-            GameObject enemy_obj = Instantiate(enemy_Prefab) as GameObject;
-            enemy[i] = new Character(enemy_obj,types[i]);
-            enemy[i].x = i*3;
-            enemy[i].y = i*3;
-            Common.Direction dire = Common.Direction.None;
-            if (types[i] != Common.Type.Stop) dire = Random_direct();
-            enemy[i].set_position(i*3,i*3, dire, Get_exit(enemy[i],dire));
-            enemy[i].set_Speed(130f);
-        }
-        #endregion
         #region 宝物の設定
-        treasure = new Item[3];
-        for (int i = 0; i < 3; i++)
+        treasure = new Item[3]; //ここで宝の数
+        for (int i = 0; i < treasure.Length; i++)
         {
             GameObject Treasure = Instantiate(treasure_Prefab) as GameObject;
-            int ran_x = Random.Range(0, 9);
-            int ran_y = Random.Range(0, 9);
-            while (Pazzle_data[ran_x, ran_y].type == Common.Direction.None|| Pazzle_data[ran_x, ran_y].condition == Common.Condition.Player ||Pazzle_data[ran_x, ran_y].treasure!=-1)
+            int[] ran = Random_position();
+            Pazzle_data[ran[0],ran[1]].treasure = i;
+            treasure[i] = new Item(ran[0], ran[1], Treasure);
+        }
+        #endregion
+        #region enemyの設定
+        enemy = new Character[3];//ここで敵の数
+        Common.Type[] types = { Common.Type.Walk, Common.Type.Stop, Common.Type.Fly };
+        for (int i = 0; i < enemy.Length; i++)
+        {
+            GameObject enemy_obj = Instantiate(enemy_Prefab) as GameObject;
+            //int type_num = Random.RandomRange(0, 3);
+            enemy[i] = new Character(enemy_obj,types[i]); //typesをランダム化
+            Common.Direction dire = Common.Direction.None;
+            if (types[i] != Common.Type.Stop) dire = Random_direct();
+            int[] ran = Random_position();
+            for(int j = 0; j < i; j++)
             {
-                ran_x = Random.Range(0, 9);
-                ran_y = Random.Range(0, 9);
+                if (enemy[j].x == ran[0] && enemy[j].y == ran[1])
+                {
+                    ran = Random_position();
+                    j = -1;
+                }
             }
-            Pazzle_data[ran_x,ran_y].treasure = i;
-            treasure[i] = new Item(ran_x,ran_y, Treasure);
+            enemy[i].x = ran[0];
+            enemy[i].y = ran[1];
+            enemy[i].set_position(ran[0],ran[1], dire, Get_exit(enemy[i],dire));
+            enemy[i].set_Speed(130f);
         }
         #endregion
         Move_X = 0;
@@ -117,8 +121,48 @@ public class Main : MonoBehaviour
             switch (flg)
             {
                 case 1: //ゲーム部分
+                    #region 敵の動き
+                    for (int i = 0; i < enemy.Length; i++)
+                    {
+                        if (enemy[i].act != Common.Action.Sad)
+                        {
+                            Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
+                            if (enemy[i].type != Common.Type.Fly && L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[enemy[i].x % 3, enemy[i].y % 3].Pos;
+                            if (enemy[i].act != Common.Action.Sad && enemy[i].Move(v))
+                            {
+                                enemy[i].pre_x = enemy[i].x;
+                                enemy[i].pre_y = enemy[i].y;
+                                enemy[i].x += (int)Dire_to_Vec(enemy[i].move_to).x;
+                                enemy[i].y += (int)Dire_to_Vec(enemy[i].move_to).y;//敵の動いた座標を更新 
+                                #region 引き返し
+                                if (enemy[i].x < 0 || enemy[i].x > 8 || enemy[i].y < 0 || enemy[i].y > 8)
+                                {
+                                    enemy[i].x = enemy[i].pre_x;
+                                    enemy[i].y = enemy[i].pre_y;
+                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Pazzle_data[enemy[i].x, enemy[i].y].Exit_direction(enemy[i].move_to));
+                                }
+                                else if ((Pazzle_data[enemy[i].x, enemy[i].y].condition == Common.Condition.Hole || Pazzle_data[enemy[i].x, enemy[i].y].condition == Common.Condition.Moving) && enemy[i].type != Common.Type.Fly)
+                                {
+                                    enemy[i].x = enemy[i].pre_x;
+                                    enemy[i].y = enemy[i].pre_y;
+                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Pazzle_data[enemy[i].x, enemy[i].y].Exit_direction(enemy[i].move_to));
+                                }
+                                #endregion
+                                else
+                                {
+                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, reverse(enemy[i].move_to), Get_exit(enemy[i], (reverse(enemy[i].move_to))));
+                                }
+                            }
+                            if (Pazzle_data[enemy[i].x,enemy[i].y].condition == Common.Condition.Player)  //ここに当たった時の
+                            {
+                                touch_ID = i;
+                                flg = 3;
+                            }
+                        }
+                    }
+                    #endregion
                     #region プレイヤーの動き
-                    if (player.Move(Pazzle_fields[player.x % 3, player.y % 3].Tra().position)) //動き終えたらtrue
+                    if (player.Move(Pazzle_fields[player.x % 3, player.y % 3].Pos)) //動き終えたらtrue
                     {
                         player.pre_x = player.x;
                         player.pre_y = player.y;
@@ -180,40 +224,6 @@ public class Main : MonoBehaviour
                                 }
                             }
                         }
-                    }
-                    #endregion
-                    #region 敵の動き
-                    for (int i = 0; i < 3; i++)
-                    {
-                        Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
-                        if (enemy[i].type!=Common.Type.Fly&&L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[enemy[i].x % 3, enemy[i].y % 3].Tra().position;
-                        if (enemy[i].act != Common.Action.Sad && enemy[i].Move(v))
-                        {
-                            enemy[i].pre_x = enemy[i].x;
-                            enemy[i].pre_y = enemy[i].y;
-                            enemy[i].x += (int)Dire_to_Vec(enemy[i].move_to).x;
-                            enemy[i].y += (int)Dire_to_Vec(enemy[i].move_to).y;//敵の動いた座標を更新 
-                            #region 引き返し
-                            if (enemy[i].x < 0 || enemy[i].x > 8 || enemy[i].y < 0 || enemy[i].y > 8)
-                            {
-                                enemy[i].x = enemy[i].pre_x;
-                                enemy[i].y = enemy[i].pre_y;
-                                enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Pazzle_data[enemy[i].x, enemy[i].y].Exit_direction(enemy[i].move_to));
-                            }
-                            else if ((Pazzle_data[enemy[i].x, enemy[i].y].condition == Common.Condition.Hole || Pazzle_data[enemy[i].x, enemy[i].y].condition == Common.Condition.Moving)&&enemy[i].type!=Common.Type.Fly)
-                            {
-                                enemy[i].x = enemy[i].pre_x;
-                                enemy[i].y = enemy[i].pre_y;
-                                enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Pazzle_data[enemy[i].x, enemy[i].y].Exit_direction(enemy[i].move_to));
-                            }
-                            #endregion
-                            else
-                            {
-                                enemy[i].set_curve(enemy[i].x, enemy[i].y, reverse(enemy[i].move_to), Get_exit(enemy[i],(reverse(enemy[i].move_to))));
-                            }
-                        }
-                        //if (L(enemy[i].x) != L(player.x) || L(enemy[i].y) != L(player.y)) enemy[i].OutScreen();
-                        //ここに当たった時の
                     }
                     #endregion
                     #region 盤を動かす
@@ -280,7 +290,7 @@ public class Main : MonoBehaviour
                         }
                     }
                     #endregion
-                    Set_color(new Vector3(Pazzle_fields[1,1].data_x,Pazzle_fields[1,1].data_y));
+                    Set_color(new Vector3(Pazzle_fields[1,1].data_x,Pazzle_fields[1,1].data_y));//敵とか透明にする
                     break;
                 case 2: //盤変更
                     GameObject camera = GameObject.Find("Main Camera");
@@ -306,13 +316,31 @@ public class Main : MonoBehaviour
                     #endregion
                     break;
                 case 3: //バトル
+                    if (Input.GetMouseButtonUp(0)) //今はタッチしたら終了
+                    {
+                        enemy[touch_ID].act = Common.Action.Sad;
+                        enemy[touch_ID].Sprite().color = Color.clear;
+                        flg = 1;
+                    }
+                    break;
+                case 4: //宝ゲット
+                    if (Input.GetMouseButtonUp(0)) //今はタッチしたら終了
+                    {
+                        treasure[touch_ID].Get_Item();
+                        flg = 1;
+                    }
                     break;
             }
             #region 宝の場所更新
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < treasure.Length; i++)
             {
-                if (L(player.x) == L(treasure[i].x) && L(player.y) == L(treasure[i].y)) treasure[i].Tra().position = Pazzle_fields[treasure[i].x % 3, treasure[i].y % 3].Tra().position;
-                else treasure[i].Tra().position = new Vector3(treasure[i].x, treasure[i].y, 0);
+                if (L(player.x) == L(treasure[i].x) && L(player.y) == L(treasure[i].y)) treasure[i].Pos = Pazzle_fields[treasure[i].x % 3, treasure[i].y % 3].Pos;
+                else treasure[i].Pos = new Vector3(treasure[i].x, treasure[i].y, 0);
+                if (!treasure[i].get && Pazzle_data[treasure[i].x, treasure[i].y].condition == Common.Condition.Player)  //ここに当たった時の
+                {
+                    touch_ID = i;
+                    flg = 4;
+                }
             }
             #endregion
         }
@@ -326,14 +354,14 @@ public class Main : MonoBehaviour
         }
         else
         {
-            Vector3 pos = Pazzle_fields[x % 3, y % 3].Tra().position;
+            Vector3 pos = Pazzle_fields[x % 3, y % 3].Pos;
             if (direct == Common.Direction.None)
             {
                 return true;
             }
             else if ((pos - Dire_to_Vec(direct) - new Vector3(x, y, 0)).magnitude > 0.03f)
             {
-                Pazzle_fields[x % 3, y % 3].Tra().position = (pos * speed + Dire_to_Vec(direct) + new Vector3(x, y, 0)) / (1 + speed);
+                Pazzle_fields[x % 3, y % 3].Pos = (pos * speed + Dire_to_Vec(direct) + new Vector3(x, y, 0)) / (1 + speed);
                 return false;
             }
             else  //動き終わり、データ交換
@@ -348,8 +376,8 @@ public class Main : MonoBehaviour
                 Move_direct = Common.Direction.None;
                 Pazzle_data[x, y].condition = Common.Condition.Hole;
                 Pazzle_data[p, q].condition = Move_condition;
-                Pazzle_fields[x % 3, y % 3].Tra().position = new Vector3(x, y, 0);
-                Pazzle_fields[p % 3, q % 3].Tra().position = new Vector3(p, q, 0);
+                Pazzle_fields[x % 3, y % 3].Pos = new Vector3(x, y, 0);
+                Pazzle_fields[p % 3, q % 3].Pos = new Vector3(p, q, 0);
                 Pazzle_fields[x % 3, y % 3].Set_img(Pazzle_data[x, y].type);
                 Pazzle_fields[p % 3, q % 3].Set_img(Pazzle_data[p, q].type);
                 Pazzle_fields[p % 3, q % 3].Layer(8 - q);
@@ -404,6 +432,19 @@ public class Main : MonoBehaviour
         else if (ran == 3) return Common.Direction.Left;
         else if (ran == 4) return Common.Direction.Up;
         else return Common.Direction.Down;
+    }
+
+    public int[] Random_position() //座標のランダム関数
+    {
+        int[] pos = new int[2];
+        pos[0] = Random.Range(0, 9);
+        pos[1] = Random.Range(0, 9);
+        while (Pazzle_data[pos[0],pos[1]].type == Common.Direction.None || Pazzle_data[pos[0], pos[1]].condition == Common.Condition.Player || Pazzle_data[pos[0], pos[1]].treasure != -1)
+        {
+            pos[0] = Random.Range(0, 9);
+            pos[1] = Random.Range(0, 9);
+        }
+        return pos;
     }
 
     public void Block_data_set(int x, int y) //塊としての座標、0~2、x:左から,y:下から
@@ -485,7 +526,7 @@ public class Main : MonoBehaviour
                     Pazzle_fields[i, j].data_y=3 * y + j;
                     Pazzle_fields[i, j].Set_img(Pazzle_data[3*x+i,3*y+j].type);
                     Pazzle_fields[i, j].Layer(8-3 * y - j);
-                    Pazzle_fields[i, j].Tra().position = new Vector3(3 * x + i, 3 * y + j);
+                    Pazzle_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
         }
@@ -499,7 +540,7 @@ public class Main : MonoBehaviour
                     move_fields[i, j].data_y = 3 * y + j;
                     move_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     move_fields[i, j].Layer(8 - 3 * y - j);
-                    move_fields[i, j].Tra().position = new Vector3(3 * x + i, 3 * y + j);
+                    move_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
         }
@@ -516,23 +557,20 @@ public class Main : MonoBehaviour
         flg = 2;
     }
 
-    public void Set_color(Vector3 vec)
+    public void Set_color(Vector3 vec) //透明化
     {
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                //Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[i, j].Tra().position, vec));
-                //move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[i, j].Tra().position, vec));
-                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
-                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
+                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[i, j].Pos, vec));
+                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[i, j].Pos, vec));
+                //Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
+                //move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
             }
         }
-        for (int i = 0; i < 3; i++)
-        {
-            treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x,treasure[i].y,0), vec));
-            enemy[i].Sprite().color = new Color(1, 1, 1, 6f - 4*d_infty(enemy[i].Tra().position, vec));
-        }
+        for (int i = 0; i < treasure.Length; i++) treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x, treasure[i].y, 0), vec)); 
+        for (int i = 0; i < enemy.Length; i++)  if (enemy[i].act != Common.Action.Sad) enemy[i].Sprite().color = new Color(1, 1, 1, 6.3f - 4 * d_infty(enemy[i].Pos, vec));
     }
 
     public int Hole_search(int x,int y,int P) //どこにいるか入れたら穴の場所、p=0:x,p=1:y
@@ -566,7 +604,7 @@ public class Main : MonoBehaviour
         {
             for (int j= 0; j < 3; j++)
             {
-                move_fields[i, j].Tra().position = new Vector3(-5, 0, 0);
+                move_fields[i, j].Pos = new Vector3(-5, 0, 0);
             }
         }
     }

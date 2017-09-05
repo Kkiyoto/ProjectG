@@ -82,10 +82,10 @@ public class Character : MonoBehaviour
         return EndBool;
     }
 
-    public void OutScreen()
+    /*public void OutScreen()
     {
         obj.transform.position = new Vector3(0, -10);
-    }
+    }*/
 
     public void set_curve(int X,int Y,Common.Direction entrance, Common.Direction exit)
     {
@@ -104,9 +104,15 @@ public class Character : MonoBehaviour
         else return new Vector3(0, 0, 0);
     }
 
-    public Transform Tra()
+    /*public Transform Tra()
     {
         return obj.transform;
+    }*/
+
+    public Vector3 Pos
+    {
+        set { obj.transform.position = value; }
+        get { return obj.transform.position; }
     }
 
     public SpriteRenderer Sprite()

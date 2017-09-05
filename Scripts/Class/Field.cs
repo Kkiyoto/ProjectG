@@ -33,11 +33,16 @@ public class Field : MonoBehaviour
         obj.GetComponent<SpriteRenderer>().sortingOrder = layer;
     }
 
-    public Transform Tra()
+    /*public Transform Tra()
     {
         return obj.transform;
-    }
+    }*/
 
+    public Vector3 Pos
+    {
+        set { obj.transform.position = value; }
+        get { return obj.transform.position; }
+    }
     public SpriteRenderer Sprite()
     {
         return obj.GetComponent<SpriteRenderer>();
