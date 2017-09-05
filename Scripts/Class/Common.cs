@@ -29,8 +29,8 @@ public class Common : MonoBehaviour
 
     public enum Type
     {
-        Player,
-        Walk=0,
+        Player=0,
+        Walk,
         Fly,
         Stop
     }

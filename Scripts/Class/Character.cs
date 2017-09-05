@@ -25,6 +25,10 @@ public class Character : MonoBehaviour
         obj = Image_obj;
         act = Common.Action.Walk;
         type = t;
+        if (t != Common.Type.Player)
+        {
+            obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/Charactor/Enemy_sprite/Enemy" + (int)t);
+        }
     }
     
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)

@@ -41,10 +41,13 @@ public class State_manage : MonoBehaviour
         o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
         #endregion
         #region キャラクターのアニメ
-        o = GameObject.Find("Chara"+0);
-        //o.GetComponent<Animator>().runtimeAnimatorController = Resources.Load<controlla>("Images/Charactor/Chara" + 0+"/Chara_anime");
-        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width*0.2f, height*0.2f);
-        o.GetComponent<RectTransform>().localPosition = new Vector3(width*0.2f, height*0.25f);
+        for (int i = 0; i < 3; i++)
+        {
+            o = GameObject.Find("Chara" + i); //3つをfor文にするつもり
+            o.GetComponent<Animator>().SetInteger("Chara_Int", 1); //1はデータナンバー。PlayerPrefsでボックスで
+            o.GetComponent<RectTransform>().sizeDelta = new Vector2(width * 0.36f, width * 0.4f);
+            o.GetComponent<RectTransform>().localPosition = new Vector3(width * 0.15f*i, height * 0.25f);
+        }
         #endregion
         pause_bool = false;
     }

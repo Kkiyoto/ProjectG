@@ -522,8 +522,10 @@ public class Main : MonoBehaviour
         {
             for (int j = 0; j < 3; j++)
             {
-                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[i, j].Tra().position, vec));
-                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[i, j].Tra().position, vec));
+                //Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[i, j].Tra().position, vec));
+                //move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[i, j].Tra().position, vec));
+                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
+                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
             }
         }
         for (int i = 0; i < 3; i++)
