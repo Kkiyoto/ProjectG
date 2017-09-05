@@ -14,7 +14,7 @@ public class Main : MonoBehaviour
     Data_box [,] Pazzle_data = new Data_box[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[3, 3]; //触る方
     Field[,] move_fields = new Field[3, 3]; //動くため
-    public GameObject field_Prefab,enemy_Prefab,treasure_Prefab;
+    //public GameObject field_Prefab,enemy_Prefab,treasure_Prefab;
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
@@ -22,6 +22,8 @@ public class Main : MonoBehaviour
     Common.Direction Move_direct,Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
+    GameObject[] arrows = new GameObject[4];
+    State_manage UIs;//UIのことはUIs.~にします。
 
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
     int flg = 1;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
@@ -43,9 +45,9 @@ public class Main : MonoBehaviour
         {
             for(int j = 0; j < 3; j++)
             {
-                GameObject o = Instantiate(field_Prefab) as GameObject;
+                GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Field")) as GameObject;
                 Pazzle_fields[i, j] = new Field(o);
-                o = Instantiate(field_Prefab) as GameObject;
+                o = Instantiate(Resources.Load<GameObject>("Prefab/Field")) as GameObject;
                 move_fields[i, j] = new Field(o);
                 move_fields[i, j].Pos=new Vector3(-5,0); //見えないところへ
             }
@@ -58,29 +60,29 @@ public class Main : MonoBehaviour
         player.x = 4;
         player.y = 3;
         player.set_position(4,3, Common.Direction.Down,Pazzle_data[4,3].Exit_direction(Common.Direction.Down));
-        player.set_Speed(150f);
+        player.set_Speed(120f);
         Pazzle_data[4,3].condition = Common.Condition.Player;
         #endregion
         #region 宝物の設定
         treasure = new Item[3]; //ここで宝の数
         for (int i = 0; i < treasure.Length; i++)
         {
-            GameObject Treasure = Instantiate(treasure_Prefab) as GameObject;
+            GameObject Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
             int[] ran = Random_position();
             Pazzle_data[ran[0],ran[1]].treasure = i;
             treasure[i] = new Item(ran[0], ran[1], Treasure);
         }
         #endregion
         #region enemyの設定
-        enemy = new Character[3];//ここで敵の数
+        enemy = new Character[8];//ここで敵の数
         Common.Type[] types = { Common.Type.Walk, Common.Type.Stop, Common.Type.Fly };
         for (int i = 0; i < enemy.Length; i++)
         {
-            GameObject enemy_obj = Instantiate(enemy_Prefab) as GameObject;
-            //int type_num = Random.RandomRange(0, 3);
-            enemy[i] = new Character(enemy_obj,types[i]); //typesをランダム化
+            GameObject enemy_obj = Instantiate(Resources.Load<GameObject>("Prefab/Enemy")) as GameObject;
+            int type_num = Random.RandomRange(0, 3);
+            enemy[i] = new Character(enemy_obj,types[type_num]); //typesをランダム化
             Common.Direction dire = Common.Direction.None;
-            if (types[i] != Common.Type.Stop) dire = Random_direct();
+            if (types[type_num] != Common.Type.Stop) dire = Random_direct();
             int[] ran = Random_position();
             for(int j = 0; j < i; j++)
             {
@@ -96,16 +98,26 @@ public class Main : MonoBehaviour
             enemy[i].set_Speed(130f);
         }
         #endregion
+        #region 矢印の設定
+        for(int i = 0; i < 4; i++)
+        {
+            arrows[i] = Instantiate(Resources.Load<GameObject>("Prefab/Arrow")) as GameObject;
+            arrows[i].transform.Rotate(new Vector3(0, 0, -90 * i));
+            //arrows[i].transform.position = new Vector3( Mathf.Sin(i * Mathf.PI / 2f), Mathf.Cos(i * Mathf.PI / 2f),0);
+        }
+        #endregion
         Move_X = 0;
         Move_Y = 0;
         Move_direct = Common.Direction.None;
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
+        UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("flg=" + flg);
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -170,8 +182,7 @@ public class Main : MonoBehaviour
                         player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
                         if (Pazzle_data[player.pre_x, player.pre_y].condition == Common.Condition.Moving)
                         {
-                            Debug.Log("Out");
-                            flg = 0;
+                            flg = 5;
                         }
                         else
                         {
@@ -214,8 +225,7 @@ public class Main : MonoBehaviour
                             {
                                 if (Pazzle_data[player.x, player.y].condition == Common.Condition.Hole || Pazzle_data[player.x, player.y].condition == Common.Condition.Moving)
                                 {
-                                    Debug.Log("Out");
-                                    flg = 0;
+                                    flg = 5;
                                 }
                                 else
                                 {
@@ -227,6 +237,7 @@ public class Main : MonoBehaviour
                     }
                     #endregion
                     #region 盤を動かす
+                    Arrow_show(true);
                     if (Move(Move_X, Move_Y, Move_direct, 4f)) //盤が動く、動いてる途中はfalse
                     {
                         if (Input.GetMouseButtonDown(0))
@@ -293,18 +304,21 @@ public class Main : MonoBehaviour
                     Set_color(new Vector3(Pazzle_fields[1,1].data_x,Pazzle_fields[1,1].data_y));//敵とか透明にする
                     break;
                 case 2: //盤変更
+                    #region カメラの位置
                     GameObject camera = GameObject.Find("Main Camera");
-                    camera.transform.position -= Dire_to_Vec(Field_direct) /50f;
+                    Vector3 vec = camera.transform.position;
+                    camera.transform.position = (vec*13f+(Pazzle_fields[1,1].Pos+new Vector3(0,0.8f,-10))) /14f;
                     Set_color(camera.transform.position - new Vector3(0, 0.8f, 0));
+                    Arrow_show(false);
+                    #endregion
                     #region 動き終わった後
-                    if ((camera.transform.position - new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10)).magnitude < 0.005f)
+                    if ((camera.transform.position - new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10)).magnitude < 0.015f)
                     {
                         player.set_position(player.x, player.y, Field_direct, Pazzle_data[player.x, player.y].Exit_direction(Field_direct));
                         OutScreen();
                         if (Pazzle_data[player.x, player.y].condition == Common.Condition.Hole)
                         {
-                            Debug.Log("Out");
-                            flg = 0;
+                            flg = 5;
                         }
                         else
                         {
@@ -329,6 +343,11 @@ public class Main : MonoBehaviour
                         treasure[touch_ID].Get_Item();
                         flg = 1;
                     }
+                    break;
+                case 5: //落下
+                    Debug.Log("落下");
+                    break;
+                case 6: //タイムアップ
                     break;
             }
             #region 宝の場所更新
@@ -563,10 +582,8 @@ public class Main : MonoBehaviour
         {
             for (int j = 0; j < 3; j++)
             {
-                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[i, j].Pos, vec));
-                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[i, j].Pos, vec));
-                //Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
-                //move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
+                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[1,1].Pos, vec));
+                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[1,1].Pos, vec));
             }
         }
         for (int i = 0; i < treasure.Length; i++) treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x, treasure[i].y, 0), vec)); 
@@ -595,7 +612,7 @@ public class Main : MonoBehaviour
     public void Pause_button_down()
     {
         pause_bool = !pause_bool;
-        GameObject.Find("State_manager").GetComponent<State_manage>().Pause_flg(pause_bool);
+        UIs.Pause_flg(pause_bool);
     }
 
     public void OutScreen() //move_fieldsを外にやる
@@ -606,6 +623,22 @@ public class Main : MonoBehaviour
             {
                 move_fields[i, j].Pos = new Vector3(-5, 0, 0);
             }
+        }
+    }
+
+    public void Arrow_show(bool show)
+    {
+        if (show && L(player.y) != 2) arrows[0].GetComponent<SpriteRenderer>().color = Color.white;
+        else arrows[0].GetComponent<SpriteRenderer>().color = Color.clear;
+        if (show && L(player.x) != 2) arrows[1].GetComponent<SpriteRenderer>().color = Color.white;
+        else arrows[1].GetComponent<SpriteRenderer>().color = Color.clear;
+        if (show && L(player.y) != 0) arrows[2].GetComponent<SpriteRenderer>().color = Color.white;
+        else arrows[2].GetComponent<SpriteRenderer>().color = Color.clear;
+        if (show && L(player.x) != 0) arrows[3].GetComponent<SpriteRenderer>().color = Color.white;
+        else arrows[3].GetComponent<SpriteRenderer>().color = Color.clear;
+        for(int i = 0; i < 4; i++)
+        {
+            arrows[i].transform.position = new Vector3(3*L(player.x)+1+1.5f*Mathf.Sin(i * Mathf.PI / 2f), 3 * L(player.y) + 1 + 1.5f*Mathf.Cos(i * Mathf.PI / 2f), 0);
         }
     }
 

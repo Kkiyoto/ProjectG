@@ -42,28 +42,6 @@ public class Character : MonoBehaviour
         speed = Speed;
     }
 
-    /*public bool Move() //かくかく曲がる
-    {
-        bool EndBool = false;
-        Vector3 delta=new Vector3(0,0,0);
-        if (2*count<speed)
-        {
-            delta = -Dire_to_Vec(move_from)/speed;
-        }
-        else if (count<speed)
-        {
-            delta = Dire_to_Vec(move_to) / speed;
-        }
-        else
-        {
-            count = -1;
-            EndBool = true;
-        }
-        count++;
-        obj.transform.Translate(delta);
-        return EndBool;
-    }*/
-
     public bool Move(Vector3 field_pos) //円状に曲がる
     {
         bool EndBool = false;

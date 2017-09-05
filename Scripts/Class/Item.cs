@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Item
+ * コインや宝箱等、ゲットしていくものを入れておきます。
+ * 何がゲットできるのかとかもここに入れたらなと
+ */ 
+
 public class Item : MonoBehaviour
 {
     public int x, y;

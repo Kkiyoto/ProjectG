@@ -6,9 +6,10 @@ using UnityEngine;
  * 何かしらの用語の定義とかに使えたらと、、
  * 上手い使い方は分かっていないです
  */ 
+
 public class Common : MonoBehaviour
 {
-    public enum Direction
+    public enum Direction //向き＆盤のタイプ
     {
         None = 0,
         Straight,
@@ -18,7 +19,7 @@ public class Common : MonoBehaviour
         Down,
     }
 
-    public enum Action
+    public enum Action //キャラの動作（敵含む）
     {
         Walk=0, //行動
         Battle, //バトル時
@@ -27,7 +28,7 @@ public class Common : MonoBehaviour
         Sad, //タイムオーバー
     }
 
-    public enum Type
+    public enum Type //キャラ（敵）
     {
         Player=0,
         Walk,
@@ -35,7 +36,7 @@ public class Common : MonoBehaviour
         Stop
     }
 
-    public enum Condition
+    public enum Condition //足場
     {
         Normal=0,
         Hole,
@@ -44,7 +45,7 @@ public class Common : MonoBehaviour
         //Enemy,
     }
 
-    public enum Thema
+    public enum Thema //背景
     {
         Sky=0,
         Mine,

@@ -12,10 +12,11 @@ using UnityEngine.UI;
 public class State_manage : MonoBehaviour
 {
     GameObject Back_anime,Front_anime;
-    float width;
-    float height;
-
-    bool pause_bool; 
+    float width, height, time;
+    bool pause_bool;
+    Text Time_text;
+    int Life_point;
+    GameObject[] chara = new GameObject[3];
 
     // Use this for initialization
     void Start ()
@@ -44,12 +45,16 @@ public class State_manage : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             o = GameObject.Find("Chara" + i); //3つをfor文にするつもり
-            o.GetComponent<Animator>().SetInteger("Chara_Int", 1); //1はデータナンバー。PlayerPrefsでボックスで
+            int n = PlayerPrefs.GetInt("chara"+i, 1);
+            o.GetComponent<Animator>().SetInteger("Chara_Int",n); //1はデータナンバー。PlayerPrefsでボックスで
             o.GetComponent<RectTransform>().sizeDelta = new Vector2(width * 0.36f, width * 0.4f);
             o.GetComponent<RectTransform>().localPosition = new Vector3(width * 0.15f*i, height * 0.25f);
         }
         #endregion
         pause_bool = false;
+        time = 1000;
+        Time_text = GameObject.Find("Time").GetComponent<Text>();
+        Life_point = 3;
     }
 
     // Update is called once per frame
@@ -59,16 +64,31 @@ public class State_manage : MonoBehaviour
         {
             Back_anime.GetComponent<RectTransform>().Translate(new Vector3(height * 0.001f, 0, 0));
             Front_anime.GetComponent<RectTransform>().Translate(new Vector3(height * 0.001f, 0, 0));
+            time -= Time.deltaTime;
         }
             if (Back_anime.GetComponent<RectTransform>().localPosition.x > 0.7f * height)
         {
             Back_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
             Front_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
         }
+        int m = Mathf.FloorToInt(time / 60f);
+        int s = Mathf.FloorToInt(time % 60f);
+        Time_text.text = ("Time   "+m + " : " + s);
     }
 
     public void Pause_flg(bool pause)
     {
         pause_bool = pause;
+    }
+
+    public void Time_decade(float minus)
+    {
+        time -= minus;
+    }
+
+    public void Damage()
+    {
+        Life_point--;
+
     }
 }
