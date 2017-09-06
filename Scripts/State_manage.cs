@@ -107,7 +107,7 @@ public class State_manage : MonoBehaviour
         pause_bool = pause;
     }
 
-    public void Lose_Time(float minus)
+    public void Lose_Time(float minus) //単位は秒
     {
         time -= minus;
     }
