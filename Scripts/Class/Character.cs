@@ -60,11 +60,6 @@ public class Character : MonoBehaviour
         return EndBool;
     }
 
-    /*public void OutScreen()
-    {
-        obj.transform.position = new Vector3(0, -10);
-    }*/
-
     public void set_curve(int X,int Y,Common.Direction entrance, Common.Direction exit)
     {
         x = X;
@@ -81,12 +76,7 @@ public class Character : MonoBehaviour
         else if (d == Common.Direction.Left) return new Vector3(-1, 0, 0);
         else return new Vector3(0, 0, 0);
     }
-
-    /*public Transform Tra()
-    {
-        return obj.transform;
-    }*/
-
+    
     public Vector3 Pos
     {
         set { obj.transform.position = value; }
@@ -96,5 +86,26 @@ public class Character : MonoBehaviour
     public SpriteRenderer Sprite()
     {
         return obj.GetComponent<SpriteRenderer>();
+    }
+
+    public void Set_Chara(int ID)
+    {
+        obj.GetComponent<Animator>().SetInteger("Chara_Int", ID);
+    }
+
+    public void Anime(Common.Action action)
+    {
+        obj.GetComponent<Animator>().SetInteger("Move_Int", (int)action);
+    }
+
+    public void OutScreen()
+    {
+        obj.GetComponent<Animator>().SetTrigger("Out_Trigger");
+    }
+
+    public bool Wait_chara()
+    {
+        bool check = obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("change");
+        return check;
     }
 }

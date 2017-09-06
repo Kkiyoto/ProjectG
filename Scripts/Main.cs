@@ -62,6 +62,7 @@ public class Main : MonoBehaviour
         player.set_position(4,3, Common.Direction.Down,Pazzle_data[4,3].Exit_direction(Common.Direction.Down));
         player.set_Speed(120f);
         Pazzle_data[4,3].condition = Common.Condition.Player;
+        player.Set_Chara(1);
         #endregion
         #region 宝物の設定
         treasure = new Item[3]; //ここで宝の数
@@ -79,7 +80,7 @@ public class Main : MonoBehaviour
         for (int i = 0; i < enemy.Length; i++)
         {
             GameObject enemy_obj = Instantiate(Resources.Load<GameObject>("Prefab/Enemy")) as GameObject;
-            int type_num = Random.RandomRange(0, 3);
+            int type_num = Random.Range(0, 3);
             enemy[i] = new Character(enemy_obj,types[type_num]); //typesをランダム化
             Common.Direction dire = Common.Direction.None;
             if (types[type_num] != Common.Type.Stop) dire = Random_direct();
@@ -117,7 +118,7 @@ public class Main : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("flg=" + flg);
+        Debug.Log("flg= " + flg);
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -182,7 +183,7 @@ public class Main : MonoBehaviour
                         player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
                         if (Pazzle_data[player.pre_x, player.pre_y].condition == Common.Condition.Moving)
                         {
-                            flg = 5;
+                            Fall(Common.Condition.Moving);
                         }
                         else
                         {
@@ -194,7 +195,7 @@ public class Main : MonoBehaviour
                                 {
                                     change_block(Common.Direction.Right);
                                 }
-                                else flg = 0;
+                                else flg = 6;
                             }
                             else if (player.x % 3 == 0 && player.move_to == Common.Direction.Right)
                             {
@@ -202,7 +203,7 @@ public class Main : MonoBehaviour
                                 {
                                     change_block(Common.Direction.Left);
                                 }
-                                else flg = 0;
+                                else flg = 6;
                             }
                             else if (player.pre_y % 3 == 0 && player.move_to == Common.Direction.Down)
                             {
@@ -210,7 +211,7 @@ public class Main : MonoBehaviour
                                 {
                                     change_block(Common.Direction.Up);
                                 }
-                                else flg = 0;
+                                else flg = 6;
                             }
                             else if (player.y % 3 == 0 && player.move_to == Common.Direction.Up)
                             {
@@ -218,14 +219,14 @@ public class Main : MonoBehaviour
                                 {
                                     change_block(Common.Direction.Down);
                                 }
-                                else flg = 0;
+                                else flg = 6;
                             }
                             #endregion
                             else
                             {
                                 if (Pazzle_data[player.x, player.y].condition == Common.Condition.Hole || Pazzle_data[player.x, player.y].condition == Common.Condition.Moving)
                                 {
-                                    flg = 5;
+                                    Fall(Common.Condition.Hole);
                                 }
                                 else
                                 {
@@ -318,13 +319,14 @@ public class Main : MonoBehaviour
                         OutScreen();
                         if (Pazzle_data[player.x, player.y].condition == Common.Condition.Hole)
                         {
-                            flg = 5;
+                            Fall(Common.Condition.Player);
                         }
                         else
                         {
                             Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
                             Field_direct = Common.Direction.None;
                             flg = 1;
+                            UIs.timer_bool = true;
                         }
                     }
                     #endregion
@@ -345,9 +347,20 @@ public class Main : MonoBehaviour
                     }
                     break;
                 case 5: //落下
-                    Debug.Log("落下");
+                    if (player.Wait_chara())
+                    {
+                        flg = 1;
+                        UIs.timer_bool = true;
+                        UIs.bg_bool = true;
+                        if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
+                        if (UIs.Damage()) Goal(false);
+                        player.Set_Chara(UIs.Top_ID());//UIsで変更
+                    }
                     break;
-                case 6: //タイムアップ
+                case 6: //外へ
+                    break;
+                case 7: //ゴール
+                    if (UIs.To_result()) SceneManager.LoadScene("Result");
                     break;
             }
             #region 宝の場所更新
@@ -406,7 +419,7 @@ public class Main : MonoBehaviour
                     player.x = p;
                     player.y = q;
                 }
-                for (int i = 0; i < 3; i++)//敵交換
+                for (int i = 0; i < enemy.Length; i++)//敵交換
                 {
                     if (enemy[i].type != Common.Type.Fly && enemy[i].x == x && enemy[i].y == y)
                     {
@@ -416,7 +429,7 @@ public class Main : MonoBehaviour
                         enemy[i].y = q;
                     }
                 }
-                for (int i = 0; i < 3; i++)//宝交換
+                for (int i = 0; i < treasure.Length; i++)//宝交換
                 {
                     if (treasure[i].x == x && treasure[i].y == y)
                     {
@@ -567,13 +580,49 @@ public class Main : MonoBehaviour
 
     public void change_block(Common.Direction entrance)//キャラの座標、0~8、x:左から,y:下から
     {
-        //ここにmove_fieldをつかったエフェクト
+        if (Move_X != -1) //バグ修正のため
+        {
+            Pazzle_data[Move_X, Move_Y].condition = Move_condition;
+            Pazzle_data[Move_X + (int)Dire_to_Vec(Move_direct).x, Move_Y + (int)Dire_to_Vec(Move_direct).y].condition = Common.Condition.Hole;
+            Move_X = -1;
+            Move_direct = Common.Direction.None;
+        }
+        UIs.timer_bool = false;
         set_block(1, L(player.pre_x), L(player.pre_y));
         set_block(0, L(player.x), L(player.y));
         Set_color(new Vector3(3 * L(player.pre_x) + 1, 3 * L(player.pre_y) + 1, 0));
         Field_direct = entrance;
-        Move_X = -1;//バグ修正のため
         flg = 2;
+    }
+
+    public void Fall(Common.Condition con) //
+    {
+        player.OutScreen();
+        player.Set_Chara(0); //アニメーション交換
+        flg = 5;
+        UIs.timer_bool = false;
+        UIs.bg_bool = false;
+        if (con == Common.Condition.Hole) //ただ穴に落ちた
+        {
+            int pre_x = player.pre_x;
+            int pre_y = player.pre_y;
+            player.pre_x = player.x;
+            player.pre_y = player.y;
+            player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
+            Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
+        }
+        else if (con == Common.Condition.Moving) //のってたやつが動いてた
+        {
+            player.set_curve(player.x, player.y, player.move_to, player.move_from);
+        }
+        else //塊が動いたら盤がなかった
+        {
+            int pre_x = player.pre_x;
+            int pre_y = player.pre_y;
+            player.pre_x = player.x;
+            player.pre_y = player.y;
+            player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
+        }
     }
 
     public void Set_color(Vector3 vec) //透明化
@@ -640,6 +689,45 @@ public class Main : MonoBehaviour
         {
             arrows[i].transform.position = new Vector3(3*L(player.x)+1+1.5f*Mathf.Sin(i * Mathf.PI / 2f), 3 * L(player.y) + 1 + 1.5f*Mathf.Cos(i * Mathf.PI / 2f), 0);
         }
+    }
+
+    public void Goal(bool goal)
+    {
+        if (goal)
+        {
+            for(int i = 0; i < 3; i++)
+            {
+                UIs.Anime(i, Common.Action.Happy);
+                UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
+            }
+        }
+        else
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                UIs.Anime(i, Common.Action.Sad);
+                UIs.Effect("Gameover_Trigger");//真っ暗とか？そのアニメで時間を取ろうとしてます。
+            }
+        }
+        UIs.timer_bool = false;
+        UIs.bg_bool = false;
+        PlayerPrefs.SetFloat("Time", UIs.get_Time());
+        PlayerPrefs.SetInt("Life", UIs.get_Life());
+        int[] get_treasure = { 0, 0 };
+        for (int i = 0; i < treasure.Length; i++)
+        {
+            if (treasure[i].get) get_treasure[treasure[i].rare]++;
+        }
+        PlayerPrefs.SetInt("treasure0", get_treasure[0]);
+        PlayerPrefs.SetInt("treasure1", get_treasure[1]);
+        int Destroy = 0;
+        for (int i = 0; i < enemy.Length; i++)
+        {
+            if (enemy[i].act==Common.Action.Sad) Destroy++;
+        }
+        PlayerPrefs.SetInt("enemy", Destroy);
+        //PlayerPrefs.SetInt("Coin", coin);
+        flg = 7;
     }
 
     #region 関数群、全部のクラスに付けたいけどつけ方が分かりません
