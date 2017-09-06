@@ -53,13 +53,13 @@ public class State_manage : MonoBehaviour
             chara_ID[i] = PlayerPrefs.GetInt("Party"+i, 1);
             chara[i].GetComponent<Animator>().SetInteger("Chara_Int",chara_ID[i]); //1はデータナンバー。PlayerPrefsでボックスで
             chara[i].GetComponent<RectTransform>().sizeDelta = new Vector2(width * 0.36f, width * 0.4f);
-            chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.15f*(2-i), height * 0.25f);
+            chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width*0.65f*(3-i), height * 0.277f);
         }
         #endregion
         pause_bool = false;
         timer_bool = true;
         bg_bool = true;
-        time = 615;
+        time = 900;
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
     }
@@ -84,9 +84,9 @@ public class State_manage : MonoBehaviour
         {
             Vector3 vec = chara[i].GetComponent<RectTransform>().localPosition;
             if ((vec - new Vector3(width * 0.15f * (Life_point - i), height * 0.25f)).magnitude < 0.01f)
-                chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.15f * (Life_point - i), height * 0.25f);
+                chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.152f * (Life_point - i-0.1f), height * 0.277f);
             else
-                chara[i].GetComponent<RectTransform>().localPosition = (39f * vec + new Vector3(width * 0.15f * (Life_point - i), height * 0.25f)) / 40f;
+                chara[i].GetComponent<RectTransform>().localPosition = (39f * vec + new Vector3(width * 0.152f * (Life_point - i-0.1f), height * 0.277f)) / 40f;
         }
         #endregion
         #region 時間表示

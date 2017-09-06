@@ -14,11 +14,11 @@ public class Main : MonoBehaviour
     Data_box [,] Pazzle_data = new Data_box[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[3, 3]; //触る方
     Field[,] move_fields = new Field[3, 3]; //動くため
-    //public GameObject field_Prefab,enemy_Prefab,treasure_Prefab;
+    Data_box[,] Mountains = new Data_box[4, 9]; //端っこ、Right,Left,Up,Downの順、(int)Direction-2しないとダメ
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
-    int Move_X, Move_Y,touch_ID;
+    int Move_X, Move_Y,touch_ID,mount; //touch_ID:敵とか宝に当たった時にその番号
     Common.Direction Move_direct,Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
@@ -53,6 +53,28 @@ public class Main : MonoBehaviour
             }
         }
         set_block(0, 1,1);
+        #endregion
+        #region 山の設定
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                Mountains[i, j] = new Data_box();
+                int ran = Random.Range(0, 5);
+                if (ran < 2)
+                {
+                    Mountains[i, j].type = Common.Direction.Up;
+                    Mountains[i, j].condition = Common.Condition.Normal;
+                }
+                else
+                {
+                    Mountains[i, j].type = Common.Direction.None;
+                    Mountains[i, j].condition = Common.Condition.Hole;
+                }
+            }
+        }
+        Mountains[1, 8].type = Common.Direction.Down;
+        Mountains[1, 8].condition = Common.Condition.Player;//ゴール右上、右側
         #endregion
         #region playerの設定
         GameObject player_obj = GameObject.Find("Player");
@@ -134,6 +156,7 @@ public class Main : MonoBehaviour
             switch (flg)
             {
                 case 1: //ゲーム部分
+                    Set_color(new Vector3(Pazzle_fields[1, 1].data_x, Pazzle_fields[1, 1].data_y));//敵とか透明にする
                     #region 敵の動き
                     for (int i = 0; i < enemy.Length; i++)
                     {
@@ -191,35 +214,23 @@ public class Main : MonoBehaviour
                             #region if (出ていった場合)
                             if (player.pre_x % 3 == 0 && player.move_to == Common.Direction.Left)
                             {
-                                if (player.x > 0)
-                                {
-                                    change_block(Common.Direction.Right);
-                                }
-                                else flg = 6;
+                                if (player.x > 0) change_block(Common.Direction.Right);
+                                else change_Mount(Common.Direction.Right,player.y, player.x);
                             }
                             else if (player.x % 3 == 0 && player.move_to == Common.Direction.Right)
                             {
-                                if (player.x < 8)
-                                {
-                                    change_block(Common.Direction.Left);
-                                }
-                                else flg = 6;
+                                if (player.x < 8) change_block(Common.Direction.Left);
+                                else change_Mount(Common.Direction.Left, player.y, player.x);
                             }
                             else if (player.pre_y % 3 == 0 && player.move_to == Common.Direction.Down)
                             {
-                                if (player.y > 0)
-                                {
-                                    change_block(Common.Direction.Up);
-                                }
-                                else flg = 6;
+                                if (player.y > 0) change_block(Common.Direction.Up);
+                                else change_Mount(Common.Direction.Up, player.x, player.y);
                             }
                             else if (player.y % 3 == 0 && player.move_to == Common.Direction.Up)
                             {
-                                if (player.y < 8)
-                                {
-                                    change_block(Common.Direction.Down);
-                                }
-                                else flg = 6;
+                                if (player.y < 8) change_block(Common.Direction.Down);
+                                else change_Mount(Common.Direction.Down, player.x, player.y);
                             }
                             #endregion
                             else
@@ -302,7 +313,6 @@ public class Main : MonoBehaviour
                         }
                     }
                     #endregion
-                    Set_color(new Vector3(Pazzle_fields[1,1].data_x,Pazzle_fields[1,1].data_y));//敵とか透明にする
                     break;
                 case 2: //盤変更
                     #region カメラの位置
@@ -352,13 +362,49 @@ public class Main : MonoBehaviour
                         flg = 1;
                         UIs.timer_bool = true;
                         UIs.bg_bool = true;
-                        if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
+                        if (Field_direct == Common.Direction.Straight) flg = 6;
+                        else if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
                         if (UIs.Damage()) Goal(false);
                         player.Set_Chara(UIs.Top_ID());//UIsで変更
                     }
                     break;
                 case 6: //外へ
-                    break;
+                    #region カメラの位置
+                    camera = GameObject.Find("Main Camera");
+                    vec = camera.transform.position;
+                    camera.transform.position = (vec * 15f + (Pazzle_fields[1, 1].Pos-Dire_to_Vec(Field_direct) + new Vector3(0, 0.8f, -10))) / 16f;
+                    Arrow_show(false);
+                    #endregion
+                    #region 動き終わった後
+                    if ((camera.transform.position - (2f * Pazzle_fields[1, 1].Pos + new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 3.4f,-30)) / 3f).magnitude < 0.015f)
+                    {
+                        if (Mountains[(int)Field_direct-2,mount].type == Common.Direction.None)//穴
+                        {
+                            Fall(Common.Condition.Normal);
+                        }
+                        else if(Mountains[(int)Field_direct - 2, mount].type == Common.Direction.Up)//引き返し
+                        {
+                            Field_direct = Common.Direction.Straight;
+                        }
+                        else if (Mountains[(int)Field_direct - 2, mount].type == Common.Direction.Down)//ゴール
+                        {
+                            Goal(true);
+                        }
+                    }
+                    else if((camera.transform.position - Pazzle_fields[1, 1].Pos-new Vector3(0,0.8f, -10)).magnitude < 0.015f)//引き返し後
+                    {
+                        int pre_x = player.pre_x;
+                        int pre_y = player.pre_y;
+                        player.pre_x = player.x;
+                        player.pre_y = player.y;
+                        player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
+                        Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
+                        Field_direct = Common.Direction.None;
+                        flg = 1;
+                            UIs.timer_bool = true;
+                    }
+                        #endregion
+                        break;
                 case 7: //ゴール
                     if (UIs.To_result()) SceneManager.LoadScene("Result");
                     break;
@@ -530,9 +576,7 @@ public class Main : MonoBehaviour
                 Pazzle_data[3 * x + i, 3 * y + j].condition = Common.Condition.Normal;
             }
         }
-        #region 穴とか宝とか特殊なもの
         Pazzle_data[3 * x + hole % 3, 3 * y + Mathf.FloorToInt(hole / 3)].condition = Common.Condition.Hole;
-        #endregion
     }
 
     public void Pazzle_data_set() //全部のブロックについて入れていく
@@ -615,13 +659,17 @@ public class Main : MonoBehaviour
         {
             player.set_curve(player.x, player.y, player.move_to, player.move_from);
         }
-        else //塊が動いたら盤がなかった
+        else if(con==Common.Condition.Player)//塊が動いたら盤がなかった
         {
             int pre_x = player.pre_x;
             int pre_y = player.pre_y;
             player.pre_x = player.x;
             player.pre_y = player.y;
             player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
+        }
+        else
+        {
+            Field_direct = Common.Direction.Straight;
         }
     }
 
@@ -699,6 +747,7 @@ public class Main : MonoBehaviour
             {
                 UIs.Anime(i, Common.Action.Happy);
                 UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
+                PlayerPrefs.SetInt("result", 1);
             }
         }
         else
@@ -707,6 +756,7 @@ public class Main : MonoBehaviour
             {
                 UIs.Anime(i, Common.Action.Sad);
                 UIs.Effect("Gameover_Trigger");//真っ暗とか？そのアニメで時間を取ろうとしてます。
+                PlayerPrefs.SetInt("result", 0);
             }
         }
         UIs.timer_bool = false;
@@ -729,11 +779,32 @@ public class Main : MonoBehaviour
         //PlayerPrefs.SetInt("Coin", coin);
         flg = 7;
     }
+    
+    public void change_Mount(Common.Direction entrance,int X_or_Y,int x_or_y)//キャラの座標、0~8、x:左から,y:下から
+    {
+        if (Move_X != -1) //バグ修正のため
+        {
+            Pazzle_data[Move_X, Move_Y].condition = Move_condition;
+            Pazzle_data[Move_X + (int)Dire_to_Vec(Move_direct).x, Move_Y + (int)Dire_to_Vec(Move_direct).y].condition = Common.Condition.Hole;
+            Move_X = -1;
+        }
+        UIs.timer_bool = false;
+        for (int i = 0; i < 3; i++)
+        {
+            move_fields[1, i].Set_img(Mountains[(int)entrance-2, 3*L(X_or_Y) + i].type);
+            move_fields[1, i].Layer(7 - 3*L(player.y)-(int)Dire_to_Vec(entrance).y - (i-1)*(int)Mathf.Abs(Dire_to_Vec(entrance).x));
+            move_fields[1, i].Pos = new Vector3(3*L(player.x)+1+(i-1)* Mathf.Abs(Dire_to_Vec(entrance).y), 3*L( player.y)+1+(i-1)* Mathf.Abs(Dire_to_Vec(entrance).x)) +Dire_to_Vec(entrance);
+            move_fields[1, i].Sprite().color = new Color(1, 1, 1, 1);
+        }
+        Field_direct = entrance;
+        mount = X_or_Y;
+        flg = 6;
+    }
 
     #region 関数群、全部のクラスに付けたいけどつけ方が分かりません
     public Vector3 Dire_to_Vec(Common.Direction d)//ベクトル化
     {
-        if (d == Common.Direction.Straight || d == Common.Direction.Up) return new Vector3(0, 1, 0);
+        if (d == Common.Direction.Up) return new Vector3(0, 1, 0);
         else if (d == Common.Direction.Down) return new Vector3(0, -1, 0);
         else if (d == Common.Direction.Right) return new Vector3(1, 0, 0);
         else if (d == Common.Direction.Left) return new Vector3(-1, 0, 0);
@@ -751,9 +822,8 @@ public class Main : MonoBehaviour
 
     public int L(int small) //0~8を0~2にする(どこの塊)
     {
-        if (small < 3) return 0;
-        else if (small < 6) return 1;
-        else return 2;
+        int n = (small+6) / 3;
+        return Mathf.FloorToInt(n-2);
     }
 
     public float d_infty(Vector3 vec_1,Vector3 vec_2)
