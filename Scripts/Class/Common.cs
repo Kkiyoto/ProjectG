@@ -15,8 +15,8 @@ public class Common : MonoBehaviour
         Straight,
         Right,
         Left,
-        Up,
-        Down,
+        Up,// or Mount(引き返し)
+        Down, // or Goal
     }
 
     public enum Action //キャラの動作（敵含む）

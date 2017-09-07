@@ -59,7 +59,7 @@ public class State_manage : MonoBehaviour
         pause_bool = false;
         timer_bool = true;
         bg_bool = true;
-        time = 900;
+        time = 600;
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
     }

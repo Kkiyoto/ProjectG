@@ -18,7 +18,7 @@ public class Main : MonoBehaviour
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
-    int Move_X, Move_Y,touch_ID,mount; //touch_ID:敵とか宝に当たった時にその番号
+    int Move_X, Move_Y,touch_ID,mount,Road_count; //touch_ID:敵とか宝に当たった時にその番号 Road_countいくつ道を通ったか
     Common.Direction Move_direct,Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
@@ -135,6 +135,7 @@ public class Main : MonoBehaviour
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
         UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
+        Road_count = 0;
     }
 
     // Update is called once per frame
@@ -204,6 +205,8 @@ public class Main : MonoBehaviour
                         player.pre_y = player.y;
                         player.x += (int)Dire_to_Vec(player.move_to).x;
                         player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
+                        PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
+                        Road_count++;
                         if (Pazzle_data[player.pre_x, player.pre_y].condition == Common.Condition.Moving)
                         {
                             Fall(Common.Condition.Moving);
@@ -397,6 +400,8 @@ public class Main : MonoBehaviour
                         int pre_y = player.pre_y;
                         player.pre_x = player.x;
                         player.pre_y = player.y;
+                        PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+                        Road_count++;
                         player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
                         Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
                         Field_direct = Common.Direction.None;
@@ -451,7 +456,6 @@ public class Main : MonoBehaviour
                 Data_box Tmp = Pazzle_data[p, q];
                 Pazzle_data[p, q] = Pazzle_data[x, y];
                 Pazzle_data[x, y] = Tmp; //Data_box交換
-                Move_direct = Common.Direction.None;
                 Pazzle_data[x, y].condition = Common.Condition.Hole;
                 Pazzle_data[p, q].condition = Move_condition;
                 Pazzle_fields[x % 3, y % 3].Pos = new Vector3(x, y, 0);
@@ -464,7 +468,10 @@ public class Main : MonoBehaviour
                 {
                     player.x = p;
                     player.y = q;
+                    PlayerPrefs.SetInt("Road" + Road_count, (int)Move_direct);
+                    Road_count++;
                 }
+                Move_direct = Common.Direction.None;
                 for (int i = 0; i < enemy.Length; i++)//敵交換
                 {
                     if (enemy[i].type != Common.Type.Fly && enemy[i].x == x && enemy[i].y == y)
@@ -652,11 +659,15 @@ public class Main : MonoBehaviour
             int pre_y = player.pre_y;
             player.pre_x = player.x;
             player.pre_y = player.y;
+            PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+            Road_count++;
             player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
             Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
         }
         else if (con == Common.Condition.Moving) //のってたやつが動いてた
         {
+            PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+            Road_count++;
             player.set_curve(player.x, player.y, player.move_to, player.move_from);
         }
         else if(con==Common.Condition.Player)//塊が動いたら盤がなかった
@@ -665,6 +676,8 @@ public class Main : MonoBehaviour
             int pre_y = player.pre_y;
             player.pre_x = player.x;
             player.pre_y = player.y;
+            PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+            Road_count++;
             player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
         }
         else
@@ -761,8 +774,11 @@ public class Main : MonoBehaviour
         }
         UIs.timer_bool = false;
         UIs.bg_bool = false;
-        PlayerPrefs.SetFloat("Time", UIs.get_Time());
-        PlayerPrefs.SetInt("Life", UIs.get_Life());
+        PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_from));
+        PlayerPrefs.SetInt("Length", Road_count + 1);
+        PlayerPrefs.SetInt("Road" + (Road_count+1), 0);
+        PlayerPrefs.SetInt("Time", Mathf.RoundToInt(UIs.get_Time()));
+        PlayerPrefs.SetInt("Life", UIs.get_Life()+1);
         int[] get_treasure = { 0, 0 };
         for (int i = 0; i < treasure.Length; i++)
         {
