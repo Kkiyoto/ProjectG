@@ -38,6 +38,7 @@ public class Field : MonoBehaviour
         set { obj.transform.position = value; }
         get { return obj.transform.position; }
     }
+
     public SpriteRenderer Sprite()
     {
         return obj.GetComponent<SpriteRenderer>();

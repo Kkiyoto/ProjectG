@@ -8,7 +8,7 @@ using UnityEngine;
  * アタッチなし
  */
 
-public class Data_box : MonoBehaviour
+public class Data_box : Functions
 {
     public int x, y;//どこにいるか、0~8
     public Common.Direction type;//下からの道が、0:None,1:Straight,2:Right,3:Leftで場合分け
@@ -31,10 +31,7 @@ public class Data_box : MonoBehaviour
         Common.Direction exit = Common.Direction.None;
         if (type == Common.Direction.Straight)//まっすぐ
         {
-            if (entrance == Common.Direction.Down) exit = Common.Direction.Up;
-            else if (entrance == Common.Direction.Up) exit = Common.Direction.Down;
-            else if (entrance == Common.Direction.Right) exit = Common.Direction.Left;
-            else if (entrance == Common.Direction.Left) exit = Common.Direction.Right;
+            exit = reverse(entrance);
         }
         else if (type == Common.Direction.Right)//右
         {

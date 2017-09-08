@@ -32,6 +32,7 @@ public class Main : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
+        UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
         #region Pazzle_dataの設定と読み取り
         for (int i = 0; i < 9; i++)
         {
@@ -134,14 +135,13 @@ public class Main : MonoBehaviour
         Move_direct = Common.Direction.None;
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
-        UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
         Road_count = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("flg= " + flg);
+        //Debug.Log("flg= " + flg);
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -367,7 +367,10 @@ public class Main : MonoBehaviour
                         UIs.bg_bool = true;
                         if (Field_direct == Common.Direction.Straight) flg = 6;
                         else if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
-                        if (UIs.Damage()) Goal(false);
+                        if (UIs.Damage())
+                        {
+                            Goal(2);
+                        }
                         player.Set_Chara(UIs.Top_ID());//UIsで変更
                     }
                     break;
@@ -391,7 +394,7 @@ public class Main : MonoBehaviour
                         }
                         else if (Mountains[(int)Field_direct - 2, mount].type == Common.Direction.Down)//ゴール
                         {
-                            Goal(true);
+                            Goal(0);
                         }
                     }
                     else if((camera.transform.position - Pazzle_fields[1, 1].Pos-new Vector3(0,0.8f, -10)).magnitude < 0.015f)//引き返し後
@@ -411,7 +414,17 @@ public class Main : MonoBehaviour
                         #endregion
                         break;
                 case 7: //ゴール
-                    if (UIs.To_result()) SceneManager.LoadScene("Result");
+                    if (UIs.To_goal(0) & UIs.To_goal(1))
+                    {
+                        GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open", true);
+                        if (UIs.To_result()) SceneManager.LoadScene("Result");
+                    }
+                    break;
+                case 8: //Game Over
+                    if (UIs.To_result())
+                    {
+                        UIs.Set_Button();
+                    }
                     break;
             }
             #region 宝の場所更新
@@ -612,6 +625,7 @@ public class Main : MonoBehaviour
                     Pazzle_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
+            UIs.Small_map(x, y, B_to_I(y!=2)+""+B_to_I(x!=2)+""+B_to_I(y!=0)+""+B_to_I(x!=0));
         }
         else if (ID == 1)
         {
@@ -626,6 +640,7 @@ public class Main : MonoBehaviour
                     move_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
+            UIs.Small_map(x, y, B_to_I(y!=2)+""+B_to_I(x!=2)+""+B_to_I(y!=0)+""+B_to_I(x!=0));
         }
     }
 
@@ -676,7 +691,7 @@ public class Main : MonoBehaviour
             int pre_y = player.pre_y;
             player.pre_x = player.x;
             player.pre_y = player.y;
-            PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+            PlayerPrefs.SetInt("Road" + Road_count, (int)Field_direct);
             Road_count++;
             player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
         }
@@ -752,31 +767,38 @@ public class Main : MonoBehaviour
         }
     }
 
-    public void Goal(bool goal)
+    public void Goal(int goal)
     {
-        if (goal)
+        if (goal==0)
         {
             for(int i = 0; i < 3; i++)
             {
                 UIs.Anime(i, Common.Action.Happy);
-                UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
                 PlayerPrefs.SetInt("result", 1);
             }
+            UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
+            flg = 7;
+            Vector3 vec = Camera.main.WorldToScreenPoint(new Vector3(player.x, player.y, 0));
+            GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Big_Treasure")) as GameObject;
+            o.GetComponent<RectTransform>().localPosition = vec;
+            o.name = "Goal";
+            tap_Start = vec / 30f;
         }
         else
         {
             for (int i = 0; i < 3; i++)
             {
                 UIs.Anime(i, Common.Action.Sad);
-                UIs.Effect("Gameover_Trigger");//真っ暗とか？そのアニメで時間を取ろうとしてます。
                 PlayerPrefs.SetInt("result", 0);
             }
+            UIs.Effect("Gameover"+goal+"_Trigger");//真っ暗とか？そのアニメで時間を取ろうとしてます。
+            flg = 8;
         }
         UIs.timer_bool = false;
         UIs.bg_bool = false;
-        PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_from));
-        PlayerPrefs.SetInt("Length", Road_count + 1);
-        PlayerPrefs.SetInt("Road" + (Road_count+1), 0);
+        //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_from));
+        //PlayerPrefs.SetInt("Length", Road_count + 1);
+        //PlayerPrefs.SetInt("Road" + (Road_count+1), 0);
         PlayerPrefs.SetInt("Time", Mathf.RoundToInt(UIs.get_Time()));
         PlayerPrefs.SetInt("Life", UIs.get_Life()+1);
         int[] get_treasure = { 0, 0 };
@@ -793,7 +815,6 @@ public class Main : MonoBehaviour
         }
         PlayerPrefs.SetInt("enemy", Destroy);
         //PlayerPrefs.SetInt("Coin", coin);
-        flg = 7;
     }
     
     public void change_Mount(Common.Direction entrance,int X_or_Y,int x_or_y)//キャラの座標、0~8、x:左から,y:下から
@@ -802,6 +823,7 @@ public class Main : MonoBehaviour
         {
             Pazzle_data[Move_X, Move_Y].condition = Move_condition;
             Pazzle_data[Move_X + (int)Dire_to_Vec(Move_direct).x, Move_Y + (int)Dire_to_Vec(Move_direct).y].condition = Common.Condition.Hole;
+            set_block(0, L(Move_X), L(Move_Y));
             Move_X = -1;
         }
         UIs.timer_bool = false;
@@ -817,7 +839,23 @@ public class Main : MonoBehaviour
         flg = 6;
     }
 
-    #region 関数群、全部のクラスに付けたいけどつけ方が分かりません
+    public void Revival()
+    {
+        UIs.Retry();
+        UIs.Effect("Retry_Trigger");
+        flg = 1;
+        player.Set_Chara(UIs.Top_ID());//UIsで変更
+    }
+
+
+
+
+    public int B_to_I(bool b) //boolを0,1に
+    {
+        if (b) return 1;
+        else return 0;
+    }
+
     public Vector3 Dire_to_Vec(Common.Direction d)//ベクトル化
     {
         if (d == Common.Direction.Up) return new Vector3(0, 1, 0);
@@ -838,16 +876,14 @@ public class Main : MonoBehaviour
 
     public int L(int small) //0~8を0~2にする(どこの塊)
     {
-        int n = (small+6) / 3;
-        return Mathf.FloorToInt(n-2);
+        int n = (small + 6) / 3;
+        return Mathf.FloorToInt(n - 2);
     }
 
-    public float d_infty(Vector3 vec_1,Vector3 vec_2)
+    public float d_infty(Vector3 vec_1, Vector3 vec_2)
     {
         float d1 = Mathf.Abs(vec_1.x - vec_2.x);
         float d2 = Mathf.Abs(vec_1.y - vec_2.y);
         return Mathf.Max(d1, d2);
     }
-
-    #endregion
 }
