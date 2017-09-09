@@ -9,7 +9,7 @@ using UnityEngine.UI;
  * バックミュージックもここ?
  */
 
-public class State_manage : MonoBehaviour
+public class State_manage : Functions
 {
     GameObject Back_anime, Front_anime;
     float width, height, time;
@@ -41,8 +41,8 @@ public class State_manage : MonoBehaviour
         #region ゲームの後ろの背景
         GameObject o = GameObject.Find("Background");  //これで配置していく
         o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back" + 0);
-        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.93f*height);
+        o.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.035f*height);
         o = GameObject.Find("Effect");  //これで配置していく
         o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
@@ -68,15 +68,14 @@ public class State_manage : MonoBehaviour
             for (int j = 0; j < 3; j++)
             {
                 o = Instantiate(Resources.Load<GameObject>("Prefab/Small_map"));
-                //o.transform.parent = GameObject.Find("Map_base").transform;
-                o.transform.parent = GameObject.Find("Canvas").transform;
-                o.GetComponent<RectTransform>().localPosition = new Vector3((0.25f + 0.1f * i) * width, 0.5f * height + (0.1f * j - 0.25f) * width);
-                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.15f * width, 0.15f * width);
+                o.transform.parent = GameObject.Find("Map_base").transform;
+                o.GetComponent<RectTransform>().localPosition = new Vector3(0.09f * (i-1) * width, 0.09f * (j-1) * width);
+                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.09f * width, 0.09f * width);
                 o.name = "Small_map" + i + "-" + j;
             }
         }
         //GameObject.Find("Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * width, 0.05f * width);
-        Change_icon(1);
+        //Change_icon(1);
     }
 
     // Update is called once per frame
@@ -98,10 +97,10 @@ public class State_manage : MonoBehaviour
         for (int i = 0; i <= Life_point; i++)
         {
             Vector3 vec = chara[i].GetComponent<RectTransform>().localPosition;
-            if ((vec - new Vector3(width * 0.15f * (Life_point - i), height * 0.25f)).magnitude < 0.01f)
-                chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.152f * (Life_point - i - 0.1f), height * 0.277f);
+            if ((vec - new Vector3(width * 0.2f * (Life_point - i - 0.2f), height * 0.277f)).magnitude < 0.01f)
+                chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.2f * (Life_point - i - 0.2f), height * 0.277f);
             else
-                chara[i].GetComponent<RectTransform>().localPosition = (39f * vec + new Vector3(width * 0.152f * (Life_point - i - 0.1f), height * 0.277f)) / 40f;
+                chara[i].GetComponent<RectTransform>().localPosition = (39f * vec + new Vector3(width * 0.2f * (Life_point - i - 0.2f), height * 0.277f)) / 40f;
         }
         #endregion
         #region 時間表示
@@ -175,14 +174,13 @@ public class State_manage : MonoBehaviour
     public void Small_map(int x, int y, string ID)
     {
         GameObject o = GameObject.Find("Small_map" + x + "-" + y);
-        o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Maps/Map" + ID);
-        GameObject.Find("Icon").transform.transform.position = new Vector3((0.1f * (1-x)) * width, (0.1f * (1-y)) * width);
+        o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_map");
     }
 
-    public void Change_icon(int ID)
+    /*public void Change_icon(int ID)
     {
         GameObject.Find("Icon").GetComponent<Animator>().SetInteger("Chara_Int", ID);
-    }
+    }*/
 
     public void Retry()
     {
@@ -195,6 +193,8 @@ public class State_manage : MonoBehaviour
             chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.65f * (3 - i), height * 0.277f);
             chara[i].GetComponent<Animator>().SetTrigger("Out_Trigger");
         }
+        timer_bool = true;
+        bg_bool = true;
     }
 
     public bool To_goal(int Scale_or_Pos)
@@ -214,7 +214,7 @@ public class State_manage : MonoBehaviour
         else
         {
             Vector3 vec = o.GetComponent<RectTransform>().position;
-            vec = vec / vec.magnitude * 0.1f;
+            vec = vec / (vec.magnitude) * 0.1f;
             o.GetComponent<RectTransform>().position-=vec;
             if (vec.magnitude < 0.1f)
             {

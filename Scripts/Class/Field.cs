@@ -8,7 +8,7 @@ using UnityEngine;
  * objの部分に実態を入れる。アタッチなし
  */
 
-public class Field : MonoBehaviour
+public class Field : Functions
 {
     GameObject obj;
     Sprite[] sprites = new Sprite[6]; //下からの道が、0:None,1:Straight,2:Right,3:Left,4:Mountain

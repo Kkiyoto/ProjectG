@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /* Charactor
  * GameObjectの動き回る部分で、プレイヤー、敵キャラ両方に使うクラス
@@ -8,12 +9,12 @@ using UnityEngine;
  * objの部分に実態を入れる。アタッチなし
  */
 
-public class Character : MonoBehaviour
+public class Character : Functions
 {
     public int x, y;//x:左から,y:下から。0~8
     public int pre_x, pre_y;//1つ前の座標、0~8
     float speed;
-    GameObject obj;//chara:画像を持つもの,arrow:方向を持つもの
+    GameObject obj,map;//chara:画像を持つもの,map:左上にあるやつ
     Sprite img;
     int count;
     public Common.Direction move_from,move_to;
@@ -25,12 +26,16 @@ public class Character : MonoBehaviour
         obj = Image_obj;
         act = Common.Action.Walk;
         type = t;
+        map = Instantiate(Resources.Load<GameObject>("Prefab/Icon")) as GameObject;
+        map.transform.parent = GameObject.Find("Map_base").transform;
         if (t != Common.Type.Player)
         {
             obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/Charactor/Enemy_sprite/Enemy" + (int)t);
+            map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_enemy2");
         }
+        //else map.GetComponent<RectTransform>().localScale = new Vector3(0.6f,0.6f);
     }
-    
+
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)
     {
         set_curve(X, Y, entrance, exit);
@@ -68,13 +73,15 @@ public class Character : MonoBehaviour
         move_to = exit;
     }
 
-    public Vector3 Dire_to_Vec(Common.Direction d)
+    public void On_Map(bool show)
     {
-        if (d == Common.Direction.Straight || d == Common.Direction.Up) return new Vector3(0, 1, 0);
-        else if (d == Common.Direction.Down) return new Vector3(0, -1, 0);
-        else if (d == Common.Direction.Right) return new Vector3(1, 0, 0);
-        else if (d == Common.Direction.Left) return new Vector3(-1, 0, 0);
-        else return new Vector3(0, 0, 0);
+        if (show)
+        {
+            float delta = Screen.width * 0.03f;
+            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 4) * delta, (Pos.y - 4) * delta);
+            map.GetComponent<Image>().color = Color.white;
+        }
+        else map.GetComponent<Image>().color = new Color(0, 0, 0, 0);
     }
     
     public Vector3 Pos

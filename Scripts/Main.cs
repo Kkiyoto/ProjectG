@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
  * 主にゲーム動かす部分にしています。
  */
 
-public class Main : MonoBehaviour
+public class Main : Functions
 {
     Data_box [,] Pazzle_data = new Data_box[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[3, 3]; //触る方
@@ -18,7 +18,7 @@ public class Main : MonoBehaviour
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
-    int Move_X, Move_Y,touch_ID,mount,Road_count; //touch_ID:敵とか宝に当たった時にその番号 Road_countいくつ道を通ったか
+    int Move_X, Move_Y, touch_ID, mount;//,Road_count; //touch_ID:敵とか宝に当たった時にその番号 Road_countいくつ道を通ったか
     Common.Direction Move_direct,Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
@@ -135,7 +135,7 @@ public class Main : MonoBehaviour
         Move_direct = Common.Direction.None;
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
-        Road_count = 0;
+        //Road_count = 0;
     }
 
     // Update is called once per frame
@@ -205,8 +205,8 @@ public class Main : MonoBehaviour
                         player.pre_y = player.y;
                         player.x += (int)Dire_to_Vec(player.move_to).x;
                         player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
-                        PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
-                        Road_count++;
+                        //PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
+                        //Road_count++;
                         if (Pazzle_data[player.pre_x, player.pre_y].condition == Common.Condition.Moving)
                         {
                             Fall(Common.Condition.Moving);
@@ -328,6 +328,7 @@ public class Main : MonoBehaviour
                     #region 動き終わった後
                     if ((camera.transform.position - new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10)).magnitude < 0.015f)
                     {
+                        camera.transform.position = new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10);
                         player.set_position(player.x, player.y, Field_direct, Pazzle_data[player.x, player.y].Exit_direction(Field_direct));
                         OutScreen();
                         if (Pazzle_data[player.x, player.y].condition == Common.Condition.Hole)
@@ -382,8 +383,15 @@ public class Main : MonoBehaviour
                     Arrow_show(false);
                     #endregion
                     #region 動き終わった後
-                    if ((camera.transform.position - (2f * Pazzle_fields[1, 1].Pos + new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 3.4f,-30)) / 3f).magnitude < 0.015f)
+                    if (Field_direct!=Common.Direction.Straight&&(camera.transform.position - (2f * Pazzle_fields[1, 1].Pos + new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 3.4f,-30)) / 3f).magnitude < 0.015f)
                     {
+                        int pre_x = player.pre_x;
+                        int pre_y = player.pre_y;
+                        player.pre_x = player.x;
+                        player.pre_y = player.y;
+                        //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+                        //Road_count++;
+                        player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
                         if (Mountains[(int)Field_direct-2,mount].type == Common.Direction.None)//穴
                         {
                             Fall(Common.Condition.Normal);
@@ -399,13 +407,7 @@ public class Main : MonoBehaviour
                     }
                     else if((camera.transform.position - Pazzle_fields[1, 1].Pos-new Vector3(0,0.8f, -10)).magnitude < 0.015f)//引き返し後
                     {
-                        int pre_x = player.pre_x;
-                        int pre_y = player.pre_y;
-                        player.pre_x = player.x;
-                        player.pre_y = player.y;
-                        PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
-                        Road_count++;
-                        player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
+                        camera.transform.position = Pazzle_fields[1, 1].Pos + new Vector3(0, 0.8f, -10);
                         Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
                         Field_direct = Common.Direction.None;
                         flg = 1;
@@ -430,13 +432,27 @@ public class Main : MonoBehaviour
             #region 宝の場所更新
             for (int i = 0; i < treasure.Length; i++)
             {
-                if (L(player.x) == L(treasure[i].x) && L(player.y) == L(treasure[i].y)) treasure[i].Pos = Pazzle_fields[treasure[i].x % 3, treasure[i].y % 3].Pos;
+                if (L(player.x) == L(treasure[i].x) && L(player.y) == L(treasure[i].y))
+                {
+                    treasure[i].Pos = Pazzle_fields[treasure[i].x % 3, treasure[i].y % 3].Pos;
+                    treasure[i].find = true;
+                }
                 else treasure[i].Pos = new Vector3(treasure[i].x, treasure[i].y, 0);
                 if (!treasure[i].get && Pazzle_data[treasure[i].x, treasure[i].y].condition == Common.Condition.Player)  //ここに当たった時の
                 {
                     touch_ID = i;
                     flg = 4;
                 }
+            }
+            #endregion
+            #region Mapの更新
+            player.On_Map(true);
+            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map(L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y));
+            for (int i = 0; i < enemy.Length; i++)
+            {
+                if (enemy[i].act == Common.Action.Sad) enemy[i].On_Map(false);
+                else if (d_infty(enemy[i].Pos, new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1)) < 1.5f) enemy[i].On_Map(true);
+                else enemy[i].On_Map(false);
             }
             #endregion
         }
@@ -481,8 +497,8 @@ public class Main : MonoBehaviour
                 {
                     player.x = p;
                     player.y = q;
-                    PlayerPrefs.SetInt("Road" + Road_count, (int)Move_direct);
-                    Road_count++;
+                    //PlayerPrefs.SetInt("Road" + Road_count, (int)Move_direct);
+                    //Road_count++;
                 }
                 Move_direct = Common.Direction.None;
                 for (int i = 0; i < enemy.Length; i++)//敵交換
@@ -521,15 +537,6 @@ public class Main : MonoBehaviour
             return ran;
         }
         else return Common.Direction.None;
-    }
-
-    public Common.Direction Random_direct() //方向のランダム関数
-    {
-        int ran = Random.Range(2, 6);
-        if (ran == 2) return Common.Direction.Right;
-        else if (ran == 3) return Common.Direction.Left;
-        else if (ran == 4) return Common.Direction.Up;
-        else return Common.Direction.Down;
     }
 
     public int[] Random_position() //座標のランダム関数
@@ -674,15 +681,15 @@ public class Main : MonoBehaviour
             int pre_y = player.pre_y;
             player.pre_x = player.x;
             player.pre_y = player.y;
-            PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
-            Road_count++;
+            //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+            //Road_count++;
             player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
             Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
         }
         else if (con == Common.Condition.Moving) //のってたやつが動いてた
         {
-            PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
-            Road_count++;
+            //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
+            //Road_count++;
             player.set_curve(player.x, player.y, player.move_to, player.move_from);
         }
         else if(con==Common.Condition.Player)//塊が動いたら盤がなかった
@@ -691,12 +698,13 @@ public class Main : MonoBehaviour
             int pre_y = player.pre_y;
             player.pre_x = player.x;
             player.pre_y = player.y;
-            PlayerPrefs.SetInt("Road" + Road_count, (int)Field_direct);
-            Road_count++;
-            player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
+            //PlayerPrefs.SetInt("Road" + Road_count, (int)Field_direct);
+            //Road_count++;
+            player.set_curve(pre_x, pre_y, reverse(Field_direct), Pazzle_data[pre_x, pre_y].Exit_direction(reverse(Field_direct)));
         }
         else
         {
+            //player.set_curve(player.pre_x, player.pre_y, reverse(Field_direct), Pazzle_data[player.pre_x, player.pre_y].Exit_direction(reverse(Field_direct)));
             Field_direct = Common.Direction.Straight;
         }
     }
@@ -845,45 +853,6 @@ public class Main : MonoBehaviour
         UIs.Effect("Retry_Trigger");
         flg = 1;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
-    }
-
-
-
-
-    public int B_to_I(bool b) //boolを0,1に
-    {
-        if (b) return 1;
-        else return 0;
-    }
-
-    public Vector3 Dire_to_Vec(Common.Direction d)//ベクトル化
-    {
-        if (d == Common.Direction.Up) return new Vector3(0, 1, 0);
-        else if (d == Common.Direction.Down) return new Vector3(0, -1, 0);
-        else if (d == Common.Direction.Right) return new Vector3(1, 0, 0);
-        else if (d == Common.Direction.Left) return new Vector3(-1, 0, 0);
-        else return new Vector3(0, 0, 0);
-    }
-
-    public Common.Direction reverse(Common.Direction direct)//逆向き化
-    {
-        if (direct == Common.Direction.Down) return Common.Direction.Up;
-        else if (direct == Common.Direction.Up) return Common.Direction.Down;
-        else if (direct == Common.Direction.Right) return Common.Direction.Left;
-        else if (direct == Common.Direction.Left) return Common.Direction.Right;
-        else return Common.Direction.None;
-    }
-
-    public int L(int small) //0~8を0~2にする(どこの塊)
-    {
-        int n = (small + 6) / 3;
-        return Mathf.FloorToInt(n - 2);
-    }
-
-    public float d_infty(Vector3 vec_1, Vector3 vec_2)
-    {
-        float d1 = Mathf.Abs(vec_1.x - vec_2.x);
-        float d2 = Mathf.Abs(vec_1.y - vec_2.y);
-        return Mathf.Max(d1, d2);
+        GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10);
     }
 }

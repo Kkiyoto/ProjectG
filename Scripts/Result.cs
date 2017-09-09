@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class Result : MonoBehaviour
+public class Result : Functions
 {
     float width, height;
     int flg,count,num;
