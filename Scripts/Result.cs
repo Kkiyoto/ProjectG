@@ -111,6 +111,7 @@ public class Result : Functions
                 flg++;
                 count = 0;
                 obj = GameObject.Find("Treasure");
+                //obj.transform.parent = GameObject.Find("Canvas").transform;
             }
         }
         #endregion
@@ -118,23 +119,32 @@ public class Result : Functions
         else if (flg == 4)
         {
             Vector3 vec = obj.transform.position;
-            obj.transform.position = (14f * vec + new Vector3(0, -1, 0));
-            if ((vec - new Vector3(0, -1, 0)).magnitude < 0.05f)
+            obj.transform.position = (14f * vec + new Vector3(0, -1, 0))/15f;
+            if ((vec - new Vector3(0, -1, 0)).magnitude < 0.05f&& obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Treasure"))
             {
                 obj.transform.position = new Vector3(0, -1, 0);
-                obj.GetComponent<Animator>().SetBool("Open", true);
+                obj.GetComponent<Animator>().SetBool("Open_Bool", true);
                 o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
                 o.name = "Treasure" + num;
                 num++;
             }
-            if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Get"))
+            if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Treasure_Open")
+        && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)
             {
                 count++;
                 o.transform.position = new Vector3(0, -0.5f - Mathf.Cos(count), 0);
-                if (count > 40) o.GetComponent<SpriteRenderer>().sortingOrder = 3;
+                if (count > 40)
+                {
+                    o.GetComponent<SpriteRenderer>().sortingOrder = 3;
+                    Vector3 scale = o.GetComponent<RectTransform>().localScale;
+                    if (scale.magnitude<4)
+                    {
+                        scale += scale / scale.magnitude * 0.5f;
+                        o.GetComponent<RectTransform>().localScale = scale;
+                    }
+                }
             }
-            else if (count > datas[3]) count--;
-            obj.GetComponent<Text>().text = (count.ToString());
+
             if (count == datas[3])
             {
                 flg++;

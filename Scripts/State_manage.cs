@@ -19,8 +19,7 @@ public class State_manage : Functions
     int Life_point;
     GameObject[] chara = new GameObject[3];
     int[] chara_ID = new int[3];
-
-
+    
     // Use this for initialization
     void Start()
     {
@@ -63,6 +62,7 @@ public class State_manage : Functions
         time = 600;
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
+        #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -74,6 +74,15 @@ public class State_manage : Functions
                 o.name = "Small_map" + i + "-" + j;
             }
         }
+        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, 0.5f * height - 0.15f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f * width, 0.3f * width);
+        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(-0.15f * width, 0.465f * height);
+        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.07f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f * height, 0.07f * height);
+        GameObject.Find("Pause_Button").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
+        GameObject.Find("Pause_Button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f*height, 0.07f * height);
+        #endregion
         //GameObject.Find("Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * width, 0.05f * width);
         //Change_icon(1);
     }
@@ -155,9 +164,11 @@ public class State_manage : Functions
         chara[ID].GetComponent<Animator>().SetInteger("Move_Int", (int)action);
     }
 
-    public bool To_result()
+    public bool To_result(int Effect_or_Treasure)
     {
-        return GameObject.Find("Effect").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Next");
+        if (Effect_or_Treasure == 0) return GameObject.Find("Effect").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Next");
+        else return GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Treasure_Open")
+        && GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f;
     }
 
     public void Set_Button()
@@ -191,7 +202,7 @@ public class State_manage : Functions
         for (int i = 0; i < 3; i++)
         {
             chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.65f * (3 - i), height * 0.277f);
-            chara[i].GetComponent<Animator>().SetTrigger("Out_Trigger");
+            chara[i].GetComponent<Animator>().SetTrigger("Retry_Trigger");
         }
         timer_bool = true;
         bg_bool = true;
@@ -203,25 +214,27 @@ public class State_manage : Functions
         if (Scale_or_Pos == 0)
         {
             Vector3 vec = o.GetComponent<RectTransform>().localScale;
-            o.GetComponent<RectTransform>().localScale = (14f * vec + new Vector3(width * 0.9f, width * 0.9f)) / 15f;
-            if ((vec - new Vector3(width * 0.9f, width * 0.9f)).magnitude < 0.1f)
+            o.GetComponent<RectTransform>().localScale = (24f * vec + new Vector3(width * 0.01f, width * 0.01f)) / 25f;
+            if ((vec - new Vector3(width * 0.01f, width * 0.01f)).magnitude < 0.01f)
             {
-                o.GetComponent<RectTransform>().localScale = new Vector3(width * 0.9f, width * 0.9f);
+                o.GetComponent<RectTransform>().localScale = new Vector3(width * 0.01f, width * 0.01f);
                 return true;
             }
             else return false;
         }
         else
         {
-            Vector3 vec = o.GetComponent<RectTransform>().position;
-            vec = vec / (vec.magnitude) * 0.1f;
-            o.GetComponent<RectTransform>().position-=vec;
-            if (vec.magnitude < 0.1f)
+            Vector3 vec = o.GetComponent<RectTransform>().localPosition;
+            if (vec.magnitude < 0.55f)
             {
-                o.GetComponent<RectTransform>().position = new Vector3(0, 0);
+                o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
                 return true;
             }
-            else return false;
+            else
+            {
+                vec = vec / (vec.magnitude);
+                o.GetComponent<RectTransform>().localPosition -= vec; return false;
+            }
         }
     }
 }

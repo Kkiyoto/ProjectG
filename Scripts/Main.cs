@@ -83,7 +83,7 @@ public class Main : Functions
         player.x = 4;
         player.y = 3;
         player.set_position(4,3, Common.Direction.Down,Pazzle_data[4,3].Exit_direction(Common.Direction.Down));
-        player.set_Speed(120f);
+        player.set_Speed(90f);
         Pazzle_data[4,3].condition = Common.Condition.Player;
         player.Set_Chara(1);
         #endregion
@@ -119,7 +119,7 @@ public class Main : Functions
             enemy[i].x = ran[0];
             enemy[i].y = ran[1];
             enemy[i].set_position(ran[0],ran[1], dire, Get_exit(enemy[i],dire));
-            enemy[i].set_Speed(130f);
+            enemy[i].set_Speed(110f);
         }
         #endregion
         #region 矢印の設定
@@ -130,7 +130,7 @@ public class Main : Functions
             //arrows[i].transform.position = new Vector3( Mathf.Sin(i * Mathf.PI / 2f), Mathf.Cos(i * Mathf.PI / 2f),0);
         }
         #endregion
-        Move_X = 0;
+        Move_X = -1;
         Move_Y = 0;
         Move_direct = Common.Direction.None;
         GameObject camera = GameObject.Find("Main Camera");
@@ -141,7 +141,6 @@ public class Main : Functions
     // Update is called once per frame
     void Update()
     {
-        //Debug.Log("flg= " + flg);
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -201,18 +200,18 @@ public class Main : Functions
                     #region プレイヤーの動き
                     if (player.Move(Pazzle_fields[player.x % 3, player.y % 3].Pos)) //動き終えたらtrue
                     {
-                        player.pre_x = player.x;
-                        player.pre_y = player.y;
-                        player.x += (int)Dire_to_Vec(player.move_to).x;
-                        player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
                         //Road_count++;
-                        if (Pazzle_data[player.pre_x, player.pre_y].condition == Common.Condition.Moving)
+                        if (Pazzle_data[player.x, player.y].condition == Common.Condition.Moving)
                         {
                             Fall(Common.Condition.Moving);
                         }
                         else
                         {
+                            player.pre_x = player.x;
+                            player.pre_y = player.y;
+                            player.x += (int)Dire_to_Vec(player.move_to).x;
+                            player.y += (int)Dire_to_Vec(player.move_to).y;//プレイヤーの動いた座標を更新 
                             Pazzle_data[player.pre_x, player.pre_y].condition = Common.Condition.Normal;
                             #region if (出ていった場合)
                             if (player.pre_x % 3 == 0 && player.move_to == Common.Direction.Left)
@@ -220,7 +219,7 @@ public class Main : Functions
                                 if (player.x > 0) change_block(Common.Direction.Right);
                                 else change_Mount(Common.Direction.Right,player.y, player.x);
                             }
-                            else if (player.x % 3 == 0 && player.move_to == Common.Direction.Right)
+                            else if (player.pre_x % 3 == 2 && player.move_to == Common.Direction.Right)
                             {
                                 if (player.x < 8) change_block(Common.Direction.Left);
                                 else change_Mount(Common.Direction.Left, player.y, player.x);
@@ -230,7 +229,7 @@ public class Main : Functions
                                 if (player.y > 0) change_block(Common.Direction.Up);
                                 else change_Mount(Common.Direction.Up, player.x, player.y);
                             }
-                            else if (player.y % 3 == 0 && player.move_to == Common.Direction.Up)
+                            else if (player.pre_y % 3 == 2 && player.move_to == Common.Direction.Up)
                             {
                                 if (player.y < 8) change_block(Common.Direction.Down);
                                 else change_Mount(Common.Direction.Down, player.x, player.y);
@@ -253,13 +252,13 @@ public class Main : Functions
                     #endregion
                     #region 盤を動かす
                     Arrow_show(true);
-                    if (Move(Move_X, Move_Y, Move_direct, 4f)) //盤が動く、動いてる途中はfalse
+                    if (Move(Move_X, Move_Y, Move_direct, 3f)) //盤が動く、動いてる途中はfalse
                     {
                         if (Input.GetMouseButtonDown(0))
                         {
                             tap_Start = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         }
-                        if (Input.GetMouseButtonUp(0))
+                        if (Input.GetMouseButtonUp(0)&&tap_Start.x!=-1)
                         {
                             Vector3 tap_Tarminal = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3 delta = tap_Tarminal - tap_Start;
@@ -418,12 +417,12 @@ public class Main : Functions
                 case 7: //ゴール
                     if (UIs.To_goal(0) & UIs.To_goal(1))
                     {
-                        GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open", true);
-                        if (UIs.To_result()) SceneManager.LoadScene("Result");
+                        GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
+                        if (UIs.To_result(1)) SceneManager.LoadScene("Result");
                     }
                     break;
                 case 8: //Game Over
-                    if (UIs.To_result())
+                    if (UIs.To_result(0))
                     {
                         UIs.Set_Button();
                     }
@@ -519,6 +518,7 @@ public class Main : Functions
                         treasure[i].y = q;
                     }
                 }
+                tap_Start.x = -1;//デバッグ
                 return true;
             }
         }
@@ -786,10 +786,11 @@ public class Main : Functions
             }
             UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
             flg = 7;
-            Vector3 vec = Camera.main.WorldToScreenPoint(new Vector3(player.x, player.y, 0));
+            Vector3 vec = Camera.main.WorldToScreenPoint(player.Pos-Dire_to_Vec(Field_direct)*0.5f);
             GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Big_Treasure")) as GameObject;
             o.GetComponent<RectTransform>().localPosition = vec;
             o.name = "Goal";
+            o.transform.parent = GameObject.Find("Canvas").transform;
             tap_Start = vec / 30f;
         }
         else
