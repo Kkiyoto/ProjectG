@@ -18,12 +18,13 @@ public class Main : Functions
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
-    int Move_X, Move_Y, touch_ID, mount;//,Road_count; //touch_ID:敵とか宝に当たった時にその番号 Road_countいくつ道を通ったか
+    int Move_X, Move_Y, touch_ID, mount,Road_count; //touch_ID:敵とか宝に当たった時にその番号 Road_countいくつ道を通ったか(スキル用)
     Common.Direction Move_direct,Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
     GameObject[] arrows = new GameObject[4];
     State_manage UIs;//UIのことはUIs.~にします。
+
 
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
     int flg = 1;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
@@ -135,12 +136,13 @@ public class Main : Functions
         Move_direct = Common.Direction.None;
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
-        //Road_count = 0;
+        Road_count = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
+        Debug.Log("count" + Road_count);
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -201,7 +203,7 @@ public class Main : Functions
                     if (player.Move(Pazzle_fields[player.x % 3, player.y % 3].Pos)) //動き終えたらtrue
                     {
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
-                        //Road_count++;
+                        Road_count++;
                         if (Pazzle_data[player.x, player.y].condition == Common.Condition.Moving)
                         {
                             Fall(Common.Condition.Moving);
@@ -389,7 +391,7 @@ public class Main : Functions
                         player.pre_x = player.x;
                         player.pre_y = player.y;
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
-                        //Road_count++;
+                        Road_count++;
                         player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
                         if (Mountains[(int)Field_direct-2,mount].type == Common.Direction.None)//穴
                         {
@@ -446,12 +448,12 @@ public class Main : Functions
             #endregion
             #region Mapの更新
             player.On_Map(true);
-            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map(L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y));
+            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y))||UIs.skills>0);
             for (int i = 0; i < enemy.Length; i++)
             {
                 if (enemy[i].act == Common.Action.Sad) enemy[i].On_Map(false);
                 else if (d_infty(enemy[i].Pos, new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1)) < 1.5f) enemy[i].On_Map(true);
-                else enemy[i].On_Map(false);
+                else enemy[i].On_Map(UIs.skills>0);
             }
             #endregion
         }
@@ -497,7 +499,7 @@ public class Main : Functions
                     player.x = p;
                     player.y = q;
                     //PlayerPrefs.SetInt("Road" + Road_count, (int)Move_direct);
-                    //Road_count++;
+                    Road_count++;
                 }
                 Move_direct = Common.Direction.None;
                 for (int i = 0; i < enemy.Length; i++)//敵交換
@@ -682,14 +684,14 @@ public class Main : Functions
             player.pre_x = player.x;
             player.pre_y = player.y;
             //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
-            //Road_count++;
+            Road_count++;
             player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
             Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
         }
         else if (con == Common.Condition.Moving) //のってたやつが動いてた
         {
             //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
-            //Road_count++;
+            Road_count++;
             player.set_curve(player.x, player.y, player.move_to, player.move_from);
         }
         else if(con==Common.Condition.Player)//塊が動いたら盤がなかった
@@ -699,7 +701,7 @@ public class Main : Functions
             player.pre_x = player.x;
             player.pre_y = player.y;
             //PlayerPrefs.SetInt("Road" + Road_count, (int)Field_direct);
-            //Road_count++;
+            Road_count++;
             player.set_curve(pre_x, pre_y, reverse(Field_direct), Pazzle_data[pre_x, pre_y].Exit_direction(reverse(Field_direct)));
         }
         else
@@ -855,5 +857,14 @@ public class Main : Functions
         flg = 1;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
         GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10);
+    }
+
+    public void Skill0_Watch()
+    {
+        if (Road_count >= 50)
+        {
+            UIs.skills += 10;//秒
+            Road_count = 0;
+        }
     }
 }

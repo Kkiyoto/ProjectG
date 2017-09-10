@@ -39,7 +39,7 @@ public class Result : Functions
 	void Update ()
     {
         Debug.Log("flg=" + flg);
-        if (Input.GetMouseButtonUp(0)) SceneManager.LoadScene("Tutorial");
+        if (Input.GetMouseButtonUp(0)) SceneManager.LoadScene("start");
         #region flg=-1:  イメージ画像のアニメ 考えていないのでパス
         if (flg < 0)
         {

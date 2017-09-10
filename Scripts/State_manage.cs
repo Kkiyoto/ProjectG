@@ -19,7 +19,9 @@ public class State_manage : Functions
     int Life_point;
     GameObject[] chara = new GameObject[3];
     int[] chara_ID = new int[3];
-    
+
+    public float skills;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植）
+
     // Use this for initialization
     void Start()
     {
@@ -75,16 +77,21 @@ public class State_manage : Functions
             }
         }
         GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, 0.5f * height - 0.15f * width);
-        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f * width, 0.3f * width);
-        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(-0.15f * width, 0.465f * height);
-        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.07f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f * height, 0.07f * height);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.35f * width, 0.35f * width);
+        //GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(-0.15f * width, 0.465f * height);
+        //GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.07f * height);
+        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
+        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f*height-0.5f * width, 0.465f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
         GameObject.Find("Pause_Button").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
         GameObject.Find("Pause_Button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f*height, 0.07f * height);
+        GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(-0.2f * width, 0.465f * height);
+        GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
         #endregion
         //GameObject.Find("Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * width, 0.05f * width);
         //Change_icon(1);
+        skills = 0;
     }
 
     // Update is called once per frame
@@ -122,6 +129,7 @@ public class State_manage : Functions
         int m = Mathf.FloorToInt(time / 60f);
         int s = Mathf.FloorToInt(time % 60f);
         Time_text.text = ("Time   " + m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
+        if (skills > 0) skills -= Time.deltaTime;
         #endregion
     }
 
@@ -237,4 +245,5 @@ public class State_manage : Functions
             }
         }
     }
+
 }

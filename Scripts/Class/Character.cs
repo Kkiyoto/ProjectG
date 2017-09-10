@@ -33,7 +33,7 @@ public class Character : Functions
             obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/Charactor/Enemy_sprite/Enemy" + (int)t);
             map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_enemy2");
         }
-        //else map.GetComponent<RectTransform>().localScale = new Vector3(0.6f,0.6f);
+        else map.GetComponent<Image>().color = new Color(0.8f, 1, 0);
     }
 
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)
@@ -80,6 +80,7 @@ public class Character : Functions
             float delta = Screen.width * 0.03f;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 4) * delta, (Pos.y - 4) * delta);
             map.GetComponent<Image>().color = Color.white;
+            if(type==Common.Type.Player)map.GetComponent<Image>().color =new Color(0,0,1);
         }
         else map.GetComponent<Image>().color = new Color(0, 0, 0, 0);
     }
