@@ -49,9 +49,9 @@ public class Item : Functions
         return obj.GetComponent<SpriteRenderer>();
     }
 
-    public void On_Map(bool show)
+    public void On_Map(bool show,bool skill)
     {
-        if (show&&find&&!get)
+        if (skill||(show&&find&&!get))
         {
             float delta = Screen.width * 0.03f;
             map.GetComponent<Image>().color = Color.yellow;

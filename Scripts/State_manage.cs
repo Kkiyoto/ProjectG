@@ -42,11 +42,11 @@ public class State_manage : Functions
         #region ゲームの後ろの背景
         GameObject o = GameObject.Find("Background");  //これで配置していく
         o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back" + 0);
-        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.93f*height);
-        o.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.035f*height);
-        o = GameObject.Find("Effect");  //これで配置していく
         o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        //o = GameObject.Find("Effect");  //これで配置していく
+        //o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+        //o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
         #endregion
         #region キャラクターのアニメ
         for (int i = 0; i < 3; i++)
@@ -65,6 +65,16 @@ public class State_manage : Functions
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可
+        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.32f * width, 0.5f * height - 0.15f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.35f * width, 0.32f * width);
+        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
+        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f*height-0.5f * width, 0.465f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
+        //GameObject.Find("Pause_Button").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
+        //GameObject.Find("Pause_Button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f*height, 0.07f * height);
+        GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(-0.2f * width, 0.465f * height);
+        GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -76,18 +86,6 @@ public class State_manage : Functions
                 o.name = "Small_map" + i + "-" + j;
             }
         }
-        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, 0.5f * height - 0.15f * width);
-        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.35f * width, 0.35f * width);
-        //GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(-0.15f * width, 0.465f * height);
-        //GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.07f * height);
-        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
-        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f*height-0.5f * width, 0.465f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
-        GameObject.Find("Pause_Button").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
-        GameObject.Find("Pause_Button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f*height, 0.07f * height);
-        GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(-0.2f * width, 0.465f * height);
-        GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
         #endregion
         //GameObject.Find("Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * width, 0.05f * width);
         //Change_icon(1);
@@ -187,13 +185,16 @@ public class State_manage : Functions
 
     public void Effect(string s)
     {
-        GameObject.Find("Effect").GetComponent<Animator>().SetTrigger(s);
+        GameObject o = GameObject.Find("Effect");
+        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        o.GetComponent<Animator>().SetTrigger(s);
     }
 
-    public void Small_map(int x, int y, string ID)
+    public void Small_map(int x, int y)
     {
         GameObject o = GameObject.Find("Small_map" + x + "-" + y);
-        o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_map");
+        o.GetComponent<Image>().color = new Color(1, 0.8f, 0, 1);
     }
 
     /*public void Change_icon(int ID)

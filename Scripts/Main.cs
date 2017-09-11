@@ -448,7 +448,7 @@ public class Main : Functions
             #endregion
             #region Mapの更新
             player.On_Map(true);
-            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y))||UIs.skills>0);
+            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y)),UIs.skills>0);
             for (int i = 0; i < enemy.Length; i++)
             {
                 if (enemy[i].act == Common.Action.Sad) enemy[i].On_Map(false);
@@ -634,7 +634,7 @@ public class Main : Functions
                     Pazzle_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
-            UIs.Small_map(x, y, B_to_I(y!=2)+""+B_to_I(x!=2)+""+B_to_I(y!=0)+""+B_to_I(x!=0));
+            UIs.Small_map(x, y);
         }
         else if (ID == 1)
         {
@@ -649,7 +649,7 @@ public class Main : Functions
                     move_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
-            UIs.Small_map(x, y, B_to_I(y!=2)+""+B_to_I(x!=2)+""+B_to_I(y!=0)+""+B_to_I(x!=0));
+            UIs.Small_map(x, y);
         }
     }
 
@@ -861,7 +861,7 @@ public class Main : Functions
 
     public void Skill0_Watch()
     {
-        if (Road_count >= 50)
+        if (Road_count >= 40)
         {
             UIs.skills += 10;//秒
             Road_count = 0;
