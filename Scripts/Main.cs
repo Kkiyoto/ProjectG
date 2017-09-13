@@ -137,10 +137,6 @@ public class Main : Functions
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
         Road_count = 0;
-        /*RenderSettings.fogMode = FogMode.Exponential;
-        RenderSettings.fog = true;
-        RenderSettings.fogColor = Color.yellow;
-        RenderSettings.fogDensity = 0f;*/
     }
 
     // Update is called once per frame
@@ -195,7 +191,7 @@ public class Main : Functions
                                     enemy[i].set_curve(enemy[i].x, enemy[i].y, reverse(enemy[i].move_to), Get_exit(enemy[i], (reverse(enemy[i].move_to))));
                                 }
                             }
-                            if (Pazzle_data[enemy[i].x,enemy[i].y].condition == Common.Condition.Player)  //ここに当たった時の
+                            if (L(enemy[i].x)==L(player.x)&&L(enemy[i].y)==L(player.y)&&(enemy[i].Pos-player.Pos).magnitude<0.6f)  //ここに当たった時の
                             {
                                 touch_ID = i;
                                 flg = 3;
@@ -680,6 +676,7 @@ public class Main : Functions
     {
         player.OutScreen();
         player.Set_Chara(0); //アニメーション交換
+        UIs.Anime(UIs.get_Life(), Common.Action.Sad);
         flg = 5;
         UIs.timer_bool = false;
         UIs.bg_bool = false;

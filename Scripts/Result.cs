@@ -33,17 +33,11 @@ public class Result : Functions
         count = 0;
         num = 0;
         delta_time = 0;
-        PlayerPrefs.SetInt("Coin", 234);
-        PlayerPrefs.SetInt("treasure0", 2);
-        PlayerPrefs.SetInt("treasure1", 1);
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        //PlayerPrefs.SetInt("treasure0", 2);
-        //PlayerPrefs.SetInt("treasure1", 2);
-        //PlayerPrefs.SetInt("enemy", 3);
         Debug.Log("flg=" + flg);
         if (Input.GetMouseButtonUp(0)) SceneManager.LoadScene("start");
         #region flg=-1:  イメージ画像のアニメ 考えていないのでパス

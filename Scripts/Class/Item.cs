@@ -24,7 +24,7 @@ public class Item : Functions
         find = false;
         map = Instantiate(Resources.Load<GameObject>("Prefab/Icon")) as GameObject;
         map.transform.parent = GameObject.Find("Map_base").transform;
-        map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_coin3");
+        map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_coin");
     }
 
     public void Get_Item()

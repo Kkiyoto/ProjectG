@@ -51,16 +51,25 @@ public class State_manage : Functions
         #region キャラクターのアニメ
         for (int i = 0; i < 3; i++)
         {
-            chara[i] = GameObject.Find("Chara" + i); //3つをfor文にするつもり
+            chara[i] = GameObject.Find("Chara" + i);
             chara_ID[i] = PlayerPrefs.GetInt("Party" + i, 1);
             chara[i].GetComponent<Animator>().SetInteger("Chara_Int", chara_ID[i]); //1はデータナンバー。PlayerPrefsでボックスで
             chara[i].GetComponent<RectTransform>().sizeDelta = new Vector2(width * 0.36f, width * 0.4f);
             chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.65f * (3 - i), height * 0.277f);
         }
+        /*PlayerPrefs.SetInt("Party0", 3);
+        PlayerPrefs.SetInt("Party1", 1);
+        PlayerPrefs.SetInt("Party2", 2);
+        PlayerPrefs.SetInt("Coin", 234);
+        PlayerPrefs.SetInt("treasure0", 2);
+        PlayerPrefs.SetInt("treasure1", 1);
+        PlayerPrefs.SetInt("Time", 357);
+        PlayerPrefs.SetInt("Life", 2);
+        PlayerPrefs.SetInt("enemy", 5);*/ //ここを使うとResultリセット
         #endregion
         pause_bool = false;
-        timer_bool = true;
-        bg_bool = true;
+        timer_bool = false;
+        bg_bool = false;
         time = 600;
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
@@ -71,8 +80,6 @@ public class State_manage : Functions
         GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
         GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f*height-0.5f * width, 0.465f * height);
         GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
-        //GameObject.Find("Pause_Button").GetComponent<RectTransform>().localPosition = new Vector3(0.035f*height-0.5f * width, 0.465f * height);
-        //GameObject.Find("Pause_Button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f*height, 0.07f * height);
         GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(-0.2f * width, 0.465f * height);
         GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
         for (int i = 0; i < 3; i++)
@@ -106,7 +113,6 @@ public class State_manage : Functions
                 Front_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
             }
         }
-        GameObject.Find("Goal_effect").transform.Rotate(new Vector3(0, 0, 3));
         #endregion
         #region キャラクター移動
         for (int i = 0; i <= Life_point; i++)
@@ -271,4 +277,21 @@ public class State_manage : Functions
         GameObject.Find("Gage").GetComponent<Image>().fillAmount = gage / 25f;
     }
 
+    public void Change_Chara()
+    {
+        GameObject GO_tmp = chara[0];
+        int ID_tmp = chara_ID[0];
+        for(int i=1;i<Life_point; i++)
+        {
+            chara[i] = chara[i - 1];
+            chara_ID[i] = chara_ID[i - 1];
+        }
+        chara[Life_point] = GO_tmp;
+        chara_ID[Life_point] = ID_tmp;
+    }
+
+    public void SE_on()
+    {
+
+    }
 }

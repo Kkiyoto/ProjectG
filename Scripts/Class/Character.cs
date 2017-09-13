@@ -30,8 +30,8 @@ public class Character : Functions
         map.transform.parent = GameObject.Find("Map_base").transform;
         if (t != Common.Type.Player)
         {
-            obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/Charactor/Enemy_sprite/Enemy" + (int)t);
-            map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_enemy2");
+            obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/Charactor/Enemy_sprite/Enemy" + (int)t+"_1");
+            map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_enemy");
         }
     }
 
