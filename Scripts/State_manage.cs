@@ -40,10 +40,10 @@ public class State_manage : Functions
         Front_anime.GetComponent<RectTransform>().localPosition = new Vector3(0, height * 0.297f);
         #endregion
         #region ゲームの後ろの背景
-        GameObject o = GameObject.Find("Background");  //これで配置していく
+        /*GameObject o = GameObject.Find("Background");  //これで配置していく
         o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back" + 0);
         o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);*/
         //o = GameObject.Find("Effect");  //これで配置していく
         //o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         //o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
@@ -65,8 +65,8 @@ public class State_manage : Functions
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可
-        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.32f * width, 0.5f * height - 0.15f * width);
-        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.35f * width, 0.32f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, 0.5f * height - 0.15f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f * width, 0.3f * width);
         GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
         GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
         GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f*height-0.5f * width, 0.465f * height);
@@ -79,7 +79,7 @@ public class State_manage : Functions
         {
             for (int j = 0; j < 3; j++)
             {
-                o = Instantiate(Resources.Load<GameObject>("Prefab/Small_map"));
+                GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Small_map"));
                 o.transform.parent = GameObject.Find("Map_base").transform;
                 o.GetComponent<RectTransform>().localPosition = new Vector3(0.09f * (i-1) * width, 0.09f * (j-1) * width);
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.09f * width, 0.09f * width);
@@ -106,6 +106,7 @@ public class State_manage : Functions
                 Front_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
             }
         }
+        GameObject.Find("Goal_effect").transform.Rotate(new Vector3(0, 0, 3));
         #endregion
         #region キャラクター移動
         for (int i = 0; i <= Life_point; i++)
@@ -172,23 +173,38 @@ public class State_manage : Functions
 
     public bool To_result(int Effect_or_Treasure)
     {
-        if (Effect_or_Treasure == 0) return GameObject.Find("Effect").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Next");
+        if (Effect_or_Treasure == 0)
+        {
+            AnimatorStateInfo info = GameObject.Find("Effect").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0);
+            return (info.IsName("Game_Over_Time") || info.IsName("Game_Over_Life")) && info.normalizedTime > 0.5f;
+        }
         else return GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Treasure_Open")
-        && GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f;
+        && GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1f;
     }
 
     public void Set_Button()
     {
-        GameObject.Find("Game_over").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.08f*height, 0);
-        GameObject.Find("Retry").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.2f*height, 0);
+        Color col= GameObject.Find("GameOver_text").GetComponent<Image>().color + new Color(0, 0, 0, 0.01f);
+        GameObject.Find("GameOver_text").GetComponent<Image>().color = col;
+        GameObject.Find("Game_over").GetComponent<Image>().color = col;
+        GameObject.Find("Retry").GetComponent<Image>().color = col;
+        GameObject.Find("GameOver_text").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f * height, 0);
+        GameObject.Find("Game_over").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.2f * height, 0);
+        GameObject.Find("Retry").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.08f * height, 0);
     }
 
     public void Effect(string s)
     {
         GameObject o = GameObject.Find("Effect");
-        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+            o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+            o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         o.GetComponent<Animator>().SetTrigger(s);
+        if(s!= "Goal_Trigger")
+        {
+            GameObject.Find("GameOver_text").GetComponent<Image>().color = new Color(1, 1, 1, 0);
+            GameObject.Find("Game_over").GetComponent<Image>().color = new Color(1, 1, 1, 0);
+            GameObject.Find("Retry").GetComponent<Image>().color = new Color(1, 1, 1, 0);
+        }
     }
 
     public void Small_map(int x, int y)
@@ -206,12 +222,15 @@ public class State_manage : Functions
     {
         time = 600;
         Life_point = 2;
+        GameObject.Find("Effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0, 0);
         GameObject.Find("Game_over").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
+        GameObject.Find("GameOver_text").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
         GameObject.Find("Retry").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
         for (int i = 0; i < 3; i++)
         {
             chara[i].GetComponent<RectTransform>().localPosition = new Vector3(width * 0.65f * (3 - i), height * 0.277f);
             chara[i].GetComponent<Animator>().SetTrigger("Retry_Trigger");
+            Anime(i, Common.Action.Walk);
         }
         timer_bool = true;
         bg_bool = true;
@@ -245,6 +264,11 @@ public class State_manage : Functions
                 o.GetComponent<RectTransform>().localPosition -= vec; return false;
             }
         }
+    }
+
+    public void Gage(float gage)
+    {
+        GameObject.Find("Gage").GetComponent<Image>().fillAmount = gage / 25f;
     }
 
 }

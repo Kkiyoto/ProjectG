@@ -137,6 +137,10 @@ public class Main : Functions
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
         Road_count = 0;
+        /*RenderSettings.fogMode = FogMode.Exponential;
+        RenderSettings.fog = true;
+        RenderSettings.fogColor = Color.yellow;
+        RenderSettings.fogDensity = 0f;*/
     }
 
     // Update is called once per frame
@@ -417,6 +421,7 @@ public class Main : Functions
                         #endregion
                         break;
                 case 7: //ゴール
+                    //RenderSettings.fogDensity += 0.1f;
                     if (UIs.To_goal(0) & UIs.To_goal(1))
                     {
                         GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
@@ -455,6 +460,7 @@ public class Main : Functions
                 else if (d_infty(enemy[i].Pos, new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1)) < 1.5f) enemy[i].On_Map(true);
                 else enemy[i].On_Map(UIs.skills>0);
             }
+            UIs.Gage(Road_count);
             #endregion
         }
     }
@@ -852,8 +858,8 @@ public class Main : Functions
 
     public void Revival()
     {
-        UIs.Retry();
         UIs.Effect("Retry_Trigger");
+        UIs.Retry();
         flg = 1;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
         GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10);
@@ -861,7 +867,7 @@ public class Main : Functions
 
     public void Skill0_Watch()
     {
-        if (Road_count >= 40)
+        if (Road_count >= 25)
         {
             UIs.skills += 10;//秒
             Road_count = 0;
