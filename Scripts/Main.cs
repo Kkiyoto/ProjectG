@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 public class Main : Functions
 {
+    Field[,] Around = new Field[4, 4]; 
     Data_box [,] Pazzle_data = new Data_box[9,9];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[3, 3]; //触る方
     Field[,] move_fields = new Field[3, 3]; //動くため
@@ -72,8 +73,6 @@ public class Main : Functions
                 move_fields[i, j].Pos=new Vector3(-5,0); //見えないところへ
             }
         }
-        set_block(0, 1,1);
-        #endregion
         #region 山の設定
         for (int i = 0; i < 4; i++)
         {
@@ -82,7 +81,7 @@ public class Main : Functions
                 Mountains[i, j] = new Data_box();
                 int ran = Random.Range(0, 5);
                 if (ran < 2)
-                {
+                    {
                     Mountains[i, j].type = Common.Direction.Up;
                     Mountains[i, j].condition = Common.Condition.Normal;
                 }
@@ -93,8 +92,20 @@ public class Main : Functions
                 }
             }
         }
-        Mountains[1, 8].type = Common.Direction.Down;
-        Mountains[1, 8].condition = Common.Condition.Player;//ゴール右上、右側
+        Mountains[0, 8].type = Common.Direction.Down;
+        Mountains[0, 8].condition = Common.Condition.Player;//ゴール右上、右側
+        #endregion
+        #region 周り
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Field")) as GameObject;
+                Around[i, j] = new Field(o);
+            }
+        }
+        #endregion
+        set_block(0, 1,1);
         #endregion
         #region playerの設定
         GameObject player_obj = GameObject.Find("Player");
@@ -250,22 +261,22 @@ public class Main : Functions
                             if (player.pre_x % 3 == 0 && player.move_to == Common.Direction.Left)
                             {
                                 if (player.x > 0) change_block(Common.Direction.Right);
-                                else change_Mount(Common.Direction.Right,player.y, player.x);
+                                else change_Mount(Common.Direction.Left,player.y, player.x);
                             }
                             else if (player.pre_x % 3 == 2 && player.move_to == Common.Direction.Right)
                             {
                                 if (player.x < 8) change_block(Common.Direction.Left);
-                                else change_Mount(Common.Direction.Left, player.y, player.x);
+                                else change_Mount(Common.Direction.Right, player.y, player.x);
                             }
                             else if (player.pre_y % 3 == 0 && player.move_to == Common.Direction.Down)
                             {
                                 if (player.y > 0) change_block(Common.Direction.Up);
-                                else change_Mount(Common.Direction.Up, player.x, player.y);
+                                else change_Mount(Common.Direction.Down, player.x, player.y);
                             }
                             else if (player.pre_y % 3 == 2 && player.move_to == Common.Direction.Up)
                             {
                                 if (player.y < 8) change_block(Common.Direction.Down);
-                                else change_Mount(Common.Direction.Down, player.x, player.y);
+                                else change_Mount(Common.Direction.Up, player.x, player.y);
                             }
                             #endregion
                             else
@@ -373,6 +384,7 @@ public class Main : Functions
                             Field_direct = Common.Direction.None;
                             flg = 1;
                             UIs.timer_bool = true;
+
                         }
                     }
                     #endregion
@@ -439,7 +451,7 @@ public class Main : Functions
                     #region カメラの位置
                     camera = GameObject.Find("Main Camera");
                     vec = camera.transform.position;
-                    camera.transform.position = (vec * 15f + (Pazzle_fields[1, 1].Pos-Dire_to_Vec(Field_direct) + new Vector3(0, 0.8f, -10))) / 16f;
+                    camera.transform.position = (vec * 15f + (Pazzle_fields[1, 1].Pos-Dire_to_Vec(reverse(Field_direct)) + new Vector3(0, 0.8f, -10))) / 16f;
                     Arrow_show(false);
                     #endregion
                     #region 動き終わった後
@@ -728,6 +740,52 @@ public class Main : Functions
                 }
             }
             UIs.Small_map(x, y);
+            #region 周り
+            for (int i = 0; i < 3; i++)
+            {
+                if (x == 2)
+                {
+                    Around[0, i].Set_img(Mountains[0, y * 3 + i].type);
+                    Around[1, i].Set_img(Pazzle_data[x * 3 - 1, y * 3 + i].type);
+                }
+                else if (x == 0)
+                {
+                    Around[0, i].Set_img(Pazzle_data[x * 3 + 3, y * 3 + i].type);
+                    Around[1, i].Set_img(Mountains[1, y * 3 + i].type);
+                }
+                else
+                {
+                    Around[0, i].Set_img(Pazzle_data[x * 3 + 3, y * 3 + i].type);
+                    Around[1, i].Set_img(Pazzle_data[x * 3 - 1, y * 3 + i].type);
+                }
+                if (y == 2)
+                {
+                    Around[2, i].Set_img(Mountains[2, y * 3 + i].type);
+                    Around[3, i].Set_img(Pazzle_data[x* 3 + i, y * 3 - 1].type);
+                    /* if (x == 0) { Around[4, 1].Set_img(Common.Direction.None); Around[4, 2].Set_img(Mountains[4, 2].type); }
+                    else Around[4, 1].Set_img(Mountains[2, y * 3 - 1].type);
+                    if (x == 2) Around[4, 0].Set_img(Common.Direction.None); else Around[4, 0].Set_img(Mountains[2, y * 3 +3].type);*/
+                }
+                else if (y == 0)
+                {
+                    Around[2, i].Set_img(Pazzle_data[x * 3 + i, y * 3 + 3].type);
+                    Around[3, i].Set_img(Mountains[3, y * 3 + i].type);
+                }
+                else
+                {
+                    Around[2, i].Set_img(Pazzle_data[x* 3 + i,y * 3 + 3].type);
+                    Around[3, i].Set_img(Pazzle_data[x * 3 + i, y * 3 - 1].type);
+                }
+                Around[0, i].Pos = new Vector3(x * 3 + 3, y * 3 + i);
+                Around[1, i].Pos = new Vector3(x * 3 - 1, y * 3 + i);
+                Around[2, i].Pos = new Vector3(x * 3 + i, y * 3 + 3);
+                Around[3, i].Pos = new Vector3(x * 3 + i, y * 3 - 1);
+                Around[0, i].Layer(8 - 3 * y - i);
+                Around[1, i].Layer(8 - 3 * y - i);
+                Around[2, i].Layer(8 - 3 * y - 3);
+                Around[3, i].Layer(8 - 3 * y + 1);
+            }
+            #endregion
         }
         else if (ID == 1)
         {
@@ -811,8 +869,11 @@ public class Main : Functions
         {
             for (int j = 0; j < 3; j++)
             {
-                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[1,1].Pos, vec));
-                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[1,1].Pos, vec));
+                //Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(Pazzle_fields[1,1].Pos, vec));
+                //move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[1,1].Pos, vec));
+
+                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1,1);
+                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
             }
         }
         for (int i = 0; i < treasure.Length; i++) treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x, treasure[i].y, 0), vec)); 
@@ -936,7 +997,7 @@ public class Main : Functions
         {
             move_fields[1, i].Set_img(Mountains[(int)entrance-2, 3*L(X_or_Y) + i].type);
             move_fields[1, i].Layer(7 - 3*L(player.y)-(int)Dire_to_Vec(entrance).y - (i-1)*(int)Mathf.Abs(Dire_to_Vec(entrance).x));
-            move_fields[1, i].Pos = new Vector3(3*L(player.x)+1+(i-1)* Mathf.Abs(Dire_to_Vec(entrance).y), 3*L( player.y)+1+(i-1)* Mathf.Abs(Dire_to_Vec(entrance).x)) +Dire_to_Vec(entrance);
+            move_fields[1, i].Pos = new Vector3(3*L(player.x)+1+(i-1)* Mathf.Abs(Dire_to_Vec(entrance).y), 3*L( player.y)+1+(i-1)* Mathf.Abs(Dire_to_Vec(entrance).x)) +Dire_to_Vec(reverse(entrance));
             move_fields[1, i].Sprite().color = new Color(1, 1, 1, 1);
         }
         Field_direct = entrance;
