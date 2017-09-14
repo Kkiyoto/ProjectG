@@ -19,6 +19,9 @@ public class State_manage : Functions
     int Life_point;
     GameObject[] chara = new GameObject[3];
     int[] chara_ID = new int[3];
+    AudioClip[] SEs = new AudioClip[6];//音増えるごとに追加お願いします
+    
+    GameObject Battle_enemy;
 
     public float skills;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植）
 
@@ -67,15 +70,19 @@ public class State_manage : Functions
         PlayerPrefs.SetInt("Life", 2);
         PlayerPrefs.SetInt("enemy", 5);*/ //ここを使うとResultリセット
         #endregion
+        #region SEの設定
+        SEs[0] = Resources.Load<AudioClip>("Time");//例として置いときます。名前も数も変えておいてください
+        #endregion
         pause_bool = false;
         timer_bool = false;
         bg_bool = false;
         time = 600;
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
+        Battle_enemy = GameObject.Find("BattleEnemy");
         #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可
-        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, 0.5f * height - 0.15f * width);
-        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f * width, 0.3f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.38f * width, 0.5f * height - 0.12f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.24f * width, 0.24f * width);
         GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
         GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
         GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f*height-0.5f * width, 0.465f * height);
@@ -88,8 +95,8 @@ public class State_manage : Functions
             {
                 GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Small_map"));
                 o.transform.parent = GameObject.Find("Map_base").transform;
-                o.GetComponent<RectTransform>().localPosition = new Vector3(0.09f * (i-1) * width, 0.09f * (j-1) * width);
-                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.09f * width, 0.09f * width);
+                o.GetComponent<RectTransform>().localPosition = new Vector3(0.081f * (i-1) * width, 0.081f * (j-1) * width);
+                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.081f * width, 0.081f * width);
                 o.name = "Small_map" + i + "-" + j;
             }
         }
@@ -185,6 +192,22 @@ public class State_manage : Functions
         chara[ID].GetComponent<Animator>().SetInteger("Move_Int", (int)action);
     }
 
+    public void Enemy_Anime(bool isBattle, Common.Type type)//敵にもAction増えたら追加 , Common.Action action) //多分IDは基本的にtouchID
+    {
+        if (isBattle)
+        {
+            Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", true);
+            Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", (int)type);
+            //Battle_enemy.GetComponent<Animator>().SetInteger("Move_Int", (int)action);
+        }
+        else
+        {
+            Battle_enemy.GetComponent<Animator>().SetBool("Battle_start",false);
+            Battle_enemy.GetComponent<Animator>().SetTrigger("BattleEndTrigger");
+            Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", 0);
+        }
+    }
+
     public bool To_result(int Effect_or_Treasure)
     {
         if (Effect_or_Treasure == 0)
@@ -192,8 +215,13 @@ public class State_manage : Functions
             AnimatorStateInfo info = GameObject.Find("Effect").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0);
             return (info.IsName("Game_Over_Time") || info.IsName("Game_Over_Life")) && info.normalizedTime > 0.5f;
         }
-        else return GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Treasure_Open")
+        else
+        {
+            RectTransform tra = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
+            if (tra.localPosition.x <0) tra.Translate(new Vector3(width / 30f, 0));
+            return GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Treasure_Open")
         && GameObject.Find("Goal").GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1f;
+        }
     }
 
     public void Set_Button()
@@ -213,7 +241,12 @@ public class State_manage : Functions
             o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
             o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         o.GetComponent<Animator>().SetTrigger(s);
-        if(s!= "Goal_Trigger")
+        if(s== "Goal_Trigger")
+        {
+            GameObject.Find("Start_and_End_anim").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
+            GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f*height);
+        }
+        else
         {
             GameObject.Find("GameOver_text").GetComponent<Image>().color = new Color(1, 1, 1, 0);
             GameObject.Find("Game_over").GetComponent<Image>().color = new Color(1, 1, 1, 0);
@@ -287,19 +320,22 @@ public class State_manage : Functions
 
     public void Change_Chara()
     {
-        GameObject GO_tmp = chara[0];
-        int ID_tmp = chara_ID[0];
-        for(int i=1;i<Life_point; i++)
+        GameObject GO_tmp = chara[Life_point];
+        int ID_tmp = chara_ID[Life_point];
+        for(int i=Life_point;i>0; i--)
         {
             chara[i] = chara[i - 1];
             chara_ID[i] = chara_ID[i - 1];
         }
-        chara[Life_point] = GO_tmp;
-        chara_ID[Life_point] = ID_tmp;
+        chara[0] = GO_tmp;
+        chara_ID[0] = ID_tmp;
+        chara[0].transform.SetSiblingIndex(3);
+        Debug.Log("chara[Life]" + chara[Life_point].name + " , " + chara[Life_point].transform.GetSiblingIndex());
+        GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
     }
 
-    public void SE_on()
+    public void SE_on(Common.SE music)
     {
-
+        GetComponent<AudioSource>().PlayOneShot(SEs[(int)music]);
     }
 }

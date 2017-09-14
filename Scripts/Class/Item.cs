@@ -53,7 +53,7 @@ public class Item : Functions
     {
         if (skill||(show&&find&&!get))
         {
-            float delta = Screen.width * 0.03f;
+            float delta = Screen.width * 0.027f;
             map.GetComponent<Image>().color = Color.yellow;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 4) * delta, (Pos.y - 4) * delta);
         }

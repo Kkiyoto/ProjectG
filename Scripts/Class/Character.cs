@@ -21,6 +21,9 @@ public class Character : Functions
     public Common.Action act;
     public Common.Type type;
 
+    public float Attack, HP;//Atack:バトルにかかる時間（一回あたりかな？全部ででも良い）
+    public bool[] skills = new bool[2]; //スキルを持っているかどうか
+
     public Character(GameObject Image_obj,Common.Type t)
     {
         obj = Image_obj;
@@ -76,7 +79,7 @@ public class Character : Functions
     {
         if (show)
         {
-            float delta = Screen.width * 0.03f;
+            float delta = Screen.width * 0.027f;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 4) * delta, (Pos.y - 4) * delta);
             map.GetComponent<Image>().color = Color.white;
             if (type == Common.Type.Player)//あとで絵自体の色を変えてここ消す

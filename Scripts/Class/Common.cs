@@ -52,4 +52,14 @@ public class Common : MonoBehaviour
         Magma,
         Poison
     }
+
+    public enum SE//音、PlayOneShotさせるやつ。何が一緒の音かとか、何があるのか分かっていないので追記どんどんお願いします。
+    {
+        Time=0,//敵にたたかれているとき
+        Fall,//落ちる時
+        Win,//敵倒したとき
+        Get,//宝箱、ゴール
+        Button,//ボタンクリック音
+        Slide,//盤を動かしているとき
+    }
 }

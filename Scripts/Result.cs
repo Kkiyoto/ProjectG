@@ -32,9 +32,9 @@ public class Result : Functions
         datas[4] = PlayerPrefs.GetInt("treasure0", 0);
         datas[5] = PlayerPrefs.GetInt("treasure1", 0);
         obj = GameObject.Find("Time");
-        obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f  * height);
+        obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
-        flg = 0;
+        flg =0;
         count = 0;
         num = 0;
         delta_time = 0;
@@ -45,27 +45,28 @@ public class Result : Functions
     {
         Debug.Log("flg=" + flg);
         if (Input.GetMouseButtonUp(0)) SceneManager.LoadScene("start");
-        #region flg=-1:  イメージ画像のアニメ 考えていないのでパス
+        #region flg=-1:  イメージ画像のアニメ
         if (flg < 0)
         {
-            GameObject Title = GameObject.Find("Title");
-            Vector3 vec = Title.GetComponent<RectTransform>().localPosition;
-            Title.GetComponent<RectTransform>().localPosition = 14f * vec / 15f;
-            if (vec.magnitude < 0.05f)
+            RectTransform tra = obj.GetComponent<RectTransform>();
+            if (tra.localPosition.magnitude>width/61f) tra.Translate(new Vector3(width / 30f, 0));
+            else if (tra.sizeDelta.y < 2f * height) tra.sizeDelta = (31f*tra.sizeDelta - new Vector2(0.36f * width, 0.063f * height))/30f;
+            else
             {
-                Title.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
-                if (count >= datas[flg])
-                {
-                    flg++;
-                    count = 0;
-                }
+                GameObject.Find("Title").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Result");
+                Destroy(obj);
+                flg++;
+                count = 0;
+        obj = GameObject.Find("end");
+        obj.GetComponent<RectTransform>().localPosition = new Vector3(-width,0.5f*height);
+        obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
             }
         }
         #endregion
         #region flg=0:  Time
         else if (flg == 0)
         {
-            if (count < datas[0]) count += Random.Range(3,8);
+            if (count < datas[0]) count += Random.Range(3, 8);
             else if (count > datas[0]) count--;
             int m = Mathf.FloorToInt(count / 60);
             int s = count % 60;
@@ -124,7 +125,7 @@ public class Result : Functions
                     o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
                     o.name = "Get" + i;
                     o.transform.parent = obj.transform;
-                    o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/sword1"); 
+                    o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/sword1");
                     o.transform.SetSiblingIndex(0);
                     o.GetComponent<RectTransform>().localPosition = new Vector3(width, height, 0);
                 }
@@ -137,9 +138,7 @@ public class Result : Functions
             if (num < datas[4])
             {
                 Vector3 vec = obj.GetComponent<RectTransform>().localPosition;
-                obj.GetComponent<RectTransform>().localPosition = (14f * vec + new Vector3(0, -0.15f*height, 0)) / 15f;
-                Debug.Log("g" + obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning")
-                + " " + (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f));
+                obj.GetComponent<RectTransform>().localPosition = (14f * vec + new Vector3(0, -0.15f * height, 0)) / 15f;
                 if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.05f)
                 {
                     if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed"))

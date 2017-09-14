@@ -32,7 +32,7 @@ public class Main : Functions
                 //ここのやり方が分からなかったので真偽地で無理矢理止めています。時間があればいい感じに変えてください。
 
     #region Battle追加部分
-    GameObject Battle_enemy;
+    //GameObject Battle_enemy; //UIsに移植
     GameObject time_minus;
     float timeElapsed, timeOut = 3.0f;
     bool isBattle = false;
@@ -104,7 +104,7 @@ public class Main : Functions
         player.set_position(4,3, Common.Direction.Down,Pazzle_data[4,3].Exit_direction(Common.Direction.Down));
         player.set_Speed(90f);
         Pazzle_data[4,3].condition = Common.Condition.Player;
-        player.Set_Chara(1);
+        player.Set_Chara(UIs.Top_ID());
         #endregion
         #region 宝物の設定
         treasure = new Item[3]; //ここで宝の数
@@ -157,7 +157,7 @@ public class Main : Functions
         Road_count = 0;
 
         #region Battle追加部分
-        Battle_enemy = GameObject.Find("BattleEnemy");
+        //Battle_enemy = GameObject.Find("BattleEnemy");
         time_minus = GameObject.Find("minus");
         #endregion
         #region 初期エフェクト追記
@@ -174,7 +174,6 @@ public class Main : Functions
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("count" + Road_count);
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -297,7 +296,7 @@ public class Main : Functions
                             Vector3 tap_Tarminal = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3 delta = tap_Tarminal - tap_Start;
                             #region 横方向スライド
-                            if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y) && Mathf.Abs(delta.x) > 0.8f)
+                            if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y) && delta.magnitude > 0.7f)
                             {
                                 int X = Hole_search(player.x, player.y, 0);
                                 int Y = Hole_search(player.x, player.y, 1); //穴の座標,0~8
@@ -322,7 +321,7 @@ public class Main : Functions
                             }
                             #endregion
                             #region 縦方向スライド 
-                            else if (Mathf.Abs(delta.x) < Mathf.Abs(delta.y) && Mathf.Abs(delta.y) > 0.8f)
+                            else if (Mathf.Abs(delta.x) < Mathf.Abs(delta.y) && delta.magnitude > 0.7f)
                             {
                                 int X = Hole_search(player.x, player.y, 0);
                                 int Y = Hole_search(player.x, player.y, 1); //穴の座標,0~8
@@ -386,28 +385,30 @@ public class Main : Functions
                     if (!isBattle) // バトル開始直後の処理
                     {
                         isBattle = true;
-                        Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
-                        Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", (int)enemy[touch_ID].type);
+                        //Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
+                        //Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", (int)enemy[touch_ID].type);
+                        UIs.Enemy_Anime(true, enemy[touch_ID].type);
                         Debug.Log((int)enemy[touch_ID].type + "did it!");
                         Invoke("Battle_time_loss", 1.0f);
                         Invoke("Battle_time_loss", 2.0f);
                         Invoke("Battle_time_loss", 3.0f);
 
                     }
-                    if (timeElapsed < 1.0)
-                        Battle_enemy.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, timeElapsed); // 動かぬぬ
+                    //if (timeElapsed < 1.0)
+                        //Battle_enemy.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, timeElapsed); // 動かぬぬ  ★Animatorの中で解決したのかな?
 
 
                     if (timeElapsed >= timeOut || Input.GetMouseButtonUp(0)) //タッチ or 3秒経過で終了
                     {
-                        Battle_enemy.GetComponent<Animator>().SetTrigger("BattleEndTrigger");
-                        Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", 0);
+                        //Battle_enemy.GetComponent<Animator>().SetTrigger("BattleEndTrigger");
+                        //Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", 0);
                         timeElapsed = 0.0f;
                         isBattle = false;
-                        Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
+                        //Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
+                        UIs.Enemy_Anime(false, enemy[touch_ID].type); //UIsに移植しました
 
                         enemy[touch_ID].act = Common.Action.Sad;
-                        enemy[touch_ID].Sprite().color = Color.clear;
+                        enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
                         flg = 1;
                     }
                     #endregion
@@ -479,7 +480,8 @@ public class Main : Functions
                     if (UIs.To_goal(0) & UIs.To_goal(1))
                     {
                         GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
-                        if (UIs.To_result(1)) SceneManager.LoadScene("Result");
+                        if (UIs.To_result(1)) //SceneManager.LoadScene("Result");
+                            FadeManager.Instance.LoadScene("Result", 2.0f);
                     }
                     break;
                 case 8: //Game Over
@@ -951,6 +953,7 @@ public class Main : Functions
         GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 1, 3 * L(player.y) + 1.8f, -10);
     }
 
+    #region スキル
     public void Skill0_Watch()
     {
         if (Road_count >= 25)
@@ -959,6 +962,8 @@ public class Main : Functions
             Road_count = 0;
         }
     }
+    #endregion
+
     #region Battle追加部分
     public void Battle_time_loss()
     {
