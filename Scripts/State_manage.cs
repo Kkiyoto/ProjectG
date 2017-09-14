@@ -138,6 +138,14 @@ public class State_manage : Functions
         #endregion
     }
 
+    // すみません、作っちゃいました...。
+    public void All_pause_flg(bool pause)
+    {
+        pause_bool = pause;
+        timer_bool = pause;
+        bg_bool = pause;
+    }
+
     public void Pause_flg(bool pause)
     {
         pause_bool = pause;

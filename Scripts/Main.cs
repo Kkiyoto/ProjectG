@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /* Main
  * Directorオブジェクトにアタッチ
@@ -28,7 +29,24 @@ public class Main : Functions
 
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
     int flg = 1;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
-    //ここのやり方が分からなかったので真偽地で無理矢理止めています。時間があればいい感じに変えてください。
+                //ここのやり方が分からなかったので真偽地で無理矢理止めています。時間があればいい感じに変えてください。
+
+    #region Battle追加部分
+    GameObject Battle_enemy;
+    GameObject time_minus;
+    float timeElapsed, timeOut = 3.0f;
+    bool isBattle = false;
+    #endregion
+    #region タッチエフェクト追記
+    [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
+    [SerializeField] Camera _camera;                // カメラの座標
+    #endregion
+    #region 初期アニメーション追加部分
+    // 変数多過ぎ問題
+    private RectTransform Start_and_End_anim;
+    private float move_diff, char_right = 0;
+    private bool Anim_start = true, mid_reach = false;
+    #endregion
 
     // Use this for initialization
     void Start ()
@@ -137,6 +155,20 @@ public class Main : Functions
         GameObject camera = GameObject.Find("Main Camera");
         camera.transform.position = new Vector3(3*L(player.x) + 1, 3*L(player.y) + 1.8f, -10);
         Road_count = 0;
+
+        #region Battle追加部分
+        Battle_enemy = GameObject.Find("BattleEnemy");
+        time_minus = GameObject.Find("minus");
+        #endregion
+        #region 初期エフェクト追記
+
+        pause_bool = !pause_bool;
+        UIs.All_pause_flg(pause_bool); // 反抗期  // 駆け抜ける時間  // 止まらない案件  // 追記、止まりました。
+        //transform.Translate(1.0f * Time.deltaTime, 0, 0); // アニメーションを止めるように(updateにこれを)
+
+        Invoke("After_start_animation", 4.0f); // 後処理
+
+        #endregion
     }
 
     // Update is called once per frame
@@ -347,12 +379,38 @@ public class Main : Functions
                     #endregion
                     break;
                 case 3: //バトル
-                    if (Input.GetMouseButtonUp(0)) //今はタッチしたら終了
+                    #region Battle追記部分
+
+                    // using UnityEngine.UI; を追加しています
+                    timeElapsed += Time.deltaTime;
+                    if (!isBattle) // バトル開始直後の処理
                     {
+                        isBattle = true;
+                        Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
+                        Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", (int)enemy[touch_ID].type);
+                        Debug.Log((int)enemy[touch_ID].type + "did it!");
+                        Invoke("Battle_time_loss", 1.0f);
+                        Invoke("Battle_time_loss", 2.0f);
+                        Invoke("Battle_time_loss", 3.0f);
+
+                    }
+                    if (timeElapsed < 1.0)
+                        Battle_enemy.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, timeElapsed); // 動かぬぬ
+
+
+                    if (timeElapsed >= timeOut || Input.GetMouseButtonUp(0)) //タッチ or 3秒経過で終了
+                    {
+                        Battle_enemy.GetComponent<Animator>().SetTrigger("BattleEndTrigger");
+                        Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", 0);
+                        timeElapsed = 0.0f;
+                        isBattle = false;
+                        Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
+
                         enemy[touch_ID].act = Common.Action.Sad;
                         enemy[touch_ID].Sprite().color = Color.clear;
                         flg = 1;
                     }
+                    #endregion
                     break;
                 case 4: //宝ゲット
                     if (Input.GetMouseButtonUp(0)) //今はタッチしたら終了
@@ -459,6 +517,37 @@ public class Main : Functions
             UIs.Gage(Road_count);
             #endregion
         }
+        #region タッチエフェクト
+        // 画面のどこでもタッチでエフェクト
+        if (Input.GetMouseButtonDown(0))
+        {
+            // マウスのワールド座標までパーティクルを移動,エフェクトを1つ生成する
+            var pos = _camera.ScreenToWorldPoint(Input.mousePosition + _camera.transform.forward * 10);
+            touchEffect.transform.position = pos;
+            touchEffect.Emit(1);
+        }
+        // 使用する際はSub_cameraとTouch_particleオブジェクトを追加してください
+        #endregion
+        #region 初期アニメーション追加部分
+        // とりあえずの雑実装.....。すみません..。
+        if (Anim_start && !mid_reach) { 
+            Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
+            move_diff = (char_right - Start_and_End_anim.localPosition.x) / 50;
+            Start_and_End_anim.localPosition += new Vector3(move_diff, 0, 0);
+            if (move_diff < 0.1) mid_reach = true;
+        }else if(Anim_start && mid_reach)
+        {
+            Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
+            move_diff = (char_right+300 - Start_and_End_anim.localPosition.x) / 50;
+            Start_and_End_anim.localPosition += new Vector3(move_diff, 0, 0);
+            if (move_diff < 0.1)
+            {
+                Anim_start = false;
+                mid_reach = false;
+            }
+        }
+        #endregion
+
     }
 
     public bool Move(int x, int y, Common.Direction direct, float speed)//動かしたいものの座標、0~8、x:左から,y:下から、speed小さい方が早い
@@ -870,4 +959,20 @@ public class Main : Functions
             Road_count = 0;
         }
     }
+    #region Battle追加部分
+    public void Battle_time_loss()
+    {
+        time_minus.GetComponent<Animator>().SetTrigger("LossTime");
+        UIs.Lose_Time(30);
+        //time_minus.GetComponent<Animator>().SetBool("loss", false);
+    }
+    #endregion
+
+    #region 初期アニメーション終了後処理
+    public void After_start_animation()
+    {
+        pause_bool = !pause_bool;
+        UIs.All_pause_flg(pause_bool);
+    }
+    #endregion
 }

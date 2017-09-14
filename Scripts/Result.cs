@@ -12,6 +12,11 @@ public class Result : Functions
     float delta_time;
     int[] datas = new int[6]; //順にtime,Life,Enemy,Coin,treasure普通、レア
 
+    #region タッチエフェクト追記
+    [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
+    [SerializeField] Camera _camera;                // カメラの座標
+    #endregion
+
     // Use this for initialization
     void Start()
     {
@@ -198,5 +203,16 @@ public class Result : Functions
         }
         #endregion
 
+        #region タッチエフェクト
+        // 画面のどこでもタッチでエフェクト
+        if (Input.GetMouseButtonDown(0))
+        {
+            // マウスのワールド座標までパーティクルを移動,エフェクトを1つ生成する
+            var pos = _camera.ScreenToWorldPoint(Input.mousePosition + _camera.transform.forward * 10);
+            touchEffect.transform.position = pos;
+            touchEffect.Emit(1);
+        }
+        // 使用する際はSub_cameraとTouch_particleオブジェクトを追加してください
+        #endregion
     }
 }
