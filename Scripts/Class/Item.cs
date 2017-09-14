@@ -51,11 +51,11 @@ public class Item : Functions
 
     public void On_Map(bool show,bool skill)
     {
-        if (skill||(show&&find&&!get))
+        if ((skill||(show&&find))&&!get)
         {
             float delta = Screen.width * 0.027f;
             map.GetComponent<Image>().color = Color.yellow;
-            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 4) * delta, (Pos.y - 4) * delta);
+            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
         }
         else map.GetComponent<Image>().color = Color.clear;
     }

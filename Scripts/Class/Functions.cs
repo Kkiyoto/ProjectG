@@ -49,8 +49,8 @@ public class Functions : MonoBehaviour {
 
     public int L(int small) //0~8を0~2にする(どこの塊)
     {
-        int n = (small + 6) / 3;
-        return Mathf.FloorToInt(n - 2);
+        int n = (small + 8) / 3;
+        return Mathf.FloorToInt(n - 3);
     }
 
     public float d_infty(Vector3 vec_1, Vector3 vec_2)

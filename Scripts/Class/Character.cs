@@ -80,7 +80,7 @@ public class Character : Functions
         if (show)
         {
             float delta = Screen.width * 0.027f;
-            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 4) * delta, (Pos.y - 4) * delta);
+            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
             map.GetComponent<Image>().color = Color.white;
             if (type == Common.Type.Player)//あとで絵自体の色を変えてここ消す
             {
