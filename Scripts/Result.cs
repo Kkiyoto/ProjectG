@@ -4,6 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/* Result
+ * ゴール後のリザルト画面でのDirector
+ * Directorにアタッチ
+ * 上から順に何をさせようか見せてます。
+ */
+
 public class Result : Functions
 {
     float width, height;
@@ -44,7 +50,7 @@ public class Result : Functions
 	void Update ()
     {
         Debug.Log("flg=" + flg);
-        if (Input.GetMouseButtonUp(0)) SceneManager.LoadScene("start");
+        if (Input.GetKeyDown(KeyCode.Return)) Next();
         #region flg=-1:  イメージ画像のアニメ
         if (flg < 0)
         {
@@ -117,9 +123,9 @@ public class Result : Functions
                 flg++;
                 count = 0;
                 obj = GameObject.Find("Treasure");
-                obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.35f * width, 0.35f * width);
-                GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.35f * width, 0.35f * width);
-                //obj.transform.parent = GameObject.Find("Canvas").transform;
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
+                GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
                 for (int i = 0; i < datas[4]; i++)
                 {
                     o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
@@ -135,11 +141,11 @@ public class Result : Functions
         #region flg=4:  Treasure_Coin
         else if (flg == 4)
         {
-            if (num < datas[4])
+            if (num < datas[4]) //宝が残ってる
             {
                 Vector3 vec = obj.GetComponent<RectTransform>().localPosition;
                 obj.GetComponent<RectTransform>().localPosition = (14f * vec + new Vector3(0, -0.15f * height, 0)) / 15f;
-                if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.05f)
+                if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.05f)//宝移動後
                 {
                     if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed"))
                     {
@@ -149,18 +155,22 @@ public class Result : Functions
                         o.GetComponent<Image>().color = Color.white;
                     }
                     else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning")
-                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)
+                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)//開いた後
                     {
                         count++;
                         if (count < 90)
                         {
-                            o.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 0.05f * Mathf.Cos(Mathf.PI / 45f * count), 0);
+                            o.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 0.06f * Mathf.Cos(Mathf.PI / 45f * count), 0);
                             Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
                             //Debug.Log("name : " + o.name+"   "+scale);
-                            if (scale.x < 0.5f * height)
+                            if (scale.x < 0.5f * height)//大きくする
                             {
                                 scale += new Vector2(2, 2);
                                 o.GetComponent<RectTransform>().sizeDelta = scale;
+                            }
+                            else
+                            {
+                                obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
                             }
                             if (count == 40)
                             {
@@ -176,9 +186,9 @@ public class Result : Functions
                                 o.transform.parent = GameObject.Find("Canvas").transform;
                                 o.GetComponent<RectTransform>().localPosition = new Vector3(0.3f * (num - 1) * width, -0.3f * height);
                                 num++;
-                                obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.35f * width, 0.35f * width);
+                                obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                 obj.GetComponent<Animator>().SetBool("Open_Bool", false);
-                                GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.35f * width, 0.35f * width);
+                                GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                 obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
                                 count = 0;
                                 //o = GameObject.Find("Get"+num);
@@ -201,6 +211,74 @@ public class Result : Functions
             }
         }
         #endregion
+        #region flg=5:  Treasure_Rare
+        else if (flg == 5)
+        {
+            if (num < datas[5]) //宝が残ってる
+            {
+                Vector3 vec = obj.GetComponent<RectTransform>().localPosition;
+                obj.GetComponent<RectTransform>().localPosition = (14f * vec + new Vector3(0, -0.15f * height, 0)) / 15f;
+                if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.05f)//宝移動後
+                {
+                    if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed"))
+                    {
+                        obj.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.15f * height, 0);
+                        obj.GetComponent<Animator>().SetBool("Open_Bool", true);
+                        o = GameObject.Find("Get" + num);
+                        o.GetComponent<Image>().color = Color.white;
+                    }
+                    else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning")
+                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)//開いた後
+                    {
+                        count++;
+                        if (count < 90)
+                        {
+                            o.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 0.06f * Mathf.Cos(Mathf.PI / 45f * count), 0);
+                            Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
+                            //Debug.Log("name : " + o.name+"   "+scale);
+                            if (scale.x < 0.5f * height)//大きくする
+                            {
+                                scale += new Vector2(2, 2);
+                                o.GetComponent<RectTransform>().sizeDelta = scale;
+                            }
+                            else
+                            {
+                                obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
+                            }
+                            if (count == 40)
+                            {
+                                o.transform.SetAsLastSibling();
+                            }
+                        }
+                        else
+                        {
+                            obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
+                            GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = obj.GetComponent<RectTransform>().sizeDelta;
+                            if (obj.GetComponent<RectTransform>().sizeDelta.x < 1)
+                            {
+                                o.transform.parent = GameObject.Find("Canvas").transform;
+                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.3f * (num - 1) * width, -0.3f * height);
+                                num++;
+                                obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
+                                obj.GetComponent<Animator>().SetBool("Open_Bool", false);
+                                GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
+                                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
+                                count = 0;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                flg++;
+                count = 0;
+                obj = GameObject.Find("Next");
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.1f * height);
+                obj.GetComponent<RectTransform>().localPosition = new Vector2(0.25f * width, -0.45f * height);
+            }
+        }
+        #endregion
 
         #region タッチエフェクト
         // 画面のどこでもタッチでエフェクト
@@ -213,5 +291,10 @@ public class Result : Functions
         }
         // 使用する際はSub_cameraとTouch_particleオブジェクトを追加してください
         #endregion
+    }
+
+    public void Next()
+    {
+        SceneManager.LoadScene("start");
     }
 }

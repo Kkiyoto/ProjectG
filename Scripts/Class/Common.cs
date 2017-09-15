@@ -62,4 +62,12 @@ public class Common : MonoBehaviour
         Button,//ボタンクリック音
         Slide,//盤を動かしているとき
     }
+
+    public enum Treasure //何が入っているのか
+    {
+        Item=0,//武器とか
+        Coin,
+        Time,
+        Life,
+    }
 }

@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* Functions
+ * 基本的に継承させる方です。
+ * 変数入れたら引数出てくる系の関数群をまとめて
+ * どこでも使えるようにしようかと
+ */
+
 public class Functions : MonoBehaviour {
 
 	// Use this for initialization

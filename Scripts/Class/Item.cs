@@ -13,9 +13,9 @@ public class Item : Functions
     public int x, y;
     GameObject obj,map;
     public bool get,find;
-    public int rare;
+    public Common.Treasure type; 
 
-    public Item(int pos_x,int pos_y,GameObject o)
+    public Item(int pos_x,int pos_y,GameObject o,Common.Treasure t)
     {
         x = pos_x;
         y = pos_y;
@@ -25,6 +25,8 @@ public class Item : Functions
         map = Instantiate(Resources.Load<GameObject>("Prefab/Icon")) as GameObject;
         map.transform.parent = GameObject.Find("Map_base").transform;
         map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_coin");
+        type = t;
+        obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/GameScene/Item" + (int)type);//Animator使っているのなら敵のと同じように書き換えてください。
     }
 
     public void Get_Item()
@@ -53,7 +55,7 @@ public class Item : Functions
     {
         if ((skill||(show&&find))&&!get)
         {
-            float delta = Screen.width * 0.027f;
+            float delta = Screen.width * 0.022f;
             map.GetComponent<Image>().color = Color.yellow;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
         }

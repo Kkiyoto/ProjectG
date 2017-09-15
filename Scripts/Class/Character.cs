@@ -15,14 +15,10 @@ public class Character : Functions
     public int pre_x, pre_y;//1つ前の座標、0~8
     float speed;
     GameObject obj,map;//chara:画像を持つもの,map:左上にあるやつ
-    Sprite img;
     int count;
     public Common.Direction move_from,move_to;
     public Common.Action act;
     public Common.Type type;
-
-    public float Attack, HP;//Atack:バトルにかかる時間（一回あたりかな？全部ででも良い）
-    public bool[] skills = new bool[2]; //スキルを持っているかどうか
 
     public Character(GameObject Image_obj,Common.Type t)
     {
@@ -79,13 +75,9 @@ public class Character : Functions
     {
         if (show)
         {
-            float delta = Screen.width * 0.027f;
+            float delta = Screen.width * 0.022f;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
             map.GetComponent<Image>().color = Color.white;
-            if (type == Common.Type.Player)//あとで絵自体の色を変えてここ消す
-            {
-                map.GetComponent<Image>().color = new Color(0, 0, 1);
-            }
         }
         else map.GetComponent<Image>().color = new Color(0, 0, 0, 0);
     }
