@@ -14,6 +14,7 @@ public class Item : Functions
     GameObject obj,map;
     public bool get,find;
     public Common.Treasure type; 
+    Color col=Color.white;
 
     public Item(int pos_x,int pos_y,GameObject o,Common.Treasure t)
     {
@@ -56,9 +57,14 @@ public class Item : Functions
         if ((skill||(show&&find))&&!get)
         {
             float delta = Screen.width * 0.022f;
-            map.GetComponent<Image>().color = Color.yellow;
+            map.GetComponent<Image>().color = col;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
         }
         else map.GetComponent<Image>().color = Color.clear;
+    }
+
+    public void map_color(float a)
+    {
+        col = new Color(1, 1, 1, a);
     }
 }

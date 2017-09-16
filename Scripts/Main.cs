@@ -195,6 +195,7 @@ public class Main : Functions
     // Update is called once per frame
     void Update()
     {
+        //if (Input.GetKeyDown(KeyCode.A)) { aaaa += 0.1f; Map_color(aaaa); }
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
         /* デバック用に置いてます
@@ -218,7 +219,7 @@ public class Main : Functions
                         {
                             Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
                             if (enemy[i].type != Common.Type.Fly && L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[(enemy[i].x-1) % 3+1, (enemy[i].y-1) % 3+1].Pos;
-                            if (enemy[i].Move(v))
+                            if (enemy[i].Move(v)) //is_Skill(n3)
                             {
                                 enemy[i].pre_x = enemy[i].x;
                                 enemy[i].pre_y = enemy[i].y;
@@ -229,13 +230,13 @@ public class Main : Functions
                                 {
                                     enemy[i].x = enemy[i].pre_x;
                                     enemy[i].y = enemy[i].pre_y;
-                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Pazzle_data[enemy[i].x, enemy[i].y].Exit_direction(enemy[i].move_to));
+                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Get_exit(enemy[i], (enemy[i].move_to)));
                                 }
                                 else if ((Pazzle_data[enemy[i].x, enemy[i].y].condition == Common.Condition.Hole || Pazzle_data[enemy[i].x, enemy[i].y].condition == Common.Condition.Moving) && enemy[i].type == Common.Type.Walk)
                                 {
                                     enemy[i].x = enemy[i].pre_x;
                                     enemy[i].y = enemy[i].pre_y;
-                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Pazzle_data[enemy[i].x, enemy[i].y].Exit_direction(enemy[i].move_to));
+                                    enemy[i].set_curve(enemy[i].x, enemy[i].y, enemy[i].move_to, Get_exit(enemy[i], (enemy[i].move_to)));
                                 }
                                 #endregion
                                 else
@@ -243,16 +244,24 @@ public class Main : Functions
                                     enemy[i].set_curve(enemy[i].x, enemy[i].y, reverse(enemy[i].move_to), Get_exit(enemy[i], (reverse(enemy[i].move_to))));
                                 }
                             }
-                            if (L(enemy[i].x)==L(player.x)&&L(enemy[i].y)==L(player.y)&&(enemy[i].Pos-player.Pos).magnitude<0.6f)  //ここに当たった時の
+                            if (L(enemy[i].x) == L(player.x) && L(enemy[i].y) == L(player.y))
                             {
-                                touch_ID = i;
-                                flg = 3;
+                                if (UIs.is_Skill(1))
+                                {
+                                    enemy[i].act = Common.Action.Sad;//★強制送還。コインゲット等のアクションをバトルに入れた場合、ここにもお願いします
+                                    enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
+                                }
+                                else if ((enemy[i].Pos - player.Pos).magnitude < 0.6f)  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
+                                {
+                                    touch_ID = i;
+                                    flg = 3;
+                                }
                             }
                         }
                     }
                     #endregion
                     #region プレイヤーの動き
-                    if (player.Move(Pazzle_fields[(player.x-1) % 3+1, (player.y-1) % 3+1].Pos)) //動き終えたらtrue
+                    if (player.Move(Pazzle_fields[(player.x-1) % 3+1, (player.y-1) % 3+1].Pos)) //動き終えたらtrue is_Skill(n4)
                     {
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
                         UIs.Road_count++;
@@ -306,7 +315,7 @@ public class Main : Functions
                     #endregion
                     #region 盤を動かす
                     Arrow_show(true);
-                    if (Move(Move_X, Move_Y, Move_direct, 3f)) //盤が動く、動いてる途中はfalse
+                    if (Move(Move_X, Move_Y, Move_direct, 3f)) //盤が動く、動いてる途中はfalse is_Skill(n9)
                     {
                         if (Input.GetMouseButtonDown(0))
                         {
@@ -428,7 +437,7 @@ public class Main : Functions
                         timeElapsed = 0.0f;
                         isBattle = false;
                         //Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
-                        UIs.Enemy_Anime(false, enemy[touch_ID].type); //UIsに移植しました
+                        UIs.Enemy_Anime(false, enemy[touch_ID].type); //★UIsに移植しました
 
                         enemy[touch_ID].act = Common.Action.Sad;
                         enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
@@ -529,17 +538,17 @@ public class Main : Functions
                 }
             }
             #endregion
+        }
             #region Mapの更新
             player.On_Map(true);
-            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y)),UIs.is_Skill(0));
+            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y)),UIs.is_Skill(2));//is_Skill(n6)
             for (int i = 0; i < enemy.Length; i++)
             {
-                if (enemy[i].act == Common.Action.Sad) enemy[i].On_Map(false);
-                else if (d_infty(enemy[i].Pos, new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2)) < 1.5f) enemy[i].On_Map(true);
-                else enemy[i].On_Map(UIs.is_Skill(1));
+            if (enemy[i].act == Common.Action.Sad) enemy[i].On_Map(false);
+            else if (d_infty(enemy[i].Pos, new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2)) < 1.5f) enemy[i].On_Map(true);
+            else enemy[i].On_Map(false);//UIs.is_Skill(n0)),is_Skill(n6,find実装)
             }
             #endregion
-        }
         #region タッチエフェクト
         // 画面のどこでもタッチでエフェクト
         if (Input.GetMouseButton(0))
@@ -784,7 +793,7 @@ public class Main : Functions
         flg = 2;
     }
 
-    public void Fall(Common.Condition con) //
+    public void Fall(Common.Condition con) //is_Skill(n7)
     {
         player.OutScreen();
         player.Set_Chara(0); //アニメーション交換
@@ -832,7 +841,7 @@ public class Main : Functions
         {
             for (int j = 0; j < 5; j++)
             {
-                /*if (UIs.is_Skill(スキル番号)) //周りが見えるがスキル化するとき
+                /*if (UIs.is_Skill(n10)) //周りが見えるがスキル化するとき
                 {
                     Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
                     move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
@@ -995,6 +1004,26 @@ public class Main : Functions
         GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
     }
     
+    public void Map_color(float color_a)
+    {
+        for(int i = 0; i < treasure.Length; i++)
+        {
+            treasure[i].map_color(color_a);
+        }
+        for (int i = 0; i < enemy.Length; i++)
+        {
+            enemy[i].map_color(color_a);
+        }
+        player.map_color(color_a);
+        GameObject.Find("Map_base").GetComponent<Image>().color = new Color(1, 1, 1, color_a);
+        for(int i = 0; i < 3; i++)
+        {
+            for(int j = 0; j < 3; j++)
+            {
+                GameObject.Find("Small_map" + i + "-" + j).GetComponent<Image>().color = new Color(1, 0.8f, 0, color_a);
+            }
+        }
+    }
 
     #region Battle追加部分
     public void Battle_time_loss()
@@ -1010,7 +1039,7 @@ public class Main : Functions
     {
         pause_bool = !pause_bool;
         //UIs.All_pause_flg(pause_bool);
-        UIs.Pause_flg(false);//★向こうのpause_boolだけ逆なんです、、変えてもらってもいいですよ
+        UIs.Pause_flg(false);//★向こうのpause_boolだけ逆なんです、、変えてもらってもいいですよ。region:背景の動画とregion:時間表示のところですね
     }
     #endregion
 }

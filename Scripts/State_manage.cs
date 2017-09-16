@@ -13,6 +13,7 @@ public class State_manage : Functions
 {
     GameObject Back_anime, Front_anime;
     float width, height, time;
+    //float Max_Time, needle;RectTransform Needle; 時計盤の準備
     bool pause_bool;
     public bool timer_bool, bg_bool;
     Text Time_text,Skill_text;
@@ -87,6 +88,11 @@ public class State_manage : Functions
         timer_bool = false;
         bg_bool = false;
         time = 600;
+        /*Max_Time = 600;
+        needle = 600;
+        Needle = GameObject.Find("Needle").GetComponent<RectTransform>();
+        Needle.sizeDelta = new Vector2(0.5f * width, 0.5f * width);
+        Needle.localPosition = new Vector3(0, 0.5f * height);*/
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         Battle_enemy = GameObject.Find("BattleEnemy");
@@ -101,8 +107,8 @@ public class State_manage : Functions
         GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
         GameObject.Find("Skill").GetComponent<RectTransform>().localPosition = new Vector3(-0.13f * width, -0.46f * height);
         GameObject.Find("Skill").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.07f * width, 0.02f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.56f * width, 0.06f * height);
+        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.06f * width, 0.02f * height);
+        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.58f * width, 0.06f * height);
         GameObject.Find("Gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
         GameObject.Find("button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
         GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
@@ -115,7 +121,7 @@ public class State_manage : Functions
             {
                 GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Small_map"));
                 o.transform.parent = GameObject.Find("Map_base").transform;
-                o.GetComponent<RectTransform>().localPosition = new Vector3(0.066f * (i-1) * width, 0.066f * (j-1) * width);
+                o.GetComponent<RectTransform>().localPosition = new Vector3(width, width);
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.066f * width, 0.066f * width);
                 o.name = "Small_map" + i + "-" + j;
             }
@@ -149,7 +155,7 @@ public class State_manage : Functions
         }
         #endregion
         #region 時間表示
-        if (!pause_bool && timer_bool) time -= Time.deltaTime;
+        if (!pause_bool && timer_bool) time -= Time.deltaTime;//is_Skill(n2)
         if (time < 0) //GameOver
         {
             time = 0;
@@ -158,10 +164,13 @@ public class State_manage : Functions
         int m = Mathf.FloorToInt(time / 60f);
         int s = Mathf.FloorToInt(time % 60f);
         Time_text.text = ("Time   " + m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
+
+        //if (time < needle) needle -= 0.1f;
+        //Needle.localRotation=new 
         #endregion
         #region スキル
         Gage(Road_count);
-        if (skill_time < 20) skill_time += Time.deltaTime;
+        if (skill_time < 20 && !pause_bool && timer_bool) skill_time += Time.deltaTime;
         #endregion
     }
 
@@ -240,6 +249,25 @@ public class State_manage : Functions
         }
     }
 
+    public void Small_map(int x, int y) //右上の地図の枠
+    {
+        GameObject o = GameObject.Find("Small_map" + x + "-" + y);
+        o.GetComponent<RectTransform>().localPosition = new Vector3(0.066f * (x - 1) * width, 0.066f * (y - 1) * width);
+        o.GetComponent<Image>().color = new Color(1, 0.8f, 0, 1);
+    }
+
+    public void Item_Life()
+    {
+        if (Life_point < 2)
+        {
+            Life_point++;
+            Chara[Life_point].Pos = new Vector3(width * 0.65f * (3 - Life_point), height * 0.277f);
+            Chara[Life_point].Anime().SetTrigger("Retry_Trigger");
+            Anime(Life_point, Common.Action.Walk);
+        }
+    }
+
+    #region ゲーム終了らへんの操作
     public bool To_result(int Effect_or_Treasure) //シーン内遷移をしても良いか
     { 
         if (Effect_or_Treasure == 0)
@@ -299,12 +327,6 @@ public class State_manage : Functions
         }
     }
 
-    public void Small_map(int x, int y) //右上の地図の枠
-    {
-        GameObject o = GameObject.Find("Small_map" + x + "-" + y);
-        o.GetComponent<Image>().color = new Color(1, 0.8f, 0, 1);
-    }
-
     public void Retry() //リトライを押したとき
     {
         time = 600;
@@ -353,6 +375,7 @@ public class State_manage : Functions
             }
         }
     }
+    #endregion
 
     #region　スキル
     public void Gage(float gage) //スキルゲージを

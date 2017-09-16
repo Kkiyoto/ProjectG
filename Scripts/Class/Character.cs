@@ -19,6 +19,7 @@ public class Character : Functions
     public Common.Direction move_from,move_to;
     public Common.Action act;
     public Common.Type type;
+    Color col = Color.white;
 
     public Character(GameObject Image_obj,Common.Type t)
     {
@@ -77,11 +78,16 @@ public class Character : Functions
         {
             float delta = Screen.width * 0.022f;
             map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
-            map.GetComponent<Image>().color = Color.white;
+            map.GetComponent<Image>().color = col;
         }
         else map.GetComponent<Image>().color = new Color(0, 0, 0, 0);
     }
-    
+
+    public void map_color(float a)
+    {
+        col = new Color(1, 1, 1, a);
+    }
+
     public Vector3 Pos
     {
         set { obj.transform.position = value; }
