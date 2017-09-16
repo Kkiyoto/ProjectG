@@ -11,7 +11,7 @@ using UnityEngine.UI;
 
 public class State_manage : Functions
 {
-    GameObject Back_anime, Front_anime;
+    GameObject Back_anime, Front_anime,Pause_Menu;
     float width, height, time;
     //float Max_Time, needle;RectTransform Needle; 時計盤の準備
     bool pause_bool;
@@ -20,8 +20,6 @@ public class State_manage : Functions
     int Life_point;
     public int Road_count;
     Party[] Chara = new Party[3];
-    //GameObject[] chara = new GameObject[3];
-    //int[] chara_ID = new int[3];
     AudioClip[] SEs = new AudioClip[6];//音増えるごとに追加お願いします
     
     GameObject Battle_enemy;
@@ -42,7 +40,7 @@ public class State_manage : Functions
         Front_anime = GameObject.Find("Back_front");
         Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front" + 0);
         Front_anime.GetComponent<RectTransform>().sizeDelta = new Vector2(height * 2.79f, height * 0.37f);
-        Front_anime.GetComponent<RectTransform>().localPosition = new Vector3(0, height * 0.297f);
+        Front_anime.GetComponent<RectTransform>().localPosition = new Vector3(0, height * 0.2986f);
         #endregion
         #region ゲームの後ろの背景
         /*GameObject o = GameObject.Find("Background");  //これで配置していく
@@ -88,7 +86,7 @@ public class State_manage : Functions
         timer_bool = false;
         bg_bool = false;
         time = 600;
-        /*Max_Time = 600;
+        /*Max_Time = 600; //タイム表示が変更になった時に入れる
         needle = 600;
         Needle = GameObject.Find("Needle").GetComponent<RectTransform>();
         Needle.sizeDelta = new Vector2(0.5f * width, 0.5f * width);
@@ -114,7 +112,6 @@ public class State_manage : Functions
         GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
         GameObject.Find("Change").GetComponent<RectTransform>().localPosition = new Vector3(0.48f * width-0.04f*height, -0.46f * height);
         GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
-
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -127,6 +124,10 @@ public class State_manage : Functions
             }
         }
         #endregion
+
+        /*Pause_Menu = GameObject.Find("Pause_Menu");
+        Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.9f*height);
+        Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);*/
     }
 
     // Update is called once per frame
@@ -172,9 +173,32 @@ public class State_manage : Functions
         Gage(Road_count);
         if (skill_time < 20 && !pause_bool && timer_bool) skill_time += Time.deltaTime;
         #endregion
+        /*#region ポーズメニュー　
+         * ★pause_boolに対応して作ろうかと思っています。スタート時ポーズを使わないで実装することは可能でしょうか?もし難しそうであれば、新しく変数作ります。
+         * ★どんなのか見てみたいのであれば、Pause_Menuという名のImageをキャンバスに載せて、StartのPause_Menuあたりのコメントアウトを消してください。
+        Vector3 v = Pause_Menu.GetComponent<RectTransform>().localPosition;
+        if (pause_bool && v.z < 0)
+        {
+            float x = v.z * 11f;
+            x++;
+            Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
+            if (Mathf.Abs(v.z) < 0.1f) Pause_Menu.GetComponent<RectTransform>().localPosition = Vector3.zero;
+        }
+        else if (!pause_bool && v.z > -5)
+        {
+            float x = v.z * 11f;
+            x--;
+            Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
+            if (Mathf.Abs(v.z+5) <0.1f)
+            {
+                Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5.1f);
+                GameObject.Find("Director").GetComponent<Main>().Pause_button_down();
+            }
+        }
+        #endregion*/
     }
 
-    // すみません、作っちゃいました...。
+        // すみません、作っちゃいました...。
     public void All_pause_flg(bool pause)
     {
         pause_bool = pause;

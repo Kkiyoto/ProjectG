@@ -1038,8 +1038,8 @@ public class Main : Functions
     public void After_start_animation()
     {
         pause_bool = !pause_bool;
-        //UIs.All_pause_flg(pause_bool);
-        UIs.Pause_flg(false);//★向こうのpause_boolだけ逆なんです、、変えてもらってもいいですよ。region:背景の動画とregion:時間表示のところですね
+        //UIs.All_pause_flg(pause_bool);//★とりあえず現状で動くようにコメントアウト（応急処置的な）しただけです。コメントアウト消すなリなんなりお願いします。
+        UIs.Pause_flg(false);//★向こうのpause_boolだけ逆なんです、、変えてもらってもいいです。region:背景の動画とregion:時間表示のところですね。
     }
     #endregion
 }
