@@ -18,7 +18,7 @@ public class State_manage : Functions
     public bool timer_bool, bg_bool;
     Text Time_text,Skill_text;
     int Life_point;
-    public int Road_count;
+    int Road_count;
     Party[] Chara = new Party[3];
     AudioClip[] SEs = new AudioClip[6];//音増えるごとに追加お願いします
     
@@ -55,7 +55,7 @@ public class State_manage : Functions
         for (int i = 0; i < 3; i++)
         {
             GameObject o = GameObject.Find("Chara" + i);
-            int ID = PlayerPrefs.GetInt("Party" + i, 1);
+            int ID = PlayerPrefs.GetInt("Party" + i, i+2);
             Chara[i] = new Party(o, ID);
             GameObject.Find("dictionary").GetComponent<Dictionary>().Set_Box(Chara[i], ID);
             Chara[i].Pos = new Vector3(width * 0.8f * (i+1), height * 0.277f);
@@ -70,7 +70,7 @@ public class State_manage : Functions
         PlayerPrefs.SetInt("Life", 2);
         PlayerPrefs.SetInt("enemy", 5);  //ここを使うとResultリセット
         PlayerPrefs.SetInt("Party" + 0, 2);
-        PlayerPrefs.SetInt("Party" + 1, 1);
+        PlayerPrefs.SetInt("Party" + 1, 4);
         PlayerPrefs.SetInt("Party" + 2, 3);*/
         #endregion
         #region SEの設定
@@ -170,7 +170,7 @@ public class State_manage : Functions
         //Needle.localRotation=new 
         #endregion
         #region スキル
-        Gage(Road_count);
+        Gage();
         if (skill_time < 20 && !pause_bool && timer_bool) skill_time += Time.deltaTime;
         #endregion
         /*#region ポーズメニュー　
@@ -402,9 +402,28 @@ public class State_manage : Functions
     #endregion
 
     #region　スキル
-    public void Gage(float gage) //スキルゲージを
+    public void Gage() //スキルゲージを
     {
-        GameObject.Find("Gage").GetComponent<Image>().fillAmount = gage / 25f;
+        GameObject o = GameObject.Find("Gage");
+        if (Chara[0].Max_count > skill_time)
+        {
+            o.GetComponent<Image>().fillAmount = 1-skill_time / Chara[0].Max_count;
+        }
+        else
+        {
+            float max = Chara[0].Max_gage;
+            float child = Road_count;
+            o.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            o.GetComponent<Image>().fillAmount = child/max;
+        }
+    }
+
+    public void Road_counter()
+    {
+        if (Chara[0].Max_count < skill_time)
+        {
+            Road_count++;
+        }
     }
 
     public void Skill_On() //スキルボタンを押したとき
@@ -413,6 +432,7 @@ public class State_manage : Functions
         {
             skill_time = 0;//秒
             Road_count = 0;
+            GameObject.Find("Gage").GetComponent<Image>().color = new Color(0, 1, 1, 1);
         }
     }
 

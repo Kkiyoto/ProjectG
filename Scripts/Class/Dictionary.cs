@@ -34,6 +34,7 @@ public class Dictionary : MonoBehaviour {
             chara.skills[n10] = 0; //周りが見える（却下っぽい。。）*/
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.Max_gage = 25;
+            chara.Max_count = 5;
         }
         #endregion
         #region ID=2:魔女
@@ -56,6 +57,7 @@ public class Dictionary : MonoBehaviour {
             chara.skills[n9] = 0; //周りが見える（却下っぽい。。）*/
             chara.skill_Description = "見えている敵全体に攻撃";
             chara.Max_gage = 25;
+            chara.Max_count = 1;
         }
         #endregion
         #region ID=3:海賊
@@ -78,6 +80,7 @@ public class Dictionary : MonoBehaviour {
             chara.skills[n9] = 0; //周りが見える（却下っぽい。。）*/
             chara.skill_Description = "アイテムの位置が分かる";
             chara.Max_gage = 25;
+            chara.Max_count = 10;
         }
         #endregion
 
