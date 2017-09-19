@@ -5,7 +5,7 @@ using UnityEngine;
 /* Common
  * 何かしらの用語の定義とかに使えたらと、、
  * 上手い使い方は分かっていないです
- */ 
+ */
 
 public class Common : MonoBehaviour
 {
@@ -21,7 +21,7 @@ public class Common : MonoBehaviour
 
     public enum Action //キャラの動作（敵含む）
     {
-        Walk=0, //行動
+        Walk = 0, //行動
         Battle, //バトル時
         Happy, //勝利、宝、ゴール
         Stop, //構え、一時停止時
@@ -30,7 +30,7 @@ public class Common : MonoBehaviour
 
     public enum Type //キャラ（敵）
     {
-        Player=0,
+        Player = 0,
         Walk,
         Fly,
         Stop
@@ -38,16 +38,16 @@ public class Common : MonoBehaviour
 
     public enum Condition //足場
     {
-        Normal=0,
+        Normal = 0,
         Hole,
-        Moving, 
+        Moving,
         Player,
         //Enemy,
     }
 
     public enum Thema //背景
     {
-        Sky=0,
+        Sky = 0,
         Mine,
         Magma,
         Poison
@@ -55,7 +55,7 @@ public class Common : MonoBehaviour
 
     public enum SE//音、PlayOneShotさせるやつ。何が一緒の音かとか、何があるのか分かっていないので追記どんどんお願いします。
     {
-        Time=0,//敵にたたかれているとき
+        Time = 0,//敵にたたかれているとき
         Fall,//落ちる時
         Win,//敵倒したとき
         Get,//宝箱、ゴール
@@ -63,9 +63,19 @@ public class Common : MonoBehaviour
         Slide,//盤を動かしているとき
     }
 
+
+    public enum BGM
+    {
+        title = 0,
+        menu,
+        tutorial,
+        battle,
+        result,
+    }
+
     public enum Treasure //何が入っているのか
     {
-        Item=0,//武器とか
+        Item = 0,//武器とか
         Coin,
         Time,
         Life,
