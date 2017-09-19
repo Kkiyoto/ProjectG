@@ -141,7 +141,7 @@ public class Result : Functions
                 }*/
                 o = GameObject.Find("Coin_Plus"); 
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
-                coin = Random.Range(500, 1000);
+                coin = Random.Range(200, 700);
                 o.GetComponent<Text>().text = coin.ToString();
             }
         }
@@ -203,9 +203,10 @@ public class Result : Functions
                                     obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                     obj.GetComponent<Animator>().SetBool("Open_Bool", false);
                                     obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
-                                    coin = Random.Range(500, 1000);
+                                    coin = Random.Range(200, 700);
                                     o.GetComponent<Text>().text = coin.ToString();
                                     count = 0;
+                                    o.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
                                 }
                             }
                         }
@@ -222,7 +223,7 @@ public class Result : Functions
                     o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
                     o.name = "GetRare" + i;
                     o.transform.parent = GameObject.Find("Treasure").transform;
-                    o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/sword2");
+                    o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/Item"+Random.Range(0,5));
                 }
                 GameObject.Find("Box").GetComponent<Image>().color = Color.white;
             }

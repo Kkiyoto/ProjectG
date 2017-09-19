@@ -255,11 +255,6 @@ public class State_manage : Functions
 
     public void Lose_Time(float minus) //単位は秒
     {
-        /*if (minus == 0)
-        {
-            time-=Chara[0].Attack or Chara[0].Attackを使った関数
-        }
-        else*/
         time -= minus;
     }
 

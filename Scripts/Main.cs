@@ -1081,7 +1081,7 @@ public class Main : Functions
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
 
-        // UIs.Lose_Time(900/UIs.   .Chara[0].Attack);  // dictinary 未発見のため据え置き
+        // UIs.Lose_Time(900/UIs.Chara[0].Attack);  // dictinary 未発見のため据え置き　★いきなりChara[]で良いです。
         if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
         {
             UIs.Lose_Time(900 / 30);
