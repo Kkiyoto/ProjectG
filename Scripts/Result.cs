@@ -13,10 +13,11 @@ using UnityEngine.SceneManagement;
 public class Result : Functions
 {
     float width, height;
-    int flg,count,num;
+    int flg,count,num,coin;
     GameObject obj,o;
     float delta_time;
     int[] datas = new int[6]; //順にtime,Life,Enemy,Coin,treasure普通、レア
+    Text text;
 
     #region タッチエフェクト追記
     [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
@@ -44,6 +45,7 @@ public class Result : Functions
         count = 0;
         num = 0;
         delta_time = 0;
+        text = obj.GetComponent<Text>();
     }
 	
 	// Update is called once per frame
@@ -55,17 +57,18 @@ public class Result : Functions
         if (flg < 0)
         {
             RectTransform tra = obj.GetComponent<RectTransform>();
-            if (tra.localPosition.magnitude>width/61f) tra.Translate(new Vector3(width / 30f, 0));
-            else if (tra.sizeDelta.y < 2f * height) tra.sizeDelta = (31f*tra.sizeDelta - new Vector2(0.36f * width, 0.063f * height))/30f;
+            if (tra.localPosition.magnitude > width / 61f) tra.Translate(new Vector3(width / 30f, 0));
+            else if (tra.sizeDelta.y < 2f * height) tra.sizeDelta = (31f * tra.sizeDelta - new Vector2(0.36f * width, 0.063f * height)) / 30f;
             else
             {
                 GameObject.Find("Title").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Result");
                 Destroy(obj);
                 flg++;
                 count = 0;
-        obj = GameObject.Find("end");
-        obj.GetComponent<RectTransform>().localPosition = new Vector3(-width,0.5f*height);
-        obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
+                obj = GameObject.Find("end");
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.5f * height);
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
+                text = obj.GetComponent<Text>();
             }
         }
         #endregion
@@ -76,7 +79,7 @@ public class Result : Functions
             else if (count > datas[0]) count--;
             int m = Mathf.FloorToInt(count / 60);
             int s = count % 60;
-            obj.GetComponent<Text>().text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
+            text.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
             if (count == datas[0])
             {
                 flg++;
@@ -109,6 +112,7 @@ public class Result : Functions
                 obj = GameObject.Find("Coin");
                 obj.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, 0.065f * height);
                 obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
+                text = obj.GetComponent<Text>();
             }
         }
         #endregion
@@ -117,7 +121,7 @@ public class Result : Functions
         {
             if (count < datas[3]) count += Random.Range(10, 20);
             else if (count > datas[3]) count--;
-            obj.GetComponent<Text>().text = (count.ToString());
+            text.text = (count.ToString());
             if (count == datas[3])
             {
                 flg++;
@@ -125,7 +129,7 @@ public class Result : Functions
                 obj = GameObject.Find("Treasure");
                 obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                 GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
-                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);/*
                 for (int i = 0; i < datas[4]; i++)
                 {
                     o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
@@ -134,7 +138,11 @@ public class Result : Functions
                     o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/sword1");
                     o.transform.SetSiblingIndex(0);
                     o.GetComponent<RectTransform>().localPosition = new Vector3(width, height, 0);
-                }
+                }*/
+                o = GameObject.Find("Coin_Plus"); 
+                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
+                coin = Random.Range(500, 1000);
+                o.GetComponent<Text>().text = coin.ToString();
             }
         }
         #endregion
@@ -151,47 +159,54 @@ public class Result : Functions
                     {
                         obj.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.15f * height, 0);
                         obj.GetComponent<Animator>().SetBool("Open_Bool", true);
-                        o = GameObject.Find("Get" + num);
-                        o.GetComponent<Image>().color = Color.white;
                     }
                     else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning_pink")
                 && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)//開いた後
                     {
                         count++;
-                        if (count < 90)
+                        if (count < 45)
                         {
                             o.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 0.06f * Mathf.Cos(Mathf.PI / 45f * count), 0);
                             Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
-                            //Debug.Log("name : " + o.name+"   "+scale);
-                            if (scale.x < 0.5f * height)//大きくする
-                            {
-                                scale += new Vector2(2, 2);
-                                o.GetComponent<RectTransform>().sizeDelta = scale;
-                            }
-                            else
+                            if(count>30)
                             {
                                 obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
-                            }
-                            if (count == 40)
-                            {
-                                o.transform.SetAsLastSibling();
                             }
                         }
                         else
                         {
                             obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
-                            GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = obj.GetComponent<RectTransform>().sizeDelta;
-                            if (obj.GetComponent<RectTransform>().sizeDelta.x < 1)
+                            Vector3 pos = o.GetComponent<RectTransform>().localPosition;
+                            o.GetComponent<RectTransform>().localPosition = (9f * pos + new Vector3(0.13f * width, -0.065f * height))/10f;
+                            Debug.Log(" m "+ (o.GetComponent<RectTransform>().localPosition -new Vector3(0.13f * width, -0.065f * height)).magnitude);
+                            if ((o.GetComponent<RectTransform>().localPosition - new Vector3(0.13f * width, -0.065f * height)).magnitude < 0.1f)
                             {
-                                o.transform.parent = GameObject.Find("Canvas").transform;
-                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.3f * (num - 1) * width, -0.3f * height);
-                                num++;
-                                obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
-                                obj.GetComponent<Animator>().SetBool("Open_Bool", false);
-                                GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
-                                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
-                                count = 0;
-                                //o = GameObject.Find("Get"+num);
+                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, -0.065f * height);
+                                if (coin > 0)
+                                {
+                                    int ran = Random.Range(5, 10);
+                                    coin -= ran;
+                                    datas[3] += ran;
+                                    text.text = datas[3].ToString();
+                                    o.GetComponent<Text>().text = coin.ToString();
+                                }
+                                else if (coin < 0)
+                                {
+                                    coin++;
+                                    datas[3]--;
+                                    text.text = datas[3].ToString();
+                                    o.GetComponent<Text>().text = coin.ToString();
+                                }
+                                else
+                                {
+                                    num++;
+                                    obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
+                                    obj.GetComponent<Animator>().SetBool("Open_Bool", false);
+                                    obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
+                                    coin = Random.Range(500, 1000);
+                                    o.GetComponent<Text>().text = coin.ToString();
+                                    count = 0;
+                                }
                             }
                         }
                     }
@@ -209,6 +224,7 @@ public class Result : Functions
                     o.transform.parent = GameObject.Find("Treasure").transform;
                     o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/sword2");
                 }
+                GameObject.Find("Box").GetComponent<Image>().color = Color.white;
             }
         }
         #endregion
