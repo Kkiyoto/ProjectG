@@ -41,10 +41,14 @@ public class Main : Functions
     GameObject Battle_down_panel;
     float timeElapsed, timeOut = 3.0f;
     bool isBattle = false;
+
+    int coin = 0;
+
     #endregion
     #region タッチエフェクト追記
     [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
     [SerializeField] Camera _camera;                // カメラの座標
+    private bool isTouch = false;
     #endregion
     #region 初期アニメーション追加部分
     // 変数多過ぎ問題
@@ -428,7 +432,7 @@ public class Main : Functions
                         UIs.bg_bool = true;
                         UIs.BGM_on(Common.BGM.battle); // ここで戦闘BGM定義
 
-                        for (int i = 0; i < UIs.get_Life(); i++)
+                        for (int i = 0; i <= UIs.get_Life(); i++)
                             UIs.Anime(i, Common.Action.Battle);
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
@@ -444,13 +448,20 @@ public class Main : Functions
                     #endregion
                     break;
                 case 4: //宝ゲット
+
+                    if (timeElapsed == 0.0f)
+                    {
+                        UIs.SE_on(Common.SE.Get);
+                        coin += Random.Range(5, 9); // コイン取得
+                    }
                     timeElapsed += Time.deltaTime;
-                    for (int i = 0; i < UIs.get_Life(); i++)
+                    for (int i = 0; i <= UIs.get_Life(); i++)
                         UIs.Anime(i, Common.Action.Happy);
-                    if (timeElapsed > 2.0f) //2秒経過で終了
+
+                    if (timeElapsed > 1.5f) //2秒経過で終了
                     {
                         // 移植作業中..
-                        for (int i = 0; i < UIs.get_Life(); i++)
+                        for (int i = 0; i <= UIs.get_Life(); i++)
                             UIs.Anime(i, Common.Action.Walk);
                         treasure[touch_ID].Get_Item();
                         timeElapsed = 0.0f;
@@ -458,11 +469,17 @@ public class Main : Functions
                     }
                     break;
                 case 5: //落下
+                    if (timeElapsed == 0.0f)
+                    {
+                        UIs.SE_on(Common.SE.Fall);
+                    }
+                    timeElapsed += Time.deltaTime;
                     if (player.Wait_chara())
                     {
                         flg = 1;
                         UIs.timer_bool = true;
                         UIs.bg_bool = true;
+                        timeElapsed = 0.0f;
                         if (Field_direct == Common.Direction.Straight) flg = 6;
                         else if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
                         if (UIs.Damage())
@@ -514,6 +531,11 @@ public class Main : Functions
                     break;
                 case 7: //ゴール
                     //RenderSettings.fogDensity += 0.1f;
+
+                    if (timeElapsed == 0.0f)
+                        UIs.SE_on(Common.SE.Get);
+
+                    timeElapsed += Time.deltaTime;
                     if (UIs.To_goal(0) & UIs.To_goal(1))
                     {
                         GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
@@ -521,6 +543,10 @@ public class Main : Functions
                     }
                     break;
                 case 8: //Game Over
+                    if (timeElapsed == 0.0f)
+                        UIs.BGM_on(Common.BGM.gameover); // ここでゲームオーバーBGM定義
+
+                    timeElapsed += Time.deltaTime;
                     if (UIs.To_result(0))
                     {
                         UIs.Set_Button();
@@ -557,8 +583,17 @@ public class Main : Functions
         #endregion
         #region タッチエフェクト
         // 画面のどこでもタッチでエフェクト
+        if (Input.GetMouseButtonUp(0))
+        {
+            isTouch = false;
+        }
         if (Input.GetMouseButton(0))
         {
+            if (!isTouch)
+            {
+                //UIs.SE_on(Common.SE.Button); // 何故か違和感がある
+                isTouch = true;
+            }
             // マウスのワールド座標までパーティクルを移動,エフェクトを1つ生成する
             var pos = _camera.ScreenToWorldPoint(Input.mousePosition + _camera.transform.forward * 10);
             touchEffect.transform.position = pos;
@@ -986,7 +1021,7 @@ public class Main : Functions
             if (enemy[i].act == Common.Action.Sad) Destroy++;
         }
         PlayerPrefs.SetInt("enemy", Destroy);
-        //PlayerPrefs.SetInt("Coin", coin);
+        PlayerPrefs.SetInt("Coin", coin);
     }
 
     public void change_Mount(Common.Direction entrance, int x, int y)//キャラの座標、0~8、x:左から,y:下から
@@ -1059,7 +1094,7 @@ public class Main : Functions
     public void Battle_endset()
     {
         int i;
-        for (i = 0; i < UIs.get_Life(); i++)
+        for (i = 0; i <= UIs.get_Life(); i++)
             UIs.Anime(i, Common.Action.Walk);
 
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", 10);
@@ -1070,10 +1105,11 @@ public class Main : Functions
         UIs.Enemy_Anime(false, enemy[touch_ID].type);
         UIs.BGM_on(Common.BGM.tutorial); // ここで通常BGM定義
 
+        coin += Random.Range(10, 20); // コイン取得
+
         enemy[touch_ID].act = Common.Action.Sad;
         enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
         flg = 1;
-        //Invoke("BGM_restart", 2.0f);
     }
 
     public void Battle_time_loss()
@@ -1081,20 +1117,19 @@ public class Main : Functions
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
 
-        // UIs.Lose_Time(900/UIs.Chara[0].Attack);  // dictinary 未発見のため据え置き　★いきなりChara[]で良いです。
         if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
         {
-            UIs.Lose_Time(900 / 30);
+            UIs.Lose_Time(Chara[0].Attack/2);
             UIs.SE_on(Common.SE.Sword);
         }
         else if (UIs.Top_ID() == 2)
         {
-            UIs.Lose_Time(900 / 60);
+            UIs.Lose_Time(Chara[0].Attack/2);
             UIs.SE_on(Common.SE.Fire);
         }
         else if (UIs.Top_ID() == 3)
         {
-            UIs.Lose_Time(900 / 60);
+            UIs.Lose_Time(Chara[0].Attack/2);
             UIs.SE_on(Common.SE.Gun);
         }
     }
