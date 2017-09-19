@@ -147,14 +147,14 @@ public class Result : Functions
                 obj.GetComponent<RectTransform>().localPosition = (14f * vec + new Vector3(0, -0.15f * height, 0)) / 15f;
                 if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.05f)//宝移動後
                 {
-                    if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed"))
+                    if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed_pink"))
                     {
                         obj.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.15f * height, 0);
                         obj.GetComponent<Animator>().SetBool("Open_Bool", true);
                         o = GameObject.Find("Get" + num);
                         o.GetComponent<Image>().color = Color.white;
                     }
-                    else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning")
+                    else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning_pink")
                 && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)//開いた後
                     {
                         count++;
@@ -275,11 +275,14 @@ public class Result : Functions
                 flg++;
                 count = 0;
                 GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
-                obj = GameObject.Find("Next");
-                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.1f * height);
-                obj.GetComponent<RectTransform>().localPosition = new Vector2(0.25f * width, -0.45f * height);
 
             }
+        }
+        #endregion
+        #region flg=6:  次へ
+        else if (flg == 6)
+        {
+            if (Input.GetMouseButtonUp(0)) Next();
         }
         #endregion
 
