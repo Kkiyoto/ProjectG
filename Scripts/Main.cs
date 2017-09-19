@@ -197,7 +197,7 @@ public class Main : Functions
     {
         //if (Input.GetKeyDown(KeyCode.A)) { aaaa += 0.1f; Map_color(aaaa); }
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
-        if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down();
+        if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down(!pause_bool);
         /* デバック用に置いてます
         for(int i = 0; i < 3; i++)
         {
@@ -886,9 +886,9 @@ public class Main : Functions
         return ans;
     }
 
-    public void Pause_button_down()
+    public void Pause_button_down(bool which)
     {
-        pause_bool = !pause_bool;
+        pause_bool = which;
         UIs.Pause_flg(pause_bool);
     }
 

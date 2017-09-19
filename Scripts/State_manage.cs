@@ -11,9 +11,10 @@ using UnityEngine.UI;
 
 public class State_manage : Functions
 {
-    GameObject Back_anime, Front_anime,Pause_Menu;
+    GameObject Back_anime, Front_anime,Pause_Menu,gage;
     float width, height, time;
-    //float Max_Time, needle;RectTransform Needle; 時計盤の準備
+    float needle;//,Max_Time;
+    RectTransform Needle; //時計盤の準備
     bool pause_bool;
     public bool timer_bool, bg_bool;
     Text Time_text,Skill_text;
@@ -21,9 +22,13 @@ public class State_manage : Functions
     int Road_count;
     Party[] Chara = new Party[3];
     AudioClip[] SEs = new AudioClip[6];//音増えるごとに追加お願いします
+    Main main;
     
     GameObject Battle_enemy;
     public float skill_time;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植 ★Partyにします）
+
+    [SerializeField] Camera _camera;                // カメラの座標
+    [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
 
     // Use this for initialization
     void Start()
@@ -42,24 +47,17 @@ public class State_manage : Functions
         Front_anime.GetComponent<RectTransform>().sizeDelta = new Vector2(height * 2.79f, height * 0.37f);
         Front_anime.GetComponent<RectTransform>().localPosition = new Vector3(0, height * 0.2986f);
         #endregion
-        #region ゲームの後ろの背景
-        /*GameObject o = GameObject.Find("Background");  //これで配置していく
-        o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back" + 0);
-        o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);*/
-        //o = GameObject.Find("Effect");  //これで配置していく
-        //o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-        //o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
-        #endregion
         #region キャラクターのアニメ
+        GameObject dictionary = GameObject.Find("dictionary");
         for (int i = 0; i < 3; i++)
         {
             GameObject o = GameObject.Find("Chara" + i);
             int ID = PlayerPrefs.GetInt("Party" + i, i+2);
             Chara[i] = new Party(o, ID);
-            GameObject.Find("dictionary").GetComponent<Dictionary>().Set_Box(Chara[i], ID);
+            dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID);
             Chara[i].Pos = new Vector3(width * 0.8f * (i+1), height * 0.277f);
         }
+        Destroy(dictionary);
         /*PlayerPrefs.SetInt("Party0", 3);
         PlayerPrefs.SetInt("Party1", 1);
         PlayerPrefs.SetInt("Party2", 2);
@@ -68,10 +66,7 @@ public class State_manage : Functions
         PlayerPrefs.SetInt("treasure1", 1);
         PlayerPrefs.SetInt("Time", 357);
         PlayerPrefs.SetInt("Life", 2);
-        PlayerPrefs.SetInt("enemy", 5);  //ここを使うとResultリセット
-        PlayerPrefs.SetInt("Party" + 0, 2);
-        PlayerPrefs.SetInt("Party" + 1, 4);
-        PlayerPrefs.SetInt("Party" + 2, 3);*/
+        PlayerPrefs.SetInt("enemy", 5);  //ここを使うとResultリセット*/
         #endregion
         #region SEの設定
         SEs[0] = Resources.Load<AudioClip>("Time");//例として置いときます。名前も数も変えておいてください
@@ -86,11 +81,10 @@ public class State_manage : Functions
         timer_bool = false;
         bg_bool = false;
         time = 600;
-        /*Max_Time = 600; //タイム表示が変更になった時に入れる
+        //Max_Time = 600; //タイム表示が変更になった時に入れる
         needle = 600;
-        Needle = GameObject.Find("Needle").GetComponent<RectTransform>();
-        Needle.sizeDelta = new Vector2(0.5f * width, 0.5f * width);
-        Needle.localPosition = new Vector3(0, 0.5f * height);*/
+        Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();
+        Needle.sizeDelta = new Vector2(0.2f * width, 0.5f * width);
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         Battle_enemy = GameObject.Find("BattleEnemy");
@@ -123,6 +117,11 @@ public class State_manage : Functions
                 o.name = "Small_map" + i + "-" + j;
             }
         }
+        #endregion
+
+        #region Find系
+        main = GameObject.Find("Director").GetComponent<Main>();
+        gage = GameObject.Find("Gage");
         #endregion
 
         /*Pause_Menu = GameObject.Find("Pause_Menu");
@@ -160,18 +159,41 @@ public class State_manage : Functions
         if (time < 0) //GameOver
         {
             time = 0;
-            GameObject.Find("Director").GetComponent<Main>().Goal(1);
+            main.Goal(1);
         }
         int m = Mathf.FloorToInt(time / 60f);
         int s = Mathf.FloorToInt(time % 60f);
         Time_text.text = ("Time   " + m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
 
-        //if (time < needle) needle -= 0.1f;
-        //Needle.localRotation=new 
+        if (time < needle) needle -= 0.5f;
+        Needle.localRotation = new Quaternion(0, 0, 1, 1- needle / 300);
         #endregion
         #region スキル
         Gage();
         if (skill_time < 20 && !pause_bool && timer_bool) skill_time += Time.deltaTime;
+        else if (skill_time < 0)
+        {
+            skill_time+= Time.deltaTime;
+            if (skill_time < -0.2f)
+            {
+                var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, 0.88f) * width, Random.Range(0.13f, 0.6f)* height, 10));// + camera.transform.forward * 10);
+                touchEffect.transform.position = pos;
+                touchEffect.Emit(1);
+            }
+            else
+            {
+                Anime(0, Common.Action.Walk);
+                main.Pause_button_down(false);
+                bg_bool = true;
+                timer_bool = true;
+            }
+        }
+        if (Road_count >= Chara[0].Max_gage)
+        {
+            var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f,0.66f) * width, 0.04f * height, 10));// + camera.transform.forward * 10);
+            touchEffect.transform.position = pos;
+            touchEffect.Emit(1);
+        }
         #endregion
         /*#region ポーズメニュー　
          * ★pause_boolに対応して作ろうかと思っています。スタート時ポーズを使わないで実装することは可能でしょうか?もし難しそうであれば、新しく変数作ります。
@@ -192,7 +214,7 @@ public class State_manage : Functions
             if (Mathf.Abs(v.z+5) <0.1f)
             {
                 Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5.1f);
-                GameObject.Find("Director").GetComponent<Main>().Pause_button_down();
+                main.Pause_button_down();
             }
         }
         #endregion*/
@@ -354,6 +376,7 @@ public class State_manage : Functions
     public void Retry() //リトライを押したとき
     {
         time = 600;
+        needle = 600;
         Life_point = 2;
         GameObject.Find("Effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0, 0);
         GameObject.Find("Game_over").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
@@ -365,7 +388,9 @@ public class State_manage : Functions
             Chara[i].Anime().SetTrigger("Retry_Trigger");
             Anime(i, Common.Action.Walk);
         }
-        Change_Chara();
+        /*GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+        Skill_text.text = Chara[0].skill_Description;
+        skill_time = 20;*/
         timer_bool = true;
         bg_bool = true;
     }
@@ -404,23 +429,22 @@ public class State_manage : Functions
     #region　スキル
     public void Gage() //スキルゲージを
     {
-        GameObject o = GameObject.Find("Gage");
-        if (Chara[0].Max_count > skill_time)
+        if (Chara[0].Max_second > skill_time)
         {
-            o.GetComponent<Image>().fillAmount = 1-skill_time / Chara[0].Max_count;
+            gage.GetComponent<Image>().fillAmount = 1-skill_time / Chara[0].Max_second;
         }
         else
         {
             float max = Chara[0].Max_gage;
             float child = Road_count;
-            o.GetComponent<Image>().color = new Color(1, 1, 1, 1);
-            o.GetComponent<Image>().fillAmount = child/max;
+            gage.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            gage.GetComponent<Image>().fillAmount = child/max;
         }
     }
 
     public void Road_counter()
     {
-        if (Chara[0].Max_count < skill_time)
+        if (Chara[0].Max_second < skill_time)
         {
             Road_count++;
         }
@@ -428,17 +452,21 @@ public class State_manage : Functions
 
     public void Skill_On() //スキルボタンを押したとき
     {
-        if (Road_count >= Chara[0].Max_gage)
+        if (Road_count >= Chara[0].Max_gage)//●押しちゃいけないとき
         {
-            skill_time = 0;//秒
+            skill_time = -2;//秒
             Road_count = 0;
-            GameObject.Find("Gage").GetComponent<Image>().color = new Color(0, 1, 1, 1);
+            gage.GetComponent<Image>().color = new Color(0, 1, 1, 1);
+            main.Pause_button_down(true);
+            bg_bool = false;
+            timer_bool = false;
+            Anime(0, Common.Action.Happy);
         }
     }
 
     public bool is_Skill(int n)
     {
-        return skill_time < Chara[0].skills[n];
+        return skill_time < Chara[0].skills[n] && skill_time>0;
     }
     #endregion
 

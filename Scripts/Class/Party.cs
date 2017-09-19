@@ -19,7 +19,7 @@ public class Party : MonoBehaviour
     public int[] skills = new int[3]; //20秒が最高で使える時間、詳しくはDictionaryで
     public string skill_Description;//どんなスキルなのか
     public int Max_gage;//何歩で?もしキャラごとにならそれぞれ変えられる。
-    public float Max_count;//何秒分スキルある?青くする時間
+    public float Max_second;//何秒分スキルある?青くする時間
     #endregion
 
     public Party(GameObject o,int ID)
