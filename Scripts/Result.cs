@@ -201,6 +201,7 @@ public class Result : Functions
             {
                 flg++;
                 count = 0;
+                obj.GetComponent<Animator>().SetTrigger("Next_Trigger");
                 for (int i = 0; i < datas[5]; i++)
                 {
                     o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
@@ -273,9 +274,11 @@ public class Result : Functions
             {
                 flg++;
                 count = 0;
+                GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
                 obj = GameObject.Find("Next");
                 obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.1f * height);
                 obj.GetComponent<RectTransform>().localPosition = new Vector2(0.25f * width, -0.45f * height);
+
             }
         }
         #endregion

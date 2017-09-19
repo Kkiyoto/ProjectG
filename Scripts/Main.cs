@@ -817,6 +817,7 @@ public class Main : Functions
         player.OutScreen();
         player.Set_Chara(0); //アニメーション交換
         UIs.Anime(0, Common.Action.Sad);
+        //UIs.SE_on(Common.SE.Fall);
         flg = 5;
         UIs.timer_bool = false;
         UIs.bg_bool = false;

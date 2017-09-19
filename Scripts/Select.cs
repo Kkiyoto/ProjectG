@@ -25,6 +25,12 @@ public class Select : MonoBehaviour
             o.localPosition = new Vector3(0, (0.3f - i * 0.2f) * height);
             o.sizeDelta = new Vector2(0.6f * width, 0.3f * width);
         }
+        RectTransform rect = GameObject.Find("Back").GetComponent<RectTransform>();
+        rect.localPosition = new Vector3(-0.4f*width, 0.5f * height-0.1f*width);
+        rect.sizeDelta = new Vector2(0.2f * width, 0.2f * width);
+        rect = GameObject.Find("Start").GetComponent<RectTransform>();
+        rect.localPosition = new Vector3(0,-0.4f* height);
+        rect.sizeDelta = new Vector2(0.6f * width, 0.2f * width);
         carsol = GameObject.Find("Carsol").GetComponent<RectTransform>();
         carsol.sizeDelta = new Vector2(0.7f * width, 0.4f * width);
         Set_Party(0);

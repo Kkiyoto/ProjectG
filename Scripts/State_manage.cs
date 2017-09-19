@@ -26,7 +26,7 @@ public class State_manage : Functions
     AudioClip[] BGM = new AudioClip[5];
 
     GameObject Battle_enemy;
-    public float skill_time;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植 ★Partyにします）
+    float skill_time;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植 ★Partyにします）
 
     [SerializeField]
     Camera _camera;                // カメラの座標
@@ -126,9 +126,9 @@ public class State_manage : Functions
         gage = GameObject.Find("Gage");
         #endregion
 
-        /*Pause_Menu = GameObject.Find("Pause_Menu");
+        Pause_Menu = GameObject.Find("Pause_Menu");
         Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.9f*height);
-        Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);*/
+        Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);
 
         #region BGMの設定
         BGM[0] = Resources.Load<AudioClip>("Audio/fantasy13"); //まだ
@@ -206,9 +206,7 @@ public class State_manage : Functions
             touchEffect.Emit(1);
         }
         #endregion
-        /*#region ポーズメニュー　
-         * ★pause_boolに対応して作ろうかと思っています。スタート時ポーズを使わないで実装することは可能でしょうか?もし難しそうであれば、新しく変数作ります。
-         * ★どんなのか見てみたいのであれば、Pause_Menuという名のImageをキャンバスに載せて、StartのPause_Menuあたりのコメントアウトを消してください。
+        #region ポーズメニュー
         Vector3 v = Pause_Menu.GetComponent<RectTransform>().localPosition;
         if (pause_bool && v.z < 0)
         {
@@ -225,10 +223,10 @@ public class State_manage : Functions
             if (Mathf.Abs(v.z+5) <0.1f)
             {
                 Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5.1f);
-                main.Pause_button_down();
+                main.Pause_button_down(false);
             }
         }
-        #endregion*/
+        #endregion
     }
 
     // すみません、作っちゃいました...。
@@ -246,6 +244,11 @@ public class State_manage : Functions
 
     public void Lose_Time(float minus) //単位は秒
     {
+        /*if (minus == 0)
+        {
+            time-=Chara[0].Attack or Chara[0].Attackを使った関数
+        }
+        else*/
         time -= minus;
     }
 
@@ -469,6 +472,7 @@ public class State_manage : Functions
             Road_count = 0;
             gage.GetComponent<Image>().color = new Color(0, 1, 1, 1);
             main.Pause_button_down(true);
+            pause_bool = false;
             bg_bool = false;
             timer_bool = false;
             Anime(0, Common.Action.Happy);
