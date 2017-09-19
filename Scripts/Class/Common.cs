@@ -61,13 +61,17 @@ public class Common : MonoBehaviour
         Get,//宝箱、ゴール
         Button,//ボタンクリック音
         Slide,//盤を動かしているとき
+        Fire,
+        Ice,
+        Sword,
+        Gun,
+        Coin,
     }
 
 
     public enum BGM
     {
-        title = 0,
-        menu,
+        none = 0,
         tutorial,
         battle,
         result,

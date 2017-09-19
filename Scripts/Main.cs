@@ -426,10 +426,9 @@ public class Main : Functions
                         isBattle = true;
                         UIs.timer_bool = true;
                         UIs.bg_bool = true;
-                        UIs.BGM_on(Common.BGM.battle); // ここで最初にBGM定義
+                        UIs.BGM_on(Common.BGM.battle); // ここで戦闘BGM定義
 
-                        int i;
-                        for (i = 0; i < UIs.get_Life(); i++)
+                        for (int i = 0; i < UIs.get_Life(); i++)
                             UIs.Anime(i, Common.Action.Battle);
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
@@ -446,9 +445,13 @@ public class Main : Functions
                     break;
                 case 4: //宝ゲット
                     timeElapsed += Time.deltaTime;
+                    for (int i = 0; i < UIs.get_Life(); i++)
+                        UIs.Anime(i, Common.Action.Happy);
                     if (timeElapsed > 2.0f) //2秒経過で終了
                     {
                         // 移植作業中..
+                        for (int i = 0; i < UIs.get_Life(); i++)
+                            UIs.Anime(i, Common.Action.Walk);
                         treasure[touch_ID].Get_Item();
                         timeElapsed = 0.0f;
                         flg = 1;
@@ -1047,7 +1050,6 @@ public class Main : Functions
     public void Battle_setup()
     {
         Sentou_kaisi.GetComponent<Animator>().SetBool("Sentou_effect", false);
-        Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
         Invoke("Battle_time_loss", 1.0f);
         Invoke("Battle_time_loss", 2.0f);
         Invoke("Battle_time_loss", 3.0f);
@@ -1065,24 +1067,34 @@ public class Main : Functions
         timeElapsed = 0.0f;
         isBattle = false;
         UIs.Enemy_Anime(false, enemy[touch_ID].type);
-        // UIs.BGM_on(Common.BGM.tutorial); // ここで戦闘BGM定義 混じるので現状コメントアウト
+        UIs.BGM_on(Common.BGM.tutorial); // ここで通常BGM定義
 
         enemy[touch_ID].act = Common.Action.Sad;
         enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
         flg = 1;
+        //Invoke("BGM_restart", 2.0f);
     }
 
     public void Battle_time_loss()
     {
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
+        Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
+
         // UIs.Lose_Time(900/UIs.   .Chara[0].Attack);  // dictinary 未発見のため据え置き
-        if (UIs.Top_ID() == 1)
+        if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
         {
             UIs.Lose_Time(900 / 30);
+            UIs.SE_on(Common.SE.Sword);
         }
-        else if (UIs.Top_ID() == 2 || UIs.Top_ID() == 3)
+        else if (UIs.Top_ID() == 2)
         {
             UIs.Lose_Time(900 / 60);
+            UIs.SE_on(Common.SE.Fire);
+        }
+        else if (UIs.Top_ID() == 3)
+        {
+            UIs.Lose_Time(900 / 60);
+            UIs.SE_on(Common.SE.Gun);
         }
     }
     #endregion
