@@ -13,19 +13,20 @@ using UnityEngine.UI;
 public class Main : Functions
 {
     //Field[,] Around = new Field[4, 4]; 
-    Data_box [,] Pazzle_data = new Data_box[11,11];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
-    Field[,] Pazzle_fields = new Field[5,5]; //触る方
-    Field[,] move_fields = new Field[5,5]; //動くため
+    Data_box[,] Pazzle_data = new Data_box[11, 11];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
+    Field[,] Pazzle_fields = new Field[5, 5]; //触る方
+    Field[,] move_fields = new Field[5, 5]; //動くため
     //Data_box[,] Mountains = new Data_box[4, 9]; //端っこ、Right,Left,Up,Downの順、(int)Direction-2しないとダメ
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
     int Move_X, Move_Y, touch_ID; //touch_ID:敵とか宝に当たった時にその番号 Road_countいくつ道を通ったか(スキル用 ★StateManagerに移行)
-    Common.Direction Move_direct,Field_direct;
+    Common.Direction Move_direct, Field_direct;
     Common.Condition Move_condition;
     Item[] treasure;
     GameObject[] arrows = new GameObject[4];
     State_manage UIs;//UIのことはUIs.~にします。
+
 
 
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
@@ -35,6 +36,9 @@ public class Main : Functions
     #region Battle追加部分
     //GameObject Battle_enemy; //UIsに移植
     GameObject time_minus;
+    GameObject Battle_effect;
+    GameObject Sentou_kaisi;
+    GameObject Battle_down_panel;
     float timeElapsed, timeOut = 3.0f;
     bool isBattle = false;
     #endregion
@@ -46,17 +50,17 @@ public class Main : Functions
     // 変数多過ぎ問題
     private RectTransform Start_and_End_anim;
     private float move_diff, char_right = 0;
-    private bool Anim_start = true, mid_reach = false;
+    private bool isAnim = true, Anim_start = true, mid_reach = false;
     #endregion
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
         #region Pazzle_dataの設定と読み取り
         for (int i = 0; i < 11; i++)
         {
-            for(int j = 0; j < 11; j++)
+            for (int j = 0; j < 11; j++)
             {
                 Pazzle_data[i, j] = new Data_box();
             }
@@ -64,13 +68,13 @@ public class Main : Functions
         Pazzle_data_set();
         for (int i = 0; i < 5; i++)
         {
-            for(int j = 0; j < 5; j++)
+            for (int j = 0; j < 5; j++)
             {
                 GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Field")) as GameObject;
                 Pazzle_fields[i, j] = new Field(o);
                 o = Instantiate(Resources.Load<GameObject>("Prefab/Field")) as GameObject;
                 move_fields[i, j] = new Field(o);
-                move_fields[i, j].Pos=new Vector3(-5,0); //見えないところへ
+                move_fields[i, j].Pos = new Vector3(-5, 0); //見えないところへ
             }
         }
         #region 山の設定
@@ -83,8 +87,8 @@ public class Main : Functions
             if (ran < 2) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[10, i].type = Common.Direction.None; Pazzle_data[10, i].condition = Common.Condition.Hole; }
             ran = Random.Range(0, 5);
-            if (ran < 2) { Pazzle_data[i,0].type = Common.Direction.Up; Pazzle_data[i,0].condition = Common.Condition.Normal; }
-            else { Pazzle_data[i,0].type = Common.Direction.None; Pazzle_data[i,0].condition = Common.Condition.Hole; }
+            if (ran < 2) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
+            else { Pazzle_data[i, 0].type = Common.Direction.None; Pazzle_data[i, 0].condition = Common.Condition.Hole; }
             ran = Random.Range(0, 5);
             if (ran < 2) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 10].type = Common.Direction.None; Pazzle_data[i, 10].condition = Common.Condition.Hole; }
@@ -108,16 +112,16 @@ public class Main : Functions
         }
         #endregion
         */
-        set_block(0, 1,1);
+        set_block(0, 1, 1);
         #endregion
         #region playerの設定
         GameObject player_obj = GameObject.Find("Player");
-        player = new Character(player_obj,Common.Type.Player);
+        player = new Character(player_obj, Common.Type.Player);
         player.x = 5;
         player.y = 4;
-        player.set_position(5,4, Common.Direction.Down,Pazzle_data[5,4].Exit_direction(Common.Direction.Down));
+        player.set_position(5, 4, Common.Direction.Down, Pazzle_data[5, 4].Exit_direction(Common.Direction.Down));
         player.set_Speed(90f);
-        Pazzle_data[5,4].condition = Common.Condition.Player;
+        Pazzle_data[5, 4].condition = Common.Condition.Player;
         player.Set_Chara(UIs.Top_ID());
         #endregion
         #region 宝物の設定
@@ -126,8 +130,8 @@ public class Main : Functions
         {
             GameObject Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
             int[] ran = Random_position();
-            Pazzle_data[ran[0],ran[1]].treasure = i;
-            treasure[i] = new Item(ran[0], ran[1], Treasure,Common.Treasure.Item);
+            Pazzle_data[ran[0], ran[1]].treasure = i;
+            treasure[i] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Item);
         }
         for (int i = 2; i < 4; i++)
         {
@@ -144,11 +148,11 @@ public class Main : Functions
         {
             GameObject enemy_obj = Instantiate(Resources.Load<GameObject>("Prefab/Enemy")) as GameObject;
             int type_num = Random.Range(0, 3);
-            enemy[i] = new Character(enemy_obj,types[type_num]); //typesをランダム化
+            enemy[i] = new Character(enemy_obj, types[type_num]); //typesをランダム化
             Common.Direction dire = Common.Direction.None;
             if (types[type_num] != Common.Type.Stop) dire = Random_direct();
             int[] ran = Random_position();
-            for(int j = 0; j < i; j++)
+            for (int j = 0; j < i; j++)
             {
                 if (enemy[j].x == ran[0] && enemy[j].y == ran[1])
                 {
@@ -158,12 +162,12 @@ public class Main : Functions
             }
             enemy[i].x = ran[0];
             enemy[i].y = ran[1];
-            enemy[i].set_position(ran[0],ran[1], dire, Get_exit(enemy[i],dire));
+            enemy[i].set_position(ran[0], ran[1], dire, Get_exit(enemy[i], dire));
             enemy[i].set_Speed(110f);
         }
         #endregion
         #region 矢印の設定
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             arrows[i] = Instantiate(Resources.Load<GameObject>("Prefab/Arrow")) as GameObject;
             arrows[i].transform.Rotate(new Vector3(0, 0, -90 * i));
@@ -174,22 +178,23 @@ public class Main : Functions
         Move_Y = 0;
         Move_direct = Common.Direction.None;
         GameObject camera = GameObject.Find("Main Camera");
-        camera.transform.position = new Vector3(3*L(player.x) + 2, 3*L(player.y) + 2.8f, -10);
+        camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
 
         #region Battle追加部分
-        //Battle_enemy = GameObject.Find("BattleEnemy");
         time_minus = GameObject.Find("minus");
+        Battle_effect = GameObject.Find("Attack_effect");
+        Sentou_kaisi = GameObject.Find("Sentou_kaisi");
+        Battle_down_panel = GameObject.Find("Battle_down_panel");
         #endregion
         #region 初期エフェクト追記
-
         pause_bool = !pause_bool;
-        UIs.All_pause_flg(pause_bool); // 反抗期  // 駆け抜ける時間  // 止まらない案件  // 追記、止まりました。
-        //transform.Translate(1.0f * Time.deltaTime, 0, 0); // アニメーションを止めるように(updateにこれを)
-
+        UIs.timer_bool = true;
+        UIs.bg_bool = true;
         Invoke("After_start_animation", 4.0f); // 後処理
 
-        Set_color(new Vector3(Pazzle_fields[2,2].data_x, Pazzle_fields[2,2].data_y));//敵とか透明にする
+        Set_color(new Vector3(Pazzle_fields[2, 2].data_x, Pazzle_fields[2, 2].data_y));//敵とか透明にする
         #endregion
+        UIs.BGM_on(Common.BGM.tutorial); // ここで最初にBGM定義
     }
 
     // Update is called once per frame
@@ -211,14 +216,14 @@ public class Main : Functions
             switch (flg)
             {
                 case 1: //ゲーム部分
-                    Set_color(new Vector3(Pazzle_fields[2,2].data_x, Pazzle_fields[2,2].data_y));//敵とか透明にする
+                    Set_color(new Vector3(Pazzle_fields[2, 2].data_x, Pazzle_fields[2, 2].data_y));//敵とか透明にする
                     #region 敵の動き
                     for (int i = 0; i < enemy.Length; i++)
                     {
                         if (enemy[i].act != Common.Action.Sad)
                         {
                             Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
-                            if (enemy[i].type != Common.Type.Fly && L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[(enemy[i].x-1) % 3+1, (enemy[i].y-1) % 3+1].Pos;
+                            if (enemy[i].type != Common.Type.Fly && L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[(enemy[i].x - 1) % 3 + 1, (enemy[i].y - 1) % 3 + 1].Pos;
                             if (enemy[i].Move(v)) //is_Skill(n3)
                             {
                                 enemy[i].pre_x = enemy[i].x;
@@ -261,7 +266,7 @@ public class Main : Functions
                     }
                     #endregion
                     #region プレイヤーの動き
-                    if (player.Move(Pazzle_fields[(player.x-1) % 3+1, (player.y-1) % 3+1].Pos)) //動き終えたらtrue is_Skill(n4)
+                    if (player.Move(Pazzle_fields[(player.x - 1) % 3 + 1, (player.y - 1) % 3 + 1].Pos)) //動き終えたらtrue is_Skill(n4)
                     {
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
                         UIs.Road_counter();
@@ -280,7 +285,7 @@ public class Main : Functions
                             if (player.x % 3 == 0 && player.move_to == Common.Direction.Left)
                             {
                                 if (player.x > 0) change_block(Common.Direction.Right);
-                                else change_Mount(Common.Direction.Left,L(player.x),L(player.y));
+                                else change_Mount(Common.Direction.Left, L(player.x), L(player.y));
                             }
                             else if (player.x % 3 == 1 && player.move_to == Common.Direction.Right)
                             {
@@ -321,7 +326,7 @@ public class Main : Functions
                         {
                             tap_Start = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                         }
-                        if (Input.GetMouseButtonUp(0)&&tap_Start.x!=-1)
+                        if (Input.GetMouseButtonUp(0) && tap_Start.x != -1)
                         {
                             Vector3 tap_Tarminal = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                             Vector3 delta = tap_Tarminal - tap_Start;
@@ -330,7 +335,7 @@ public class Main : Functions
                             {
                                 int X = Hole_search(player.x, player.y, 0);
                                 int Y = Hole_search(player.x, player.y, 1); //穴の座標,0~8
-                                if (delta.x > 0 && X % 3 !=1 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
+                                if (delta.x > 0 && X % 3 != 1 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
                                 {
                                     Move_X = X - 1;
                                     Move_Y = Y;
@@ -339,7 +344,7 @@ public class Main : Functions
                                     Pazzle_data[X, Y].condition = Common.Condition.Moving;
                                     Pazzle_data[X - 1, Y].condition = Common.Condition.Moving;
                                 }
-                                else if (delta.x < 0 && X % 3 !=0 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
+                                else if (delta.x < 0 && X % 3 != 0 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
                                 {
                                     Move_X = X + 1;
                                     Move_Y = Y;
@@ -364,7 +369,7 @@ public class Main : Functions
                                     Pazzle_data[X, Y].condition = Common.Condition.Moving;
                                     Pazzle_data[X, Y - 1].condition = Common.Condition.Moving;
                                 }
-                                else if (delta.y < 0 && Y % 3 !=0 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
+                                else if (delta.y < 0 && Y % 3 != 0 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
                                 {
                                     Move_X = X;
                                     Move_Y = Y + 1;
@@ -384,7 +389,7 @@ public class Main : Functions
                     #region カメラの位置
                     GameObject camera = GameObject.Find("Main Camera");
                     Vector3 vec = camera.transform.position;
-                    camera.transform.position = (vec*13f+(Pazzle_fields[2,2].Pos+new Vector3(0,0.8f,-10))) /14f;
+                    camera.transform.position = (vec * 13f + (Pazzle_fields[2, 2].Pos + new Vector3(0, 0.8f, -10))) / 14f;
                     Set_color(camera.transform.position - new Vector3(0, 0.8f, 0));
                     Arrow_show(false);
                     #endregion
@@ -413,42 +418,39 @@ public class Main : Functions
                     #region Battle追記部分
 
                     // using UnityEngine.UI; を追加しています
+
                     timeElapsed += Time.deltaTime;
+
                     if (!isBattle) // バトル開始直後の処理
                     {
                         isBattle = true;
-                        //Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
-                        //Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", (int)enemy[touch_ID].type);
+                        UIs.timer_bool = true;
+                        UIs.bg_bool = true;
+                        UIs.BGM_on(Common.BGM.battle); // ここで最初にBGM定義
+
+                        int i;
+                        for (i = 0; i < UIs.get_Life(); i++)
+                            UIs.Anime(i, Common.Action.Battle);
+
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
-                        Debug.Log((int)enemy[touch_ID].type + "did it!");
-                        Invoke("Battle_time_loss", 1.0f);
-                        Invoke("Battle_time_loss", 2.0f);
-                        Invoke("Battle_time_loss", 3.0f);
-
+                        Sentou_kaisi.GetComponent<Animator>().SetBool("Sentou_effect", true);
+                        Invoke("Battle_setup", 2.0f);
                     }
-                    //if (timeElapsed < 1.0)
-                        //Battle_enemy.GetComponent<Image>().color = new Color(1.0f, 1.0f, 1.0f, timeElapsed); // 動かぬぬ  ★Animatorの中で解決したのかな?
+                    if (timeElapsed <= 0.7)
+                        Battle_down_panel.GetComponent<Image>().color = new Color(0, 0, 0, timeElapsed);
 
+                    if (timeElapsed >= timeOut + 3.0f) // 3秒経過で終了
+                        Battle_endset();
 
-                    if (timeElapsed >= timeOut || Input.GetMouseButtonUp(0)) //タッチ or 3秒経過で終了
-                    {
-                        //Battle_enemy.GetComponent<Animator>().SetTrigger("BattleEndTrigger");
-                        //Battle_enemy.GetComponent<Animator>().SetInteger("EnemyInt", 0);
-                        timeElapsed = 0.0f;
-                        isBattle = false;
-                        //Battle_enemy.GetComponent<Animator>().SetBool("Battle_start", isBattle);
-                        UIs.Enemy_Anime(false, enemy[touch_ID].type); //★UIsに移植しました
-
-                        enemy[touch_ID].act = Common.Action.Sad;
-                        enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
-                        flg = 1;
-                    }
                     #endregion
                     break;
                 case 4: //宝ゲット
-                    if (Input.GetMouseButtonUp(0)) //今はタッチしたら終了
+                    timeElapsed += Time.deltaTime;
+                    if (timeElapsed > 2.0f) //2秒経過で終了
                     {
+                        // 移植作業中..
                         treasure[touch_ID].Get_Item();
+                        timeElapsed = 0.0f;
                         flg = 1;
                     }
                     break;
@@ -471,11 +473,11 @@ public class Main : Functions
                     #region カメラの位置
                     camera = GameObject.Find("Main Camera");
                     vec = camera.transform.position;
-                    camera.transform.position = (vec * 15f + (Pazzle_fields[2,2].Pos-Dire_to_Vec(reverse(Field_direct)) + new Vector3(0, 0.8f, -10))) / 16f;
+                    camera.transform.position = (vec * 15f + (Pazzle_fields[2, 2].Pos - Dire_to_Vec(reverse(Field_direct)) + new Vector3(0, 0.8f, -10))) / 16f;
                     Arrow_show(false);
                     #endregion
                     #region 動き終わった後
-                    if (Field_direct!=Common.Direction.Straight&&(camera.transform.position - (2f * Pazzle_fields[2,2].Pos + new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 4.4f,-30)) / 3f).magnitude < 0.015f)
+                    if (Field_direct != Common.Direction.Straight && (camera.transform.position - (2f * Pazzle_fields[2, 2].Pos + new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 4.4f, -30)) / 3f).magnitude < 0.015f)
                     {
                         int pre_x = player.pre_x;
                         int pre_y = player.pre_y;
@@ -484,11 +486,11 @@ public class Main : Functions
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)reverse(player.move_to));
                         UIs.Road_counter();
                         player.set_curve(pre_x, pre_y, player.move_to, player.move_from);
-                        if (Pazzle_data[player.pre_x,player.pre_y].type == Common.Direction.None)//穴
+                        if (Pazzle_data[player.pre_x, player.pre_y].type == Common.Direction.None)//穴
                         {
                             Fall(Common.Condition.Normal);
                         }
-                        else if(Pazzle_data[player.pre_x, player.pre_y].type == Common.Direction.Up)//引き返し
+                        else if (Pazzle_data[player.pre_x, player.pre_y].type == Common.Direction.Up)//引き返し
                         {
                             Field_direct = Common.Direction.Straight;
                         }
@@ -497,16 +499,16 @@ public class Main : Functions
                             Goal(0);
                         }
                     }
-                    else if((camera.transform.position - Pazzle_fields[2,2].Pos-new Vector3(0,0.8f, -10)).magnitude < 0.015f)//引き返し後
+                    else if ((camera.transform.position - Pazzle_fields[2, 2].Pos - new Vector3(0, 0.8f, -10)).magnitude < 0.015f)//引き返し後
                     {
-                        camera.transform.position = Pazzle_fields[2,2].Pos + new Vector3(0, 0.8f, -10);
+                        camera.transform.position = Pazzle_fields[2, 2].Pos + new Vector3(0, 0.8f, -10);
                         Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
                         Field_direct = Common.Direction.None;
                         flg = 1;
-                            UIs.timer_bool = true;
+                        UIs.timer_bool = true;
                     }
-                        #endregion
-                        break;
+                    #endregion
+                    break;
                 case 7: //ゴール
                     //RenderSettings.fogDensity += 0.1f;
                     if (UIs.To_goal(0) & UIs.To_goal(1))
@@ -527,28 +529,29 @@ public class Main : Functions
             {
                 if (L(player.x) == L(treasure[i].x) && L(player.y) == L(treasure[i].y))
                 {
-                    treasure[i].Pos = Pazzle_fields[(treasure[i].x-1) % 3+1, (treasure[i].y-1) % 3+1].Pos;
+                    treasure[i].Pos = Pazzle_fields[(treasure[i].x - 1) % 3 + 1, (treasure[i].y - 1) % 3 + 1].Pos;
                     treasure[i].find = true;
                 }
                 else treasure[i].Pos = new Vector3(treasure[i].x, treasure[i].y, 0);
-                if (!treasure[i].get && (treasure[i].Pos-player.Pos).magnitude<0.3f)  //ここに当たった時の
+                if (!treasure[i].get && (treasure[i].Pos - player.Pos).magnitude < 0.3f)  //ここに当たった時の
                 {
                     touch_ID = i;
                     flg = 4;
                 }
             }
             #endregion
+
         }
-            #region Mapの更新
-            player.On_Map(true);
-            for(int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y)),UIs.is_Skill(2));//is_Skill(n6)
-            for (int i = 0; i < enemy.Length; i++)
-            {
+        #region Mapの更新
+        player.On_Map(true);
+        for (int i = 0; i < treasure.Length; i++) treasure[i].On_Map((L(treasure[i].x) == L(player.x) && L(treasure[i].y) == L(player.y)), UIs.is_Skill(2));//is_Skill(n6)
+        for (int i = 0; i < enemy.Length; i++)
+        {
             if (enemy[i].act == Common.Action.Sad) enemy[i].On_Map(false);
             else if (d_infty(enemy[i].Pos, new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2)) < 1.5f) enemy[i].On_Map(true);
             else enemy[i].On_Map(false);//UIs.is_Skill(n0)),is_Skill(n6,find実装)
-            }
-            #endregion
+        }
+        #endregion
         #region タッチエフェクト
         // 画面のどこでもタッチでエフェクト
         if (Input.GetMouseButton(0))
@@ -561,21 +564,37 @@ public class Main : Functions
         // 使用する際はSub_cameraとTouch_particleオブジェクトを追加してください
         #endregion
         #region 初期アニメーション追加部分
-        // とりあえずの雑実装.....。すみません..。
-        if (Anim_start && !mid_reach) { 
+        // とりあえずの実装ですみません..。
+        /*
+        if (isAnim) // ここで開始直後に静止
+        {
+            pause_bool = isAnim;
+            UIs.timer_bool = true;
+            UIs.bg_bool = true;
+            //isAnim = !isAnim;
+            //UIs.All_pause_flg(!isAnim);
+            //transform.Translate(1.0f * Time.deltaTime, 0, 0); // update内部で有効
+            Debug.Log("stop");
+        }
+        */
+        // アニメーション関連
+        if (Anim_start && !mid_reach)
+        {
             Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
             move_diff = (char_right - Start_and_End_anim.localPosition.x) / 50;
             Start_and_End_anim.localPosition += new Vector3(move_diff, 0, 0);
             if (move_diff < 0.1) mid_reach = true;
-        }else if(Anim_start && mid_reach)
+        }
+        else if (Anim_start && mid_reach)
         {
             Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
-            move_diff = (char_right+300 - Start_and_End_anim.localPosition.x) / 50;
+            move_diff = (char_right + 300 - Start_and_End_anim.localPosition.x) / 50;
             Start_and_End_anim.localPosition += new Vector3(move_diff, 0, 0);
             if (move_diff < 0.1)
             {
                 Anim_start = false;
                 mid_reach = false;
+                isAnim = false;
             }
         }
         #endregion
@@ -584,20 +603,20 @@ public class Main : Functions
 
     public bool Move(int x, int y, Common.Direction direct, float speed)//動かしたいものの座標、0~8、x:左から,y:下から、speed小さい方が早い
     {
-        if (x== -1)
+        if (x == -1)
         {
             return true;
         }
         else
         {
-            Vector3 pos = Pazzle_fields[(x-1) % 3+1, (y-1) % 3+1].Pos;
+            Vector3 pos = Pazzle_fields[(x - 1) % 3 + 1, (y - 1) % 3 + 1].Pos;
             if (direct == Common.Direction.None)
             {
                 return true;
             }
             else if ((pos - Dire_to_Vec(direct) - new Vector3(x, y, 0)).magnitude > 0.03f)
             {
-                Pazzle_fields[(x-1) % 3+1, (y-1) % 3+1].Pos = (pos * speed + Dire_to_Vec(direct) + new Vector3(x, y, 0)) / (1 + speed);
+                Pazzle_fields[(x - 1) % 3 + 1, (y - 1) % 3 + 1].Pos = (pos * speed + Dire_to_Vec(direct) + new Vector3(x, y, 0)) / (1 + speed);
                 return false;
             }
             else  //動き終わり、データ交換
@@ -611,7 +630,7 @@ public class Main : Functions
                 Pazzle_data[x, y] = Tmp; //Data_box交換
                 Pazzle_data[x, y].condition = Common.Condition.Hole;
                 Pazzle_data[p, q].condition = Move_condition;
-                Pazzle_fields[(x - 1) % 3+1, (y - 1) % 3 + 1].Pos = new Vector3(x, y, 0);
+                Pazzle_fields[(x - 1) % 3 + 1, (y - 1) % 3 + 1].Pos = new Vector3(x, y, 0);
                 Pazzle_fields[(p - 1) % 3 + 1, (q - 1) % 3 + 1].Pos = new Vector3(p, q, 0);
                 Pazzle_fields[(x - 1) % 3 + 1, (y - 1) % 3 + 1].Set_img(Pazzle_data[x, y].type);
                 Pazzle_fields[(p - 1) % 3 + 1, (q - 1) % 3 + 1].Set_img(Pazzle_data[p, q].type);
@@ -649,9 +668,9 @@ public class Main : Functions
         }
     }
 
-    public Common.Direction Get_exit(Character chara,Common.Direction entrance) //敵によって出口を変える
+    public Common.Direction Get_exit(Character chara, Common.Direction entrance) //敵によって出口を変える
     {
-        if (chara.type == Common.Type.Walk||chara.type == Common.Type.Player) return Pazzle_data[chara.x, chara.y].Exit_direction(entrance);
+        if (chara.type == Common.Type.Walk || chara.type == Common.Type.Player) return Pazzle_data[chara.x, chara.y].Exit_direction(entrance);
         else if (chara.type == Common.Type.Fly)
         {
             Common.Direction ran = Random_direct();
@@ -668,11 +687,11 @@ public class Main : Functions
     {
         int[] pos = new int[2];
         pos[0] = Random.Range(1, 10);
-        pos[1] = Random.Range(1,10);
-        while (Pazzle_data[pos[0],pos[1]].type == Common.Direction.None || Pazzle_data[pos[0], pos[1]].condition == Common.Condition.Player || Pazzle_data[pos[0], pos[1]].treasure != -1)
+        pos[1] = Random.Range(1, 10);
+        while (Pazzle_data[pos[0], pos[1]].type == Common.Direction.None || Pazzle_data[pos[0], pos[1]].condition == Common.Condition.Player || Pazzle_data[pos[0], pos[1]].treasure != -1)
         {
-            pos[0] = Random.Range(1,10);
-            pos[1] = Random.Range(1,10);
+            pos[0] = Random.Range(1, 10);
+            pos[1] = Random.Range(1, 10);
         }
         return pos;
     }
@@ -686,7 +705,7 @@ public class Main : Functions
         tmp[3] = Common.Direction.Straight;
         tmp[4] = Common.Direction.Right;
         tmp[5] = Common.Direction.Right;
-        tmp[6]= Common.Direction.Right;
+        tmp[6] = Common.Direction.Right;
         tmp[7] = Common.Direction.Left;
         tmp[8] = Common.Direction.Left;
         int ran = Random.Range(0, 3);
@@ -695,22 +714,22 @@ public class Main : Functions
         #endregion
         #region tmpのシャッフル
         float[] random = new float[8];
-        for(int i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             random[i] = Random.value;
         }
-        for(int i = 1; i < 8; i++)
+        for (int i = 1; i < 8; i++)
         {
-            for(int j = i; j > 0; j--)
+            for (int j = i; j > 0; j--)
             {
-                if (random[j] < random[j-1])
+                if (random[j] < random[j - 1])
                 {
                     float change = random[j];
-                    random[j] = random[j-1];
-                    random[j-1] = change;
+                    random[j] = random[j - 1];
+                    random[j - 1] = change;
                     Common.Direction Change = tmp[j];
-                    tmp[j] = tmp[j+1];
-                    tmp[j+1] = Change;
+                    tmp[j] = tmp[j + 1];
+                    tmp[j + 1] = Change;
                 }
                 else break;
             }
@@ -723,26 +742,26 @@ public class Main : Functions
         {
             for (int j = 0; j < 3; j++)
             {
-                Pazzle_data[3 * x + i+1, 3 * y +j+1].type=tmp[i+3*j];
-                Pazzle_data[3 * x + i+1, 3 * y + j+1].Set_address(3 * x + i+1, 3 * y + j+1);
-                Pazzle_data[3 * x + i+1, 3 * y + j+1].condition = Common.Condition.Normal;
+                Pazzle_data[3 * x + i + 1, 3 * y + j + 1].type = tmp[i + 3 * j];
+                Pazzle_data[3 * x + i + 1, 3 * y + j + 1].Set_address(3 * x + i + 1, 3 * y + j + 1);
+                Pazzle_data[3 * x + i + 1, 3 * y + j + 1].condition = Common.Condition.Normal;
             }
         }
-        Pazzle_data[3 * x + hole % 3+1, 3 * y + Mathf.FloorToInt(hole / 3)+1].condition = Common.Condition.Hole;
+        Pazzle_data[3 * x + hole % 3 + 1, 3 * y + Mathf.FloorToInt(hole / 3) + 1].condition = Common.Condition.Hole;
     }
 
     public void Pazzle_data_set() //全部のブロックについて入れていく
     {
-        for(int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
-            for(int j = 0; j < 3; j++)
+            for (int j = 0; j < 3; j++)
             {
                 Block_data_set(i, j);
             }
         }
     }
 
-    public void set_block(int ID,int x, int y) //塊としての座標、0~2、x:左から,y:下から,ID;0:Pazzle_field,1:move_field
+    public void set_block(int ID, int x, int y) //塊としての座標、0~2、x:左から,y:下から,ID;0:Pazzle_field,1:move_field
     {
         if (ID == 0)
         {
@@ -750,10 +769,10 @@ public class Main : Functions
             {
                 for (int j = 0; j < 5; j++)
                 {
-                    Pazzle_fields[i, j].data_x=3 * x + i;
-                    Pazzle_fields[i, j].data_y=3 * y + j;
-                    Pazzle_fields[i, j].Set_img(Pazzle_data[3*x+i,3*y+j].type);
-                    Pazzle_fields[i, j].Layer(10-3 * y - j);
+                    Pazzle_fields[i, j].data_x = 3 * x + i;
+                    Pazzle_fields[i, j].data_y = 3 * y + j;
+                    Pazzle_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
+                    Pazzle_fields[i, j].Layer(10 - 3 * y - j);
                     Pazzle_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
@@ -818,7 +837,7 @@ public class Main : Functions
             UIs.Road_counter();
             player.set_curve(player.x, player.y, player.move_to, player.move_from);
         }
-        else if(con==Common.Condition.Player)//塊が動いたら盤がなかった
+        else if (con == Common.Condition.Player)//塊が動いたら盤がなかった
         {
             int pre_x = player.pre_x;
             int pre_y = player.pre_y;
@@ -859,24 +878,24 @@ public class Main : Functions
                         move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2f - d_infty(move_fields[1, 1].Pos, vec));
                     }
                 }*/
-                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2.5f - d_infty(Pazzle_fields[i,j].Pos, vec));
-                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2.5f - d_infty(move_fields[i,j].Pos, vec));
+                Pazzle_fields[i, j].Sprite().color = new Color(1, 1, 1, 2.5f - d_infty(Pazzle_fields[i, j].Pos, vec));
+                move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2.5f - d_infty(move_fields[i, j].Pos, vec));
             }
         }
-        for (int i = 0; i < treasure.Length; i++) treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x, treasure[i].y, 0), vec)); 
-        for (int i = 0; i < enemy.Length; i++)  if (enemy[i].act != Common.Action.Sad) enemy[i].Sprite().color = new Color(1, 1, 1, 6.3f - 4 * d_infty(enemy[i].Pos, vec));
+        for (int i = 0; i < treasure.Length; i++) treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x, treasure[i].y, 0), vec));
+        for (int i = 0; i < enemy.Length; i++) if (enemy[i].act != Common.Action.Sad) enemy[i].Sprite().color = new Color(1, 1, 1, 6.3f - 4 * d_infty(enemy[i].Pos, vec));
     }
 
-    public int Hole_search(int x,int y,int P) //どこにいるか入れたら穴の場所、p=0:x,p=1:y
+    public int Hole_search(int x, int y, int P) //どこにいるか入れたら穴の場所、p=0:x,p=1:y
     {
-        x = L(x)* 3+1;
-        y = L(y)*3+1;
+        x = L(x) * 3 + 1;
+        y = L(y) * 3 + 1;
         int ans = x;
-        for(int i = x; i <x+ 3; i++)
+        for (int i = x; i < x + 3; i++)
         {
-            for(int j = y; j < y+3; j++)
+            for (int j = y; j < y + 3; j++)
             {
-                if (Pazzle_data[i,j].type == Common.Direction.None)
+                if (Pazzle_data[i, j].type == Common.Direction.None)
                 {
                     if (P == 0) ans = i;
                     else ans = j;
@@ -894,9 +913,9 @@ public class Main : Functions
 
     public void OutScreen() //move_fieldsを外にやる
     {
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
-            for (int j= 0; j < 5; j++)
+            for (int j = 0; j < 5; j++)
             {
                 move_fields[i, j].Pos = new Vector3(-5, 0, 0);
             }
@@ -913,9 +932,9 @@ public class Main : Functions
         else arrows[2].GetComponent<SpriteRenderer>().color = Color.clear;
         if (show && L(player.x) != 0) arrows[3].GetComponent<SpriteRenderer>().color = Color.white;
         else arrows[3].GetComponent<SpriteRenderer>().color = Color.clear;
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
-            arrows[i].transform.position = new Vector3(3*L(player.x)+2+1.5f*Mathf.Sin(i * Mathf.PI / 2f), 3 * L(player.y) + 2 + 1.5f*Mathf.Cos(i * Mathf.PI / 2f), 0);
+            arrows[i].transform.position = new Vector3(3 * L(player.x) + 2 + 1.5f * Mathf.Sin(i * Mathf.PI / 2f), 3 * L(player.y) + 2 + 1.5f * Mathf.Cos(i * Mathf.PI / 2f), 0);
         }
     }
 
@@ -931,7 +950,7 @@ public class Main : Functions
             UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
             flg = 7;
             Vector3 vec = GameObject.Find("Main Camera").GetComponent<Camera>().WorldToScreenPoint(player.Pos + Dire_to_Vec(Field_direct) * 0.5f);
-            GameObject.Find("Goal").GetComponent<RectTransform>().localPosition = vec-new Vector3(Screen.width,Screen.height)/2f;
+            GameObject.Find("Goal").GetComponent<RectTransform>().localPosition = vec - new Vector3(Screen.width, Screen.height) / 2f;
         }
         else
         {
@@ -949,24 +968,24 @@ public class Main : Functions
         //PlayerPrefs.SetInt("Length", Road_count + 1);
         //PlayerPrefs.SetInt("Road" + (Road_count+1), 0);
         PlayerPrefs.SetInt("Time", Mathf.RoundToInt(UIs.get_Time()));
-        PlayerPrefs.SetInt("Life", UIs.get_Life()+1);
+        PlayerPrefs.SetInt("Life", UIs.get_Life() + 1);
         int[] get_treasure = { 0, 0 };
         for (int i = 0; i < treasure.Length; i++)
         {
-            if (treasure[i].get&& (int)treasure[i].type<2) get_treasure[(int)treasure[i].type]++;
+            if (treasure[i].get && (int)treasure[i].type < 2) get_treasure[(int)treasure[i].type]++;
         }
         PlayerPrefs.SetInt("treasure0", get_treasure[0]);
         PlayerPrefs.SetInt("treasure1", get_treasure[1]);
         int Destroy = 0;
         for (int i = 0; i < enemy.Length; i++)
         {
-            if (enemy[i].act==Common.Action.Sad) Destroy++;
+            if (enemy[i].act == Common.Action.Sad) Destroy++;
         }
         PlayerPrefs.SetInt("enemy", Destroy);
         //PlayerPrefs.SetInt("Coin", coin);
     }
-    
-    public void change_Mount(Common.Direction entrance,int x,int y)//キャラの座標、0~8、x:左から,y:下から
+
+    public void change_Mount(Common.Direction entrance, int x, int y)//キャラの座標、0~8、x:左から,y:下から
     {
         if (Move_X != -1) //バグ修正のため
         {
@@ -1002,10 +1021,10 @@ public class Main : Functions
         player.Set_Chara(UIs.Top_ID());//UIsで変更
         GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
     }
-    
+
     public void Map_color(float color_a)
     {
-        for(int i = 0; i < treasure.Length; i++)
+        for (int i = 0; i < treasure.Length; i++)
         {
             treasure[i].map_color(color_a);
         }
@@ -1015,9 +1034,9 @@ public class Main : Functions
         }
         player.map_color(color_a);
         GameObject.Find("Map_base").GetComponent<Image>().color = new Color(1, 1, 1, color_a);
-        for(int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++)
         {
-            for(int j = 0; j < 3; j++)
+            for (int j = 0; j < 3; j++)
             {
                 GameObject.Find("Small_map" + i + "-" + j).GetComponent<Image>().color = new Color(1, 0.8f, 0, color_a);
             }
@@ -1025,20 +1044,55 @@ public class Main : Functions
     }
 
     #region Battle追加部分
+    public void Battle_setup()
+    {
+        Sentou_kaisi.GetComponent<Animator>().SetBool("Sentou_effect", false);
+        Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
+        Invoke("Battle_time_loss", 1.0f);
+        Invoke("Battle_time_loss", 2.0f);
+        Invoke("Battle_time_loss", 3.0f);
+
+    }
+    public void Battle_endset()
+    {
+        int i;
+        for (i = 0; i < UIs.get_Life(); i++)
+            UIs.Anime(i, Common.Action.Walk);
+
+        Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", 10);
+        Battle_down_panel.GetComponent<Image>().color = new Color(0, 0, 0, 0);
+
+        timeElapsed = 0.0f;
+        isBattle = false;
+        UIs.Enemy_Anime(false, enemy[touch_ID].type);
+        // UIs.BGM_on(Common.BGM.tutorial); // ここで戦闘BGM定義 混じるので現状コメントアウト
+
+        enemy[touch_ID].act = Common.Action.Sad;
+        enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
+        flg = 1;
+    }
+
     public void Battle_time_loss()
     {
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
-        UIs.Lose_Time(30);
-        //time_minus.GetComponent<Animator>().SetBool("loss", false);
+        // UIs.Lose_Time(900/UIs.   .Chara[0].Attack);  // dictinary 未発見のため据え置き
+        if (UIs.Top_ID() == 1)
+        {
+            UIs.Lose_Time(900 / 30);
+        }
+        else if (UIs.Top_ID() == 2 || UIs.Top_ID() == 3)
+        {
+            UIs.Lose_Time(900 / 60);
+        }
     }
     #endregion
 
     #region 初期アニメーション終了後処理
+
     public void After_start_animation()
     {
         pause_bool = !pause_bool;
-        //UIs.All_pause_flg(pause_bool);//★とりあえず現状で動くようにコメントアウト（応急処置的な）しただけです。コメントアウト消すなリなんなりお願いします。
-        UIs.Pause_flg(false);//★向こうのpause_boolだけ逆なんです、、変えてもらってもいいです。region:背景の動画とregion:時間表示のところですね。
     }
+
     #endregion
 }
