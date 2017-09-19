@@ -21,9 +21,10 @@ public class State_manage : Functions
     int Life_point;
     int Road_count;
     Party[] Chara = new Party[3];
-    AudioClip[] SEs = new AudioClip[6];//音増えるごとに追加お願いします
+    AudioClip[] SEs = new AudioClip[11];//音増えるごとに追加お願いします
     Main main;
-    AudioClip[] BGM = new AudioClip[5];
+    public AudioSource[] BGMs;
+    private int last = 0;
 
     GameObject Battle_enemy;
     float skill_time;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植 ★Partyにします）
@@ -72,7 +73,21 @@ public class State_manage : Functions
         PlayerPrefs.SetInt("enemy", 5);  //ここを使うとResultリセット*/
         #endregion
         #region SEの設定
-        SEs[0] = Resources.Load<AudioClip>("Time");//例として置いときます。名前も数も変えておいてください
+        SEs[0] = Resources.Load<AudioClip>("Audio/SE/Time");
+        SEs[1] = Resources.Load<AudioClip>("Audio/SE/Fall");
+        SEs[2] = Resources.Load<AudioClip>("Audio/SE/Gat");
+        SEs[3] = Resources.Load<AudioClip>("Audio/SE/Win");
+        SEs[4] = Resources.Load<AudioClip>("Audio/SE/Button");
+        SEs[5] = Resources.Load<AudioClip>("Audio/SE/Slide");
+        SEs[6] = Resources.Load<AudioClip>("Audio/SE/Fire");
+        SEs[7] = Resources.Load<AudioClip>("Audio/SE/Ice");
+        SEs[8] = Resources.Load<AudioClip>("Audio/SE/Sword");
+        SEs[9] = Resources.Load<AudioClip>("Audio/SE/Gun");
+        SEs[10] = Resources.Load<AudioClip>("Audio/SE/Coin");
+        /*
+        SEs[10] = Resources.Load<AudioClip>("Audio/SE/Time");
+        SEs[11] = Resources.Load<AudioClip>("Audio/SE/Time");
+        */
         #endregion
         #region スキル
         Skill_text = GameObject.Find("Skill_Text").GetComponent<Text>();
@@ -131,11 +146,7 @@ public class State_manage : Functions
         Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);
 
         #region BGMの設定
-        BGM[0] = Resources.Load<AudioClip>("Audio/fantasy13"); //まだ
-        BGM[1] = Resources.Load<AudioClip>("Audio/fantasy13"); //まだ
-        BGM[2] = Resources.Load<AudioClip>("Audio/fantasy13");
-        BGM[3] = Resources.Load<AudioClip>("Audio/fantasy12");
-        BGM[4] = Resources.Load<AudioClip>("Audio/fantasy13"); //まだ
+        BGMs = GameObject.Find("State_manager").GetComponents<AudioSource>();
         #endregion
 
     }
@@ -506,10 +517,29 @@ public class State_manage : Functions
 
     public void BGM_on(Common.BGM music)
     {
-        // フェードの変更がoneshotでは厳しいため、AudioSourceに変更中
-        //BGM[music].play();
-
-        GetComponent<AudioSource>().PlayOneShot(BGM[(int)music]);
+        int i;
+        if (last == 0) // スタート時
+        {
+            BGMs[(int)music].Play();
+        }
+        else if (last == 1)       // 通常 → 戦闘、リザルトへ遷移時
+        {
+            BGMs[last].Pause();
+            BGMs[(int)music].Play();
+        }
+        else
+        {              // 戦闘 → 通常への遷移時 この時だけフェードイン
+            BGMs[last].Stop();
+            BGMs[(int)music].volume = 0.3f;
+            BGMs[(int)music].UnPause();
+            for (i = 0; i < 7; i++)
+                Invoke("BGM_volume_set", 0.2f * i);
+        }
+        last = (int)music;
+    }
+    public void BGM_volume_set() // BGM 疑似フェードイン
+    {
+        BGMs[last].volume += 0.1f;
     }
 
 }
