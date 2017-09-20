@@ -32,7 +32,9 @@ public class State_manage : Functions
     [SerializeField]
     Camera _camera;                // カメラの座標
     [SerializeField]
-    ParticleSystem touchEffect;    // タッチの際のエフェクト
+    ParticleSystem skillEffect;    // スキルの際のエフェクト
+    [SerializeField]
+    ParticleSystem goalEffect;    // ゴールの際のエフェクト
 
     // Use this for initialization
     void Start()
@@ -199,8 +201,8 @@ public class State_manage : Functions
             if (skill_time < -0.2f)
             {
                 var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, 0.88f) * width, Random.Range(0.13f, 0.6f) * height, 10));
-                touchEffect.transform.position = pos;
-                touchEffect.Emit(1);
+                skillEffect.transform.position = pos;
+                skillEffect.Emit(1);
             }
             else
             {
@@ -210,12 +212,19 @@ public class State_manage : Functions
                 timer_bool = true;
             }
         }
+        if (skill_time < Chara[0].Max_second)
+        {
+            var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f,(1-skill_time/Chara[0].Max_second)*0.66f) * width, 0.04f * height, 10));
+            skillEffect.transform.position = pos;
+            skillEffect.Emit(1);
+        }
         if (Road_count >= Chara[0].Max_gage)
         {
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f, 0.66f) * width, 0.04f * height, 10));// + camera.transform.forward * 10);
-            touchEffect.transform.position = pos;
-            touchEffect.Emit(1);
+            skillEffect.transform.position = pos;
+            skillEffect.Emit(1);
         }
+        goalEffect.Emit(1);
         #endregion
         #region ポーズメニュー
         Vector3 v = Pause_Menu.GetComponent<RectTransform>().localPosition;
