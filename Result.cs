@@ -14,11 +14,13 @@ public class Result : Functions
 {
     float width, height;
     int flg,count,num,coin;
-    GameObject obj,o;
+    GameObject obj,o,Audio;
     float delta_time;
     int[] datas = new int[6]; //順にtime,Life,Enemy,Coin,treasure普通、レア
     Text text;
 
+    public AudioSource[] Result_BGM;
+    AudioClip[] Result_SE = new AudioClip[3];
     #region タッチエフェクト追記
     [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
     [SerializeField] Camera _camera;                // カメラの座標
@@ -92,6 +94,11 @@ public class Result : Functions
         #region flg=1:  Life
         else if (flg == 1)
         {
+            if (delta_time == 0)
+            {
+                Result_BGM[2].Stop();
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ドン！
+            }
             delta_time += Time.deltaTime;
             if (delta_time > 1)
             {
@@ -105,6 +112,8 @@ public class Result : Functions
         #region flg=2:  Enemy
         else if (flg == 2)
         {
+            if (delta_time == 0)
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ドン！
             delta_time += Time.deltaTime;
             if (delta_time > 1)
             {
@@ -305,7 +314,7 @@ public class Result : Functions
 
         #region タッチエフェクト
         // 画面のどこでもタッチでエフェクト
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             // マウスのワールド座標までパーティクルを移動,エフェクトを1つ生成する
             var pos = _camera.ScreenToWorldPoint(Input.mousePosition + _camera.transform.forward * 10);
@@ -318,6 +327,7 @@ public class Result : Functions
 
     public void Next()
     {
+        FadeManager.Instance.LoadScene("start", 3.0f);
         SceneManager.LoadScene("start");
     }
 }

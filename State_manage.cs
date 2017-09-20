@@ -21,7 +21,7 @@ public class State_manage : Functions
     int Life_point;
     int Road_count;
     Party[] Chara = new Party[3];
-    AudioClip[] SEs = new AudioClip[11];//音増えるごとに追加お願いします
+    AudioClip[] SEs = new AudioClip[13];//音増えるごとに追加お願いします
     Main main;
     public AudioSource[] BGMs;
     private int last = 0;
@@ -73,23 +73,6 @@ public class State_manage : Functions
         PlayerPrefs.SetInt("Time", 357);
         PlayerPrefs.SetInt("Life", 2);
         PlayerPrefs.SetInt("enemy", 5);  //ここを使うとResultリセット*/
-        #endregion
-        #region SEの設定
-        SEs[0] = Resources.Load<AudioClip>("Audio/SE/Time");
-        SEs[1] = Resources.Load<AudioClip>("Audio/SE/Fall");
-        SEs[2] = Resources.Load<AudioClip>("Audio/SE/Gat");
-        SEs[3] = Resources.Load<AudioClip>("Audio/SE/Win");
-        SEs[4] = Resources.Load<AudioClip>("Audio/SE/Button");
-        SEs[5] = Resources.Load<AudioClip>("Audio/SE/Slide");
-        SEs[6] = Resources.Load<AudioClip>("Audio/SE/Fire");
-        SEs[7] = Resources.Load<AudioClip>("Audio/SE/Ice");
-        SEs[8] = Resources.Load<AudioClip>("Audio/SE/Sword");
-        SEs[9] = Resources.Load<AudioClip>("Audio/SE/Gun");
-        SEs[10] = Resources.Load<AudioClip>("Audio/SE/Coin");
-        /*
-        SEs[10] = Resources.Load<AudioClip>("Audio/SE/Time");
-        SEs[11] = Resources.Load<AudioClip>("Audio/SE/Time");
-        */
         #endregion
         #region スキル
         Skill_text = GameObject.Find("Skill_Text").GetComponent<Text>();
@@ -147,9 +130,7 @@ public class State_manage : Functions
         Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.9f*height);
         Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);
 
-        #region BGMの設定
-        BGMs = GameObject.Find("State_manager").GetComponents<AudioSource>();
-        #endregion
+        read_sounds();
 
     }
 
@@ -247,14 +228,6 @@ public class State_manage : Functions
             }
         }
         #endregion
-    }
-
-    // すみません、作っちゃいました...。
-    public void All_pause_flg(bool pause)
-    {
-        transform.Translate(1.0f * Time.deltaTime, 0, 0); // update内部で有効
-        timer_bool = pause;
-        bg_bool = pause;
     }
 
     public void Pause_flg(bool pause)
@@ -534,9 +507,9 @@ public class State_manage : Functions
         else
         {              // 戦闘 → 通常への遷移時 この時だけフェードイン
             BGMs[last].Stop();
-            BGMs[(int)music].volume = 0.3f;
+            BGMs[(int)music].volume = 0.1f;
             BGMs[(int)music].UnPause();
-            for (i = 0; i < 7; i++)
+            for (i = 0; i < 3; i++)
                 Invoke("BGM_volume_set", 0.2f * i);
         }
         last = (int)music;
@@ -544,6 +517,34 @@ public class State_manage : Functions
     public void BGM_volume_set() // BGM 疑似フェードイン
     {
         BGMs[last].volume += 0.1f;
+    }
+    public void SE_volume_set(float volume)
+    {
+        BGMs[0].volume = volume;
+    }
+
+    public void read_sounds()
+    {
+        #region SEの設定
+        SEs[0] = Resources.Load<AudioClip>("Audio/SE/Time");
+        SEs[1] = Resources.Load<AudioClip>("Audio/SE/Fall");
+        SEs[2] = Resources.Load<AudioClip>("Audio/SE/Win");
+        SEs[3] = Resources.Load<AudioClip>("Audio/SE/Get");
+        SEs[4] = Resources.Load<AudioClip>("Audio/SE/Button");
+        SEs[5] = Resources.Load<AudioClip>("Audio/SE/Slide");
+        SEs[6] = Resources.Load<AudioClip>("Audio/SE/Fire");
+        SEs[7] = Resources.Load<AudioClip>("Audio/SE/Ice");
+        SEs[8] = Resources.Load<AudioClip>("Audio/SE/Sword");
+        SEs[9] = Resources.Load<AudioClip>("Audio/SE/Gun");
+        SEs[10] = Resources.Load<AudioClip>("Audio/SE/Coin");
+        SEs[11] = Resources.Load<AudioClip>("Audio/SE/Count");
+        SEs[12] = Resources.Load<AudioClip>("Audio/SE/Stamp");
+
+        #endregion
+
+        #region BGMの設定
+        BGMs = GameObject.Find("State_manager").GetComponents<AudioSource>();
+        #endregion
     }
 
 }

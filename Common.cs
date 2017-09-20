@@ -66,6 +66,8 @@ public class Common : MonoBehaviour
         Sword,
         Gun,
         Coin,
+        Count,
+        Stamp,
     }
 
 
@@ -75,6 +77,8 @@ public class Common : MonoBehaviour
         tutorial,
         battle,
         result,
+        gameover,
+        game2,
     }
 
     public enum Treasure //何が入っているのか
