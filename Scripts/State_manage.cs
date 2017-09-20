@@ -15,15 +15,15 @@ public class State_manage : Functions
     float width, height, time;
     float needle;//,Max_Time;
     RectTransform Needle; //時計盤の準備
-    bool pause_bool;
+    bool pause_bool,is_red;
     public bool timer_bool, bg_bool;
     Text Time_text, Skill_text;
     int Life_point;
     int Road_count,All_count;
     public float[] tresure = new float[2];
     public float road = 0;
-    Party[] Chara = new Party[3];
-    AudioClip[] SEs = new AudioClip[13];//音増えるごとに追加お願いします
+    public Party[] Chara = new Party[3];
+    AudioClip[] SEs = new AudioClip[15];//音増えるごとに追加お願いします
     Main main;
     public AudioSource[] BGMs;
     private int last = 0;
@@ -63,7 +63,7 @@ public class State_manage : Functions
             int ID = PlayerPrefs.GetInt("Party" + i, i + 2);
             Chara[i] = new Party(o, ID);
             dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID);
-            Chara[i].Pos = new Vector3(width * 0.8f * (i + 1), height * 0.277f);
+            Chara[i].Pos = new Vector3(-width * 0.8f * (i + 1), height * 0.277f);
         }
         //Destroy(dictionary);
         /*PlayerPrefs.SetInt("Party0", 3);
@@ -119,6 +119,7 @@ public class State_manage : Functions
         tresure[1] = 0;
 
         read_sounds();
+        is_red = false;
 
     }
 
@@ -128,12 +129,12 @@ public class State_manage : Functions
         #region 背景の動画
         if (!pause_bool && bg_bool)
         {
-            Back_anime.GetComponent<RectTransform>().Translate(new Vector3(height * 0.001f, 0, 0));
-            Front_anime.GetComponent<RectTransform>().Translate(new Vector3(height * 0.001f, 0, 0));
-            if (Back_anime.GetComponent<RectTransform>().localPosition.x > 0.7f * height)
+            Back_anime.GetComponent<RectTransform>().Translate(new Vector3(-height * 0.001f, 0, 0));
+            Front_anime.GetComponent<RectTransform>().Translate(new Vector3(-height * 0.001f, 0, 0));
+            if (Back_anime.GetComponent<RectTransform>().localPosition.x < -0.7f * height)
             {
-                Back_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
-                Front_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
+                Back_anime.GetComponent<RectTransform>().position += new Vector3(1.4f * height, 0, 0);
+                Front_anime.GetComponent<RectTransform>().position += new Vector3(1.4f * height, 0, 0);
             }
         }
         #endregion
@@ -141,10 +142,10 @@ public class State_manage : Functions
         for (int i = 0; i <= Life_point; i++)
         {
             Vector3 vec = Chara[i].Pos;
-            if ((vec - new Vector3(width * 0.2f * (i - 0.2f), height * 0.277f)).magnitude < 0.01f)
-                Chara[i].Pos = new Vector3(width * 0.2f * (i - 0.2f), height * 0.277f);
+            if ((vec - new Vector3(-width * 0.2f * (i - 0.2f), height * 0.277f)).magnitude < 0.01f)
+                Chara[i].Pos = new Vector3(-width * 0.2f * (i - 0.2f), height * 0.277f);
             else
-                Chara[i].Pos = (39f * vec + new Vector3(width * 0.2f * (i - 0.2f), height * 0.277f)) / 40f;
+                Chara[i].Pos = (39f * vec + new Vector3(-width * 0.2f * (i - 0.2f), height * 0.277f)) / 40f;
         }
         #endregion
         #region 時間表示
@@ -155,11 +156,13 @@ public class State_manage : Functions
             main.Goal(1);
         }
         if (time < needle) needle -= 0.5f;
-        if (needle < 80)
+        if (needle < 80&&!is_red)
         {
             Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG_red" + (int)Common.Thema.Sky);
             Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front_red" + (int)Common.Thema.Sky);
             GameObject.Find("Background").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back_red" + (int)Common.Thema.Sky);
+            is_red = true;
+            main.To_Red(true);
         }
         Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / 150);
         #endregion
@@ -393,11 +396,14 @@ public class State_manage : Functions
         Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG" + (int)Common.Thema.Sky);
         Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front" + (int)Common.Thema.Sky);
         GameObject.Find("Background").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back" + (int)Common.Thema.Sky);
+        main.To_Red(false);
         /*GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
         Skill_text.text = Chara[0].skill_Description;
         skill_time = 20;*/
         timer_bool = true;
         bg_bool = true;
+        BGM_on(Common.BGM.tutorial); // ここでゲームオーバーBGM定義
+
     }
 
     public bool To_goal(int Scale_or_Pos) //最後の宝箱の動きが終わったかどうか
@@ -498,22 +504,44 @@ public class State_manage : Functions
 
     public void BGM_on(Common.BGM music)
     {
-        int i;
         if (last == 0) // スタート時
         {
             BGMs[(int)music].Play();
         }
-        else if (last == 1)       // 通常 → 戦闘、リザルトへ遷移時
+        if (last == 4) // リトライ時
+        {
+            BGMs[0].Stop();
+            BGMs[(int)music].volume = 0.3f;
+            BGMs[(int)music].Stop();
+            BGMs[(int)music].Play();
+            for (int i = 0; i < 6; i++)
+                Invoke("BGM_volume_set", 0.2f * i);
+        }
+        else if (last == 1 && (int)music == 2 )      // 通常 → 戦闘へ遷移時
         {
             BGMs[last].Pause();
             BGMs[(int)music].Play();
         }
-        else
+        else if (last == 1 && (int)music == 3)       // 通常 → リザルトへ遷移時
+        {
+            BGMs[last].Pause();
+            GetComponent<AudioSource>().PlayOneShot(SEs[13]);
+        }
+        else if (last == 1 && (int)music == 4)       // 通常 → リタイアへ遷移時
+        {
+            BGMs[last].Pause();
+            BGMs[0].volume = 0.1f;
+            GetComponent<AudioSource>().PlayOneShot(SEs[14]);
+            for (int i = 0; i < 8; i++)
+                Invoke("SE_volume_set", 0.2f * i);
+        }
+        else if(last == 2)
         {              // 戦闘 → 通常への遷移時 この時だけフェードイン
+            Debug.Log("set");
             BGMs[last].Stop();
             BGMs[(int)music].volume = 0.1f;
             BGMs[(int)music].UnPause();
-            for (i = 0; i < 3; i++)
+            for (int i = 0; i < 7; i++)
                 Invoke("BGM_volume_set", 0.2f * i);
         }
         last = (int)music;
@@ -522,9 +550,9 @@ public class State_manage : Functions
     {
         BGMs[last].volume += 0.1f;
     }
-    public void SE_volume_set(float volume)
+    public void SE_volume_set()
     {
-        BGMs[0].volume = volume;
+        BGMs[0].volume += 0.1f;
     }
 
     public void read_sounds()
@@ -543,6 +571,8 @@ public class State_manage : Functions
         SEs[10] = Resources.Load<AudioClip>("Audio/SE/Coin");
         SEs[11] = Resources.Load<AudioClip>("Audio/SE/Count");
         SEs[12] = Resources.Load<AudioClip>("Audio/SE/Stamp");
+        SEs[13] = Resources.Load<AudioClip>("Audio/SE/Result");
+        SEs[14] = Resources.Load<AudioClip>("Audio/SE/Retired");
 
         #endregion
 
@@ -550,5 +580,6 @@ public class State_manage : Functions
         BGMs = GameObject.Find("State_manager").GetComponents<AudioSource>();
         #endregion
     }
+
 
 }

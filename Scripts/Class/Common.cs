@@ -68,6 +68,7 @@ public class Common : MonoBehaviour
         Coin,
         Count,
         Stamp,
+        Retired,
     }
 
 
@@ -78,7 +79,6 @@ public class Common : MonoBehaviour
         battle,
         result,
         gameover,
-        game2,
     }
 
     public enum Treasure //何が入っているのか
