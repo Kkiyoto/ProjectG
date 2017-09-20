@@ -31,19 +31,19 @@ public class Result : Functions
     {
         width = Screen.width;
         height = Screen.height;
-        /*o = GameObject.Find("Title");
-        o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        o = GameObject.Find("light");
+        /*o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
         o.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);*/
         datas[0] = PlayerPrefs.GetInt("Time", 0);
         datas[1] = PlayerPrefs.GetInt("Life", 0);
         datas[2] = PlayerPrefs.GetInt("enemy", 0);
         datas[3] = PlayerPrefs.GetInt("Coin", 0);
-        datas[4] = PlayerPrefs.GetInt("treasure0", 0);
-        datas[5] = PlayerPrefs.GetInt("treasure1", 0);
+        datas[4] = PlayerPrefs.GetInt("treasure1", 0);
+        datas[5] = PlayerPrefs.GetInt("treasure0", 0);
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
-        flg =0;
+        flg =-1;
         count = 0;
         num = 0;
         delta_time = 0;
@@ -58,18 +58,15 @@ public class Result : Functions
         #region flg=-1:  イメージ画像のアニメ
         if (flg < 0)
         {
-            RectTransform tra = obj.GetComponent<RectTransform>();
-            if (tra.localPosition.magnitude > width / 61f) tra.Translate(new Vector3(width / 30f, 0));
-            else if (tra.sizeDelta.y < 2f * height) tra.sizeDelta = (31f * tra.sizeDelta - new Vector2(0.36f * width, 0.063f * height)) / 30f;
-            else
+            o.GetComponent<Image>().color -= new Color(0,0,0,0.01f);
+            if (o.GetComponent<Image>().color.a< 0.01f)
             {
-                GameObject.Find("Title").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Result");
-                Destroy(obj);
+                Destroy(o);
                 flg++;
                 count = 0;
-                obj = GameObject.Find("end");
+                /*obj = GameObject.Find("end");
                 obj.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.5f * height);
-                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);*/
                 text = obj.GetComponent<Text>();
             }
         }
@@ -150,7 +147,7 @@ public class Result : Functions
                 }*/
                 o = GameObject.Find("Coin_Plus"); 
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
-                coin = Random.Range(200, 700);
+                coin = Random.Range(100, 200);
                 o.GetComponent<Text>().text = coin.ToString();
             }
         }
@@ -212,7 +209,7 @@ public class Result : Functions
                                     obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                     obj.GetComponent<Animator>().SetBool("Open_Bool", false);
                                     obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.15f * height);
-                                    coin = Random.Range(200, 700);
+                                    coin = Random.Range(100, 200);
                                     o.GetComponent<Text>().text = coin.ToString();
                                     count = 0;
                                     o.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);

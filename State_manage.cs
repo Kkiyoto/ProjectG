@@ -19,7 +19,8 @@ public class State_manage : Functions
     public bool timer_bool, bg_bool;
     Text Time_text, Skill_text;
     int Life_point;
-    int Road_count;
+    int Road_count,All_count;
+    public float[] tresure = new float[2];
     Party[] Chara = new Party[3];
     AudioClip[] SEs = new AudioClip[13];//音増えるごとに追加お願いします
     Main main;
@@ -27,7 +28,7 @@ public class State_manage : Functions
     private int last = 0;
 
     GameObject Battle_enemy;
-    float skill_time;//後でキャラによって変更、多分配列化（今考えているのはCharactorスクリプトに移植 ★Partyにします）
+    float skill_time;//後でキャラによって変更、多分配列化
 
     [SerializeField]
     Camera _camera;                // カメラの座標
@@ -63,7 +64,7 @@ public class State_manage : Functions
             dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID);
             Chara[i].Pos = new Vector3(width * 0.8f * (i + 1), height * 0.277f);
         }
-        Destroy(dictionary);
+        //Destroy(dictionary);
         /*PlayerPrefs.SetInt("Party0", 3);
         PlayerPrefs.SetInt("Party1", 1);
         PlayerPrefs.SetInt("Party2", 2);
@@ -77,6 +78,7 @@ public class State_manage : Functions
         #region スキル
         Skill_text = GameObject.Find("Skill_Text").GetComponent<Text>();
         Road_count = 0;
+        All_count = 0;
         skill_time = 20;
         Skill_text.text = Chara[0].skill_Description;
         #endregion
@@ -90,24 +92,7 @@ public class State_manage : Functions
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         Battle_enemy = GameObject.Find("BattleEnemy");
-        #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可
-        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.395f * width, 0.5f * height - 0.105f * width);
-        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.21f * width, 0.21f * width);
-        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
-        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f * height - 0.5f * width, 0.465f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
-        GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(-0.2f * width, 0.465f * height);
-        GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.07f * height);
-        GameObject.Find("Skill").GetComponent<RectTransform>().localPosition = new Vector3(-0.13f * width, -0.46f * height);
-        GameObject.Find("Skill").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.06f * width, 0.02f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.58f * width, 0.06f * height);
-        GameObject.Find("Gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Change").GetComponent<RectTransform>().localPosition = new Vector3(0.48f * width - 0.04f * height, -0.46f * height);
-        GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
+        #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可 ★Dictionに移植
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -127,8 +112,10 @@ public class State_manage : Functions
         #endregion
 
         Pause_Menu = GameObject.Find("Pause_Menu");
-        Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.9f*height);
+        Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.95f*height);
         Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);
+        tresure[0] = 0;
+        tresure[1] = 0;
 
         read_sounds();
 
@@ -166,10 +153,6 @@ public class State_manage : Functions
             time = 0;
             main.Goal(1);
         }
-        int m = Mathf.FloorToInt(time / 60f);
-        int s = Mathf.FloorToInt(time % 60f);
-        Time_text.text = ("Time   " + m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
-
         if (time < needle) needle -= 0.5f;
         Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / 150);
         #endregion
@@ -201,7 +184,7 @@ public class State_manage : Functions
         }
         if (Road_count >= Chara[0].Max_gage)
         {
-            var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f, 0.66f) * width, 0.04f * height, 10));// + camera.transform.forward * 10);
+            var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f, 0.66f) * width, 0.04f * height, 10));
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
         }
@@ -233,6 +216,14 @@ public class State_manage : Functions
     public void Pause_flg(bool pause)
     {
         pause_bool = pause;
+
+        int m = Mathf.FloorToInt(time / 60f);
+        int s = Mathf.FloorToInt(time % 60f);
+        Time_text.text = ("Time   " + m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
+        GameObject.Find("Walk").GetComponent<Text>().text = "歩いた距離：" + All_count + "歩";
+        Debug.Log("tresure[1]  " + tresure[1] + "  tresure[1] / 3f  " + tresure[1] / 3f);
+        GameObject.Find("Item_coin").GetComponent<Image>().fillAmount = tresure[1] / 3f;
+        GameObject.Find("Item_weapon").GetComponent<Image>().fillAmount = tresure[0] / 3f;
     }
 
     public void Lose_Time(float minus) //単位は秒
@@ -450,6 +441,7 @@ public class State_manage : Functions
         {
             Road_count++;
         }
+        All_count++;
     }
 
     public void Skill_On() //スキルボタンを押したとき

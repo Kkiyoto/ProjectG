@@ -83,9 +83,9 @@ public class Common : MonoBehaviour
 
     public enum Treasure //何が入っているのか
     {
-        Item = 0,//武器とか
-        Coin,
-        Time,
-        Life,
+        Item = 0,//武器とか1つ
+        Coin,//3つ
+        Time,//2つ
+        Life,//1つ
     }
 }

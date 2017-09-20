@@ -12,11 +12,9 @@ using UnityEngine.UI;
 
 public class Main : Functions
 {
-    //Field[,] Around = new Field[4, 4]; 
     Data_box[,] Pazzle_data = new Data_box[11, 11];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[5, 5]; //触る方
     Field[,] move_fields = new Field[5, 5]; //動くため
-    //Data_box[,] Mountains = new Data_box[4, 9]; //端っこ、Right,Left,Up,Downの順、(int)Direction-2しないとダメ
     Character player;
     Character[] enemy;
     Vector3 tap_Start;
@@ -80,17 +78,17 @@ public class Main : Functions
         #region 山の設定
         for (int i = 1; i < 10; i++)
         {
-            int ran = Random.Range(0, 5);
-            if (ran < 2) { Pazzle_data[0, i].type = Common.Direction.Up; Pazzle_data[0, i].condition = Common.Condition.Normal; }
+            int random = Random.Range(0, 5);
+            if (random < 2) { Pazzle_data[0, i].type = Common.Direction.Up; Pazzle_data[0, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[0, i].type = Common.Direction.None; Pazzle_data[0, i].condition = Common.Condition.Hole; }
-            ran = Random.Range(0, 5);
-            if (ran < 2) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
+            random = Random.Range(0, 5);
+            if (random < 2) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[10, i].type = Common.Direction.None; Pazzle_data[10, i].condition = Common.Condition.Hole; }
-            ran = Random.Range(0, 5);
-            if (ran < 2) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
+            random = Random.Range(0, 5);
+            if (random < 2) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 0].type = Common.Direction.None; Pazzle_data[i, 0].condition = Common.Condition.Hole; }
-            ran = Random.Range(0, 5);
-            if (ran < 2) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
+            random = Random.Range(0, 5);
+            if (random < 2) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 10].type = Common.Direction.None; Pazzle_data[i, 10].condition = Common.Condition.Hole; }
             Pazzle_data[0, 0].type = Common.Direction.None; Pazzle_data[0, 0].condition = Common.Condition.Hole;
             Pazzle_data[0, 10].type = Common.Direction.None; Pazzle_data[0, 10].condition = Common.Condition.Hole;
@@ -100,18 +98,6 @@ public class Main : Functions
         Pazzle_data[10, 9].type = Common.Direction.Down;
         Pazzle_data[10, 9].condition = Common.Condition.Player;//ゴール右上、右側
         #endregion
-        /*
-        #region 周り
-        for (int i = 0; i < 4; i++)
-        {
-            for (int j = 0; j < 4; j++)
-            {
-                GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/Field")) as GameObject;
-                Around[i, j] = new Field(o);
-            }
-        }
-        #endregion
-        */
         set_block(0, 1, 1);
         #endregion
         #region playerの設定
@@ -125,21 +111,29 @@ public class Main : Functions
         player.Set_Chara(UIs.Top_ID());
         #endregion
         #region 宝物の設定
-        treasure = new Item[4]; //ここで宝の数
-        for (int i = 0; i < 2; i++)
+        treasure = new Item[7]; //ここで宝の数
+        GameObject Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
+        int[] ran = Random_position();
+        Pazzle_data[ran[0], ran[1]].treasure = 0;
+        treasure[0] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Item);
+        for (int i = 1; i < 4; i++)
         {
-            GameObject Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
-            int[] ran = Random_position();
+            Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
+            ran = Random_position();
             Pazzle_data[ran[0], ran[1]].treasure = i;
-            treasure[i] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Item);
+            treasure[i] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Coin);
         }
-        for (int i = 2; i < 4; i++)
+        for (int i = 4; i < 6; i++)
         {
-            GameObject Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
-            int[] ran = Random_position();
+            Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
+            ran = Random_position();
             Pazzle_data[ran[0], ran[1]].treasure = i;
-            treasure[i] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Life);
+            treasure[i] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Time);
         }
+        Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
+        ran = Random_position();
+        Pazzle_data[ran[0], ran[1]].treasure =6;
+        treasure[6] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Life);
         #endregion
         #region enemyの設定
         enemy = new Character[8];//ここで敵の数
@@ -151,7 +145,7 @@ public class Main : Functions
             enemy[i] = new Character(enemy_obj, types[type_num]); //typesをランダム化
             Common.Direction dire = Common.Direction.None;
             if (types[type_num] != Common.Type.Stop) dire = Random_direct();
-            int[] ran = Random_position();
+            ran = Random_position();
             for (int j = 0; j < i; j++)
             {
                 if (enemy[j].x == ran[0] && enemy[j].y == ran[1])
@@ -200,7 +194,6 @@ public class Main : Functions
     // Update is called once per frame
     void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.A)) { aaaa += 0.1f; Map_color(aaaa); }
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
         if (Input.GetKeyDown(KeyCode.Space)) Pause_button_down(!pause_bool);
         /* デバック用に置いてます
@@ -453,6 +446,7 @@ public class Main : Functions
                         for (int i = 0; i < UIs.get_Life(); i++)
                             UIs.Anime(i, Common.Action.Walk);
                         treasure[touch_ID].Get_Item();
+                        if ((int)treasure[touch_ID].type < 2) UIs.tresure[(int)treasure[touch_ID].type]++;
                         timeElapsed = 0.0f;
                         flg = 1;
                     }

@@ -27,13 +27,13 @@ public class Item : Functions
         map.transform.parent = GameObject.Find("Map_base").transform;
         map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_coin");
         type = t;
-        obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/GameScene/Item" + (int)type);//Animator使っているのなら敵のと同じように書き換えてください。
+        obj.GetComponent<Animator>().SetInteger("Item_Int" , (int)type);
     }
 
     public void Get_Item()
     {
         get = true;
-        obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/GameScene/Treasure_get");
+        obj.GetComponent<Animator>().SetTrigger("Get_Trigger");
     }
 
     public Vector3 Pos

@@ -8,7 +8,59 @@ using UnityEngine;
  * これでPlayerPrefasは2つずつぐらいで済むかな(図鑑IDとレベル)
  */
 
-public class Dictionary : MonoBehaviour {
+public class Dictionary : MonoBehaviour
+{
+    float width, height;
+    //なるべく同じ名前にします。consoleから入れるのお願いします。
+    public GameObject Sentou_kaisi;
+
+    private void Start()
+    {
+        width = Screen.width;
+        height = Screen.height;
+
+        Sentou_kaisi.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.04f * height);
+        Sentou_kaisi.GetComponent<RectTransform>().sizeDelta = new Vector2(0.76f * width, 0.248f * width);
+
+        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.395f * width, 0.5f * height - 0.105f * width);
+        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.21f * width, 0.21f * width);
+        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
+        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f * height - 0.5f * width, 0.465f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
+        GameObject.Find("Skill").GetComponent<RectTransform>().localPosition = new Vector3(-0.13f * width, -0.46f * height);
+        GameObject.Find("Skill").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.06f * width, 0.02f * height);
+        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.58f * width, 0.06f * height);
+        GameObject.Find("Gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        GameObject.Find("button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        GameObject.Find("Change").GetComponent<RectTransform>().localPosition = new Vector3(0.48f * width - 0.04f * height, -0.46f * height);
+        GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
+
+        GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.42f * height);
+        GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f * height);
+        GameObject.Find("Item_coin").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.3f * height);
+        GameObject.Find("Item_coin").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f*height, 0.15f * height);
+        GameObject.Find("Item_weapon").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.15f * height);
+        GameObject.Find("Item_weapon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * height, 0.15f * height);
+        GameObject.Find("Walk").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.03f * height);
+        GameObject.Find("Walk").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f*width, 0.08f * height);
+        GameObject.Find("To_Game").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.1f * height);
+        GameObject.Find("To_Game").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);
+        GameObject.Find("To_Menu").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.25f * height);
+        GameObject.Find("To_Menu").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);
+        GameObject.Find("Option").GetComponent<RectTransform>().localPosition = new Vector3(0.4f*width-0.05f*height, -0.38f * height);
+        GameObject.Find("Option").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f*height, 0.1f * height);
+        GameObject.Find("Help").GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*height-0.025f*width, -0.38f * height);
+        GameObject.Find("Help").GetComponent<RectTransform>().sizeDelta = new Vector2(0.75f*width-0.1f*height, 0.1f * height);
+        //GameObject.Find("Status").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
+        //GameObject.Find("Status").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
+
+
+
+
+    }
 
     public void Set_Box(Party chara,int ID)
     {
