@@ -14,10 +14,12 @@ public class Data_box : Functions
     public Common.Direction type;//下からの道が、0:None,1:Straight,2:Right,3:Leftで場合分け
     public Common.Condition condition;
     public int treasure;
+    public bool walk;
 
     public Data_box()
     {
         treasure = -1;
+        walk = true;
     }
     
     public void Set_address(int p,int q)//p:左からq:下から,0~8
@@ -76,5 +78,6 @@ public class Data_box : Functions
         this.type = original.type;
         this.condition = original.condition;
         this.treasure = original.treasure;
+        this.walk = original.walk;
     }
 }

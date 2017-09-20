@@ -44,9 +44,11 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Item_coin").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f*height, 0.15f * height);
         GameObject.Find("Item_weapon").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.15f * height);
         GameObject.Find("Item_weapon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * height, 0.15f * height);
-        GameObject.Find("Walk").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.03f * height);
+        GameObject.Find("Walk_F").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.03f * height);
+        GameObject.Find("Walk_F").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.08f * height);
+        GameObject.Find("Walk").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
         GameObject.Find("Walk").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f*width, 0.08f * height);
-        GameObject.Find("To_Game").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.1f * height);
+        GameObject.Find("To_Game").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.12f * height);
         GameObject.Find("To_Game").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);
         GameObject.Find("To_Menu").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.25f * height);
         GameObject.Find("To_Menu").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);

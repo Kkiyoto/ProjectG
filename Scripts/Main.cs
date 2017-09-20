@@ -261,6 +261,11 @@ public class Main : Functions
                     #region プレイヤーの動き
                     if (player.Move(Pazzle_fields[(player.x - 1) % 3 + 1, (player.y - 1) % 3 + 1].Pos)) //動き終えたらtrue is_Skill(n4)
                     {
+                        if (Pazzle_data[player.x, player.y].walk)
+                        {
+                            Pazzle_data[player.x, player.y].walk = false;
+                            UIs.road++;
+                        }
                         //PlayerPrefs.SetInt("Road" + Road_count, (int)player.move_to);
                         UIs.Road_counter();
                         if (Pazzle_data[player.x, player.y].condition == Common.Condition.Moving)
@@ -945,7 +950,7 @@ public class Main : Functions
                 UIs.Anime(i, Common.Action.Happy);
                 PlayerPrefs.SetInt("result", 1);
             }
-            UIs.Effect("Goal_Trigger");//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
+            UIs.Effect(3);//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
             flg = 7;
             Vector3 vec = GameObject.Find("Main Camera").GetComponent<Camera>().WorldToScreenPoint(player.Pos + Dire_to_Vec(Field_direct) * 0.5f);
             GameObject.Find("Goal").GetComponent<RectTransform>().localPosition = vec - new Vector3(Screen.width, Screen.height) / 2f;
@@ -957,7 +962,7 @@ public class Main : Functions
                 UIs.Anime(i, Common.Action.Sad);
                 PlayerPrefs.SetInt("result", 0);
             }
-            UIs.Effect("Gameover" + goal + "_Trigger");//真っ暗とか？そのアニメで時間を取ろうとしてます。
+            UIs.Effect(goal);//真っ暗とか？そのアニメで時間を取ろうとしてます。
             flg = 8;
         }
         UIs.timer_bool = false;
@@ -1013,7 +1018,7 @@ public class Main : Functions
 
     public void Revival()
     {
-        UIs.Effect("Retry_Trigger");
+        UIs.Effect(0);
         UIs.Retry();
         flg = 1;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
