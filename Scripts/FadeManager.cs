@@ -69,8 +69,8 @@ public class FadeManager : MonoBehaviour
 
 		//明るく
 		time = 0;
-		while (time <= interval) {
-			this.fadeAlpha = Mathf.Lerp (1f, 0f, time / interval);
+		while (time <= interval-1.0f) {
+			this.fadeAlpha = Mathf.Lerp (1f, 0f, time / (interval-1.0f));
 			time += Time.deltaTime;
 			yield return 0;
 		}
