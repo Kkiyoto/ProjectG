@@ -11,19 +11,20 @@ using UnityEngine.UI;
 
 public class State_manage : Functions
 {
-    GameObject Back_anime, Front_anime, Pause_Menu, gage;
+    GameObject Back_anime, Front_anime, Pause_Menu, gage,
+        time_gage,skill_Icon;
     float width, height, time;
-    float needle;//,Max_Time;
+    float needle,time_delta,Max_Time;
     RectTransform Needle; //時計盤の準備
-    bool pause_bool;
+    bool pause_bool,is_red;
     public bool timer_bool, bg_bool;
     Text Time_text, Skill_text;
     int Life_point;
     int Road_count,All_count;
     public float[] tresure = new float[2];
     public float road = 0;
-    Party[] Chara = new Party[3];
-    AudioClip[] SEs = new AudioClip[13];//音増えるごとに追加お願いします
+    public Party[] Chara = new Party[3];
+    AudioClip[] SEs = new AudioClip[15];//音増えるごとに追加お願いします
     Main main;
     public AudioSource[] BGMs;
     private int last = 0;
@@ -35,8 +36,6 @@ public class State_manage : Functions
     Camera _camera;                // カメラの座標
     [SerializeField]
     ParticleSystem skillEffect;    // スキルの際のエフェクト
-    [SerializeField]
-    ParticleSystem goalEffect;    // ゴールの際のエフェクト
 
     // Use this for initialization
     void Start()
@@ -63,7 +62,7 @@ public class State_manage : Functions
             int ID = PlayerPrefs.GetInt("Party" + i, i + 2);
             Chara[i] = new Party(o, ID);
             dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID);
-            Chara[i].Pos = new Vector3(width * 0.8f * (i + 1), height * 0.277f);
+            Chara[i].Pos = new Vector3(-width * 0.8f * (i + 1), height * 0.277f);
         }
         //Destroy(dictionary);
         /*PlayerPrefs.SetInt("Party0", 3);
@@ -87,7 +86,8 @@ public class State_manage : Functions
         timer_bool = false;
         bg_bool = false;
         time = 300;
-        needle = 300;
+        needle = time;
+        Max_Time = time/2f;
         Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();
         Needle.sizeDelta = new Vector2(0.2f * width, 0.5f * width);
         Time_text = GameObject.Find("Time").GetComponent<Text>();
@@ -110,6 +110,8 @@ public class State_manage : Functions
         #region Find系
         main = GameObject.Find("Director").GetComponent<Main>();
         gage = GameObject.Find("Gage");
+        time_gage = GameObject.Find("Time_gage");
+        skill_Icon = GameObject.Find("Skill_Icon");
         #endregion
 
         Pause_Menu = GameObject.Find("Pause_Menu");
@@ -119,6 +121,7 @@ public class State_manage : Functions
         tresure[1] = 0;
 
         read_sounds();
+        is_red = false;
 
     }
 
@@ -128,12 +131,12 @@ public class State_manage : Functions
         #region 背景の動画
         if (!pause_bool && bg_bool)
         {
-            Back_anime.GetComponent<RectTransform>().Translate(new Vector3(height * 0.001f, 0, 0));
-            Front_anime.GetComponent<RectTransform>().Translate(new Vector3(height * 0.001f, 0, 0));
-            if (Back_anime.GetComponent<RectTransform>().localPosition.x > 0.7f * height)
+            Back_anime.GetComponent<RectTransform>().Translate(new Vector3(-height * 0.001f, 0, 0));
+            Front_anime.GetComponent<RectTransform>().Translate(new Vector3(-height * 0.001f, 0, 0));
+            if (Back_anime.GetComponent<RectTransform>().localPosition.x < -0.7f * height)
             {
-                Back_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
-                Front_anime.GetComponent<RectTransform>().position -= new Vector3(1.4f * height, 0, 0);
+                Back_anime.GetComponent<RectTransform>().position += new Vector3(1.4f * height, 0, 0);
+                Front_anime.GetComponent<RectTransform>().position += new Vector3(1.4f * height, 0, 0);
             }
         }
         #endregion
@@ -141,27 +144,51 @@ public class State_manage : Functions
         for (int i = 0; i <= Life_point; i++)
         {
             Vector3 vec = Chara[i].Pos;
-            if ((vec - new Vector3(width * 0.2f * (i - 0.2f), height * 0.277f)).magnitude < 0.01f)
-                Chara[i].Pos = new Vector3(width * 0.2f * (i - 0.2f), height * 0.277f);
+            if ((vec - new Vector3(-width * 0.2f * (i - 0.2f), height * 0.277f)).magnitude < 0.01f)
+                Chara[i].Pos = new Vector3(-width * 0.2f * (i - 0.2f), height * 0.277f);
             else
-                Chara[i].Pos = (39f * vec + new Vector3(width * 0.2f * (i - 0.2f), height * 0.277f)) / 40f;
+                Chara[i].Pos = (39f * vec + new Vector3(-width * 0.2f * (i - 0.2f), height * 0.277f)) / 40f;
         }
         #endregion
         #region 時間表示
-        if (!pause_bool && timer_bool) time -= Time.deltaTime;//is_Skill(n2)
+        if (!pause_bool && timer_bool)
+        {
+            time -= Time.deltaTime;//is_Skill(n2)
+            Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
+        }
         if (time < 0) //GameOver
         {
             time = 0;
             main.Goal(1);
         }
-        if (time < needle) needle -= 0.5f;
-        if (needle < 80)
+        if (time < needle)
+        {
+            time_gage.GetComponent<RectTransform>().localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
+            time_gage.GetComponent<Image>().fillAmount = (needle - time) / Max_Time /4f;
+            if (!pause_bool && timer_bool)
+            {
+                if (time_delta < 0) time_delta += Time.deltaTime;
+                else needle -= 0.5f;
+            }
+        }
+        else
+        {
+            time_gage.GetComponent<RectTransform>().localRotation = new Quaternion(0, 0, 1, 1 - time / Max_Time);
+            time_gage.GetComponent<Image>().fillAmount = (time-needle) / Max_Time / 4f;
+            if (!pause_bool && timer_bool)
+            {
+                if (time_delta < 0) time_delta += Time.deltaTime;
+                else needle += 0.5f;
+            }
+        }
+        if (needle < 80&&!is_red)
         {
             Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG_red" + (int)Common.Thema.Sky);
             Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front_red" + (int)Common.Thema.Sky);
             GameObject.Find("Background").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back_red" + (int)Common.Thema.Sky);
+            is_red = true;
+            main.To_Red(true);
         }
-        Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / 150);
         #endregion
         #region スキル
         Gage();
@@ -194,8 +221,10 @@ public class State_manage : Functions
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f, 0.66f) * width, 0.04f * height, 10));
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
+            if (skill_time >= 20 && !pause_bool && timer_bool) skill_time += Time.deltaTime;
+            if (skill_time > 30) skill_time -= 10;
+            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2((0.08f + 0.01f * Mathf.Sin(Mathf.PI * skill_time / 1.25f)) * height, (0.08f + 0.01f * Mathf.Sin(Mathf.PI * skill_time / 1.25f)) * height);
         }
-        goalEffect.Emit(1);
         #endregion
         #region ポーズメニュー
         Vector3 v = Pause_Menu.GetComponent<RectTransform>().localPosition;
@@ -236,6 +265,9 @@ public class State_manage : Functions
     public void Lose_Time(float minus) //単位は秒
     {
         time -= minus;
+        time_delta = -1;
+        if (minus > 0) time_gage.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
+        else time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
     }
 
     public bool Damage()
@@ -300,7 +332,7 @@ public class State_manage : Functions
     {
         GameObject o = GameObject.Find("Small_map" + x + "-" + y);
         o.GetComponent<RectTransform>().localPosition = new Vector3(0.066f * (x - 1) * width, 0.066f * (y - 1) * width);
-        o.GetComponent<Image>().color = new Color(1, 0.8f, 0, 1);
+        o.GetComponent<Image>().color = new Color(0.7f, 0.4f, 0, 1);
     }
 
     public void Item_Life()
@@ -355,16 +387,17 @@ public class State_manage : Functions
             GameObject.Find("Start_and_End_anim").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
             GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f * height);
             GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector3(0.8f * width, 0.13f * height);
-            o = Instantiate(Resources.Load<GameObject>("Prefab/Big_Treasure")) as GameObject;
-            o.name = "Goal";
-            o.transform.parent = GameObject.Find("Canvas").transform;
+            //o = Instantiate(Resources.Load<GameObject>("Prefab/Big_Treasure")) as GameObject;
+            //o.name = "Goal";
+            o = GameObject.Find("Hikousen");
+            o.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0, 0);/*
             o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
             o.transform.parent = GameObject.Find("Canvas").transform;
             o.name = "light";
             o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/light");
             o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.05f * height);
             o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.005f * width, 0.005f * width);
-            o.GetComponent<Image>().color = new Color(1, 1, 0.5f);
+            o.GetComponent<Image>().color = new Color(1, 1, 0.5f);*/
         }
         else
         {
@@ -383,7 +416,7 @@ public class State_manage : Functions
         GameObject.Find("Game_over").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
         GameObject.Find("GameOver_text").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
         GameObject.Find("Retry").GetComponent<RectTransform>().localPosition = new Vector3(0, height, 0);
-        Change_Chara();
+        Change_Chara(true);
         for (int i = 0; i < 3; i++)
         {
             Chara[i].Pos = new Vector3(width * 0.65f * (4 - i), height * 0.277f);
@@ -393,14 +426,17 @@ public class State_manage : Functions
         Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG" + (int)Common.Thema.Sky);
         Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front" + (int)Common.Thema.Sky);
         GameObject.Find("Background").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back" + (int)Common.Thema.Sky);
+        main.To_Red(false);
         /*GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
         Skill_text.text = Chara[0].skill_Description;
         skill_time = 20;*/
         timer_bool = true;
         bg_bool = true;
+        BGM_on(Common.BGM.tutorial); // ここでゲームオーバーBGM定義
+
     }
 
-    public bool To_goal(int Scale_or_Pos) //最後の宝箱の動きが終わったかどうか
+    public bool To_goal(int Scale_or_Pos) //最後の宝箱の動きが終わったかどうか ●あとで挙動についてめっちゃ消します
     {
         GameObject o = GameObject.Find("Goal");
         if (Scale_or_Pos == 0)
@@ -414,7 +450,7 @@ public class State_manage : Functions
             }
             else return false;
         }
-        else
+        else if(Scale_or_Pos==1)
         {
             Vector3 vec = o.GetComponent<RectTransform>().localPosition;
             if (vec.magnitude < 0.55f)
@@ -427,6 +463,14 @@ public class State_manage : Functions
                 vec = vec / (vec.magnitude);
                 o.GetComponent<RectTransform>().localPosition -= vec; return false;
             }
+        }
+        else
+        {
+            RectTransform rect =GameObject.Find("Hikousen").GetComponent<RectTransform>();
+            float x = rect.localPosition.x/width;
+            rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
+            rect.sizeDelta = new Vector2((x+0.7f) * width, (x+0.7f) * width);
+            return x > 1;
         }
     }
     #endregion
@@ -468,6 +512,8 @@ public class State_manage : Functions
             bg_bool = false;
             timer_bool = false;
             Anime(0, Common.Action.Happy);
+            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
+
         }
     }
 
@@ -477,18 +523,21 @@ public class State_manage : Functions
     }
     #endregion
 
-    public void Change_Chara()
+    public void Change_Chara(bool b)
     {
-        Party tmp = Chara[0];
-        for (int i = 0; i < Life_point; i++)
+        if (main.Flg(1)||b)
         {
-            Chara[i] = Chara[i + 1];
+            Party tmp = Chara[0];
+            for (int i = 0; i < Life_point; i++)
+            {
+                Chara[i] = Chara[i + 1];
+            }
+            Chara[Life_point] = tmp;
+            Chara[Life_point].Index = 3;
+            GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+            Skill_text.text = Chara[0].skill_Description;
+            skill_time = 20;
         }
-        Chara[Life_point] = tmp;
-        Chara[Life_point].Index = 3;
-        GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
-        Skill_text.text = Chara[0].skill_Description;
-        skill_time = 20;
     }
 
     public void SE_on(Common.SE music)
@@ -498,22 +547,44 @@ public class State_manage : Functions
 
     public void BGM_on(Common.BGM music)
     {
-        int i;
         if (last == 0) // スタート時
         {
             BGMs[(int)music].Play();
         }
-        else if (last == 1)       // 通常 → 戦闘、リザルトへ遷移時
+        if (last == 4) // リトライ時
+        {
+            BGMs[0].Stop();
+            BGMs[(int)music].volume = 0.3f;
+            BGMs[(int)music].Stop();
+            BGMs[(int)music].Play();
+            for (int i = 0; i < 6; i++)
+                Invoke("BGM_volume_set", 0.2f * i);
+        }
+        else if (last == 1 && (int)music == 2 )      // 通常 → 戦闘へ遷移時
         {
             BGMs[last].Pause();
             BGMs[(int)music].Play();
         }
-        else
+        else if (last == 1 && (int)music == 3)       // 通常 → リザルトへ遷移時
+        {
+            BGMs[last].Pause();
+            GetComponent<AudioSource>().PlayOneShot(SEs[13]);
+        }
+        else if (last == 1 && (int)music == 4)       // 通常 → リタイアへ遷移時
+        {
+            BGMs[last].Pause();
+            BGMs[0].volume = 0.1f;
+            GetComponent<AudioSource>().PlayOneShot(SEs[14]);
+            for (int i = 0; i < 8; i++)
+                Invoke("SE_volume_set", 0.2f * i);
+        }
+        else if(last == 2)
         {              // 戦闘 → 通常への遷移時 この時だけフェードイン
+            Debug.Log("set");
             BGMs[last].Stop();
             BGMs[(int)music].volume = 0.1f;
             BGMs[(int)music].UnPause();
-            for (i = 0; i < 3; i++)
+            for (int i = 0; i < 7; i++)
                 Invoke("BGM_volume_set", 0.2f * i);
         }
         last = (int)music;
@@ -522,9 +593,9 @@ public class State_manage : Functions
     {
         BGMs[last].volume += 0.1f;
     }
-    public void SE_volume_set(float volume)
+    public void SE_volume_set()
     {
-        BGMs[0].volume = volume;
+        BGMs[0].volume += 0.1f;
     }
 
     public void read_sounds()
@@ -543,6 +614,8 @@ public class State_manage : Functions
         SEs[10] = Resources.Load<AudioClip>("Audio/SE/Coin");
         SEs[11] = Resources.Load<AudioClip>("Audio/SE/Count");
         SEs[12] = Resources.Load<AudioClip>("Audio/SE/Stamp");
+        SEs[13] = Resources.Load<AudioClip>("Audio/SE/Result");
+        SEs[14] = Resources.Load<AudioClip>("Audio/SE/Retired");
 
         #endregion
 
@@ -550,5 +623,6 @@ public class State_manage : Functions
         BGMs = GameObject.Find("State_manager").GetComponents<AudioSource>();
         #endregion
     }
+
 
 }

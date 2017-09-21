@@ -20,10 +20,11 @@ public class Result : Functions
     Text text;
 
     public AudioSource[] Result_BGM;
-    AudioClip[] Result_SE = new AudioClip[3];
+    AudioClip[] Result_SE = new AudioClip[4];
     #region タッチエフェクト追記
     [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
     [SerializeField] Camera _camera;                // カメラの座標
+    private bool isTouch = true;
     #endregion
 
     // Use this for initialization
@@ -40,6 +41,8 @@ public class Result : Functions
         datas[3] = PlayerPrefs.GetInt("Coin", 0);
         datas[4] = PlayerPrefs.GetInt("treasure1", 0);
         datas[5] = PlayerPrefs.GetInt("treasure0", 0);
+        datas[4] = 2;
+        datas[5] = 1;
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
@@ -49,6 +52,12 @@ public class Result : Functions
         delta_time = 0;
         text = obj.GetComponent<Text>();
         Audio = GameObject.Find("EventSystem");
+
+        Result_SE[0] = Resources.Load<AudioClip>("Audio/SE/Paper");
+        Result_SE[1] = Resources.Load<AudioClip>("Audio/SE/Count");
+        Result_SE[2] = Resources.Load<AudioClip>("Audio/SE/Stamp");
+        Result_SE[3] = Resources.Load<AudioClip>("Audio/SE/Tap");
+        Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ペラッ
     }
 	
 	// Update is called once per frame
@@ -59,6 +68,7 @@ public class Result : Functions
         #region flg=-1:  イメージ画像のアニメ
         if (flg < 0)
         {
+
             o.GetComponent<Image>().color -= new Color(0,0,0,0.01f);
             if (o.GetComponent<Image>().color.a< 0.01f)
             {
@@ -75,6 +85,11 @@ public class Result : Functions
         #region flg=0:  Time
         else if (flg == 0)
         {
+            if (delta_time == 0)
+            {
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[1]); // カラカラカラ
+            }
+            delta_time += Time.deltaTime;
             if (count < datas[0]) count += Random.Range(3, 8);
             else if (count > datas[0]) count--;
             int m = Mathf.FloorToInt(count / 60);
@@ -86,6 +101,7 @@ public class Result : Functions
                 count = 0;
                 obj = GameObject.Find("Life");
                 obj.GetComponent<Animator>().SetInteger("Stamp_Int", datas[1]);
+                delta_time = 0;
             }
         }
         #endregion
@@ -94,8 +110,8 @@ public class Result : Functions
         {
             if (delta_time == 0)
             {
-                Result_BGM[2].Stop();
-                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ドン！
+                Result_BGM[0].Stop(); //カラカラ音ミュート
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
             }
             delta_time += Time.deltaTime;
             if (delta_time > 1)
@@ -111,7 +127,7 @@ public class Result : Functions
         else if (flg == 2)
         {
             if (delta_time == 0)
-                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ドン！
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
             delta_time += Time.deltaTime;
             if (delta_time > 1)
             {
@@ -159,8 +175,8 @@ public class Result : Functions
             if (num < datas[4]) //宝が残ってる
             {
                 Vector3 vec = obj.GetComponent<RectTransform>().localPosition;
-                obj.GetComponent<RectTransform>().localPosition = (14f * vec + new Vector3(0, -0.15f * height, 0)) / 15f;
-                if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.05f)//宝移動後
+                obj.GetComponent<RectTransform>().localPosition = (11f * vec + new Vector3(0, -0.15f * height, 0)) / 12f;
+                if ((vec - new Vector3(0, -0.15f * height, 0)).magnitude < 0.15f)//宝移動後
                 {
                     if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed_pink"))
                     {
@@ -168,12 +184,12 @@ public class Result : Functions
                         obj.GetComponent<Animator>().SetBool("Open_Bool", true);
                     }
                     else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning_pink")
-                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)//開いた後
+                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1.5f)//開いた後
                     {
                         count++;
-                        if (count < 45)
+                        if (count < 40)
                         {
-                            o.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 0.06f * Mathf.Cos(Mathf.PI / 45f * count), 0);
+                            o.GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*width, -height * (0.05f * Mathf.Cos(Mathf.PI / 40f * count)+0.05f), 0);
                             Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
                             if(count>30)
                             {
@@ -232,6 +248,8 @@ public class Result : Functions
                     o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/Item"+Random.Range(0,5));
                 }
                 GameObject.Find("Box").GetComponent<Image>().color = Color.white;
+                GameObject.Find("Box").transform.SetAsLastSibling();
+                num = 0;
             }
         }
         #endregion
@@ -248,18 +266,17 @@ public class Result : Functions
                     {
                         obj.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.15f * height, 0);
                         obj.GetComponent<Animator>().SetBool("Open_Bool", true);
-                        o = GameObject.Find("Get" + num);
+                        o = GameObject.Find("GetRare" + num);
                         o.GetComponent<Image>().color = Color.white;
                     }
                     else if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Openning")
-                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 2f)//開いた後
+                && obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime > 1.5f)//開いた後
                     {
                         count++;
                         if (count < 90)
                         {
                             o.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 0.06f * Mathf.Cos(Mathf.PI / 45f * count), 0);
                             Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
-                            //Debug.Log("name : " + o.name+"   "+scale);
                             if (scale.x < 0.5f * height)//大きくする
                             {
                                 scale += new Vector2(2, 2);
@@ -298,7 +315,8 @@ public class Result : Functions
                 flg++;
                 count = 0;
                 GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
-
+                    Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
+                
             }
         }
         #endregion
@@ -311,12 +329,25 @@ public class Result : Functions
 
         #region タッチエフェクト
         // 画面のどこでもタッチでエフェクト
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            isTouch = false;
+        }
+
         if (Input.GetMouseButton(0))
         {
             // マウスのワールド座標までパーティクルを移動,エフェクトを1つ生成する
             var pos = _camera.ScreenToWorldPoint(Input.mousePosition + _camera.transform.forward * 10);
             touchEffect.transform.position = pos;
             touchEffect.Emit(1);
+
+            if (!isTouch)
+            {
+                //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[3]);  // 違和感
+                isTouch = true;
+            }
+
         }
         // 使用する際はSub_cameraとTouch_particleオブジェクトを追加してください
         #endregion
@@ -325,6 +356,5 @@ public class Result : Functions
     public void Next()
     {
         FadeManager.Instance.LoadScene("start", 3.0f);
-        SceneManager.LoadScene("start");
     }
 }

@@ -33,7 +33,9 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.06f * width, 0.02f * height);
         GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.58f * width, 0.06f * height);
         GameObject.Find("Gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        //GameObject.Find("button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
+        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().localPosition = new Vector2(-0.35f * width+0.04f * height, 0);
         GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
         GameObject.Find("Change").GetComponent<RectTransform>().localPosition = new Vector3(0.48f * width - 0.04f * height, -0.46f * height);
         GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
@@ -60,19 +62,18 @@ public class Dictionary : MonoBehaviour
         //GameObject.Find("Status").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
 
 
-
-
+        Destroy(this.gameObject, 1f);
     }
 
     public void Set_Box(Party chara,int ID)
     {
-        //スキルについて、20未満だとその秒数がタップスキルになる（組み合わせ可能）、30にすると常時発動（リーダースキル化、組み合わせ可能）
+        //スキルについて、20未満だとその秒数がタップスキルになる（組み合わせ可能）、35にすると常時発動（リーダースキル化、組み合わせ可能）
         #region ID=1:剣士
         if (ID == 1)
         {
-            chara.Attack = 30;
+            chara.Attack = 95;
             chara.HP = 60;
-            chara.skills[0] = 5; //敵を早く倒す //★永田さんの実装を見て作ります。
+            chara.skills[0] = 5; //敵を早く倒す 
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
             /*chara.skills[n0] = 0; //敵が見える
@@ -89,13 +90,14 @@ public class Dictionary : MonoBehaviour
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.Max_gage = 25;
             chara.Max_second = 5;
+            chara.Action = Common.SE.Sword;
         }
         #endregion
         #region ID=2:魔女
         else if (ID == 2)
         {
-            chara.Attack = 60;
-            chara.HP = 60;
+            chara.Attack = 45;
+            chara.HP = 80;
             chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 1; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
@@ -112,13 +114,14 @@ public class Dictionary : MonoBehaviour
             chara.skill_Description = "見えている敵全体に攻撃";
             chara.Max_gage = 25;
             chara.Max_second = 1;
+            chara.Action = Common.SE.Fire;
         }
         #endregion
         #region ID=3:海賊
         else if (ID == 3)
         {
             chara.Attack = 60;
-            chara.HP = 120;
+            chara.HP = 150;
             chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 10; //宝が見える
@@ -135,14 +138,15 @@ public class Dictionary : MonoBehaviour
             chara.skill_Description = "アイテムの位置が分かる";
             chara.Max_gage = 25;
             chara.Max_second = 10;
+            chara.Action = Common.SE.Gun;
         }
         #endregion
         #region ID=4:女剣士
         else if (ID == 4)
         {
-            chara.Attack = 30;
-            chara.HP = 60;
-            chara.skills[0] = 5; //敵を早く倒す //★永田さんの実装を見て作ります。
+            chara.Attack = 90;
+            chara.HP = 70;
+            chara.skills[0] = 10; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
             /*chara.skills[n0] = 0; //敵が見える
@@ -158,7 +162,8 @@ public class Dictionary : MonoBehaviour
             chara.skills[n10] = 0; //周りが見える（却下っぽい。。）*/
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.Max_gage = 25;
-            chara.Max_second = 5;
+            chara.Max_second = 8;
+            chara.Action = Common.SE.Sword;
         }
         #endregion
         #region ID=?:図鑑に入っていない場合（IDが考えられていない）

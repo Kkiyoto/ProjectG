@@ -10,7 +10,6 @@ using UnityEngine;
 
 public class Party : MonoBehaviour
 {
-
     public int chara_ID;
     public GameObject chara;
 
@@ -20,6 +19,7 @@ public class Party : MonoBehaviour
     public string skill_Description;//どんなスキルなのか
     public int Max_gage;//何歩で?もしキャラごとにならそれぞれ変えられる。
     public float Max_second;//何秒分スキルある?青くする時間
+    public Common.SE Action;//音のタイプ
     #endregion
 
     public Party(GameObject o,int ID)

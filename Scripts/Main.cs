@@ -39,13 +39,16 @@ public class Main : Functions
     GameObject Battle_down_panel;
     float timeElapsed, timeOut = 3.0f;
     bool isBattle = false;
+
+    int coin = 0;
+
     #endregion
     #region タッチエフェクト追記
     [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
     [SerializeField] Camera _camera;                // カメラの座標
+    private bool isTouch = false;
     #endregion
     #region 初期アニメーション追加部分
-    // 変数多過ぎ問題
     private RectTransform Start_and_End_anim;
     private float move_diff, char_right = 0;
     private bool isAnim = true, Anim_start = true, mid_reach = false;
@@ -95,8 +98,12 @@ public class Main : Functions
             Pazzle_data[10, 0].type = Common.Direction.None; Pazzle_data[10, 0].condition = Common.Condition.Hole;
             Pazzle_data[10, 10].type = Common.Direction.None; Pazzle_data[10, 10].condition = Common.Condition.Hole;
         }
-        Pazzle_data[10, 9].type = Common.Direction.Down;
-        Pazzle_data[10, 9].condition = Common.Condition.Player;//ゴール右上、右側
+        Pazzle_data[10, 9].type = Common.Direction.Up;
+        Pazzle_data[10, 9].condition = Common.Condition.Normal;//ゴール右上、右側
+        Pazzle_data[10, 8].type = Common.Direction.Down;
+        Pazzle_data[10, 8].condition = Common.Condition.Player;//ゴール右上、右側
+        Pazzle_data[10, 7].type = Common.Direction.Up;
+        Pazzle_data[10, 7].condition = Common.Condition.Normal;//ゴール右上、右側
         #endregion
         set_block(0, 1, 1);
         #endregion
@@ -422,11 +429,12 @@ public class Main : Functions
                     if (!isBattle) // バトル開始直後の処理
                     {
                         isBattle = true;
-                        UIs.timer_bool = true;
-                        UIs.bg_bool = true;
+                        UIs.timer_bool = false;
+                        UIs.bg_bool = false;
+
                         UIs.BGM_on(Common.BGM.battle); // ここで戦闘BGM定義
 
-                        for (int i = 0; i < UIs.get_Life(); i++)
+                        for (int i = 0; i <= UIs.get_Life(); i++)
                             UIs.Anime(i, Common.Action.Battle);
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
@@ -442,26 +450,42 @@ public class Main : Functions
                     #endregion
                     break;
                 case 4: //宝ゲット
-                    timeElapsed += Time.deltaTime;
-                    for (int i = 0; i < UIs.get_Life(); i++)
+                    if (timeElapsed == 0.0f)
+                    {
+                        UIs.SE_on(Common.SE.Get);
+                        coin += Random.Range(5, 9); // コイン取得
+                        UIs.bg_bool = false;
+                    }
+                        timeElapsed += Time.deltaTime;
+                    for (int i = 0; i <= UIs.get_Life(); i++)
                         UIs.Anime(i, Common.Action.Happy);
-                    if (timeElapsed > 2.0f) //2秒経過で終了
+                    
+                    if (timeElapsed > 1.5f) //2秒経過で終了
                     {
                         // 移植作業中..
-                        for (int i = 0; i < UIs.get_Life(); i++)
+                        for (int i = 0; i <= UIs.get_Life(); i++)
                             UIs.Anime(i, Common.Action.Walk);
                         treasure[touch_ID].Get_Item();
                         if ((int)treasure[touch_ID].type < 2) UIs.tresure[(int)treasure[touch_ID].type]++;
+                        UIs.bg_bool = true;
                         timeElapsed = 0.0f;
                         flg = 1;
                     }
                     break;
                 case 5: //落下
+                    if (timeElapsed == 0.0f)
+                    {
+                        UIs.SE_on(Common.SE.Fall);
+                        UIs.timer_bool = false;
+                        UIs.bg_bool = false;
+                    }
+                    timeElapsed += Time.deltaTime;
                     if (player.Wait_chara())
                     {
                         flg = 1;
                         UIs.timer_bool = true;
                         UIs.bg_bool = true;
+                        timeElapsed = 0.0f;
                         if (Field_direct == Common.Direction.Straight) flg = 6;
                         else if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
                         if (UIs.Damage())
@@ -512,14 +536,23 @@ public class Main : Functions
                     #endregion
                     break;
                 case 7: //ゴール
-                    //RenderSettings.fogDensity += 0.1f;
-                    if (UIs.To_goal(0) & UIs.To_goal(1))
+                    if (timeElapsed == 0.0f)
+                        UIs.SE_on(Common.SE.Get);
+                    Transform tra= GameObject.Find("Goal_ship").transform;
+                    Vector3 vector = tra.position;
+                    if(vector.y<50)tra.position = (16f*vector - new Vector3(10, 7.99f))/15f;
+                    timeElapsed += Time.deltaTime;
+                    if (UIs.To_goal(2))
                     {
-                        GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
-                        if (UIs.To_result(1)) SceneManager.LoadScene("Result");
+                        //GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
+                        //if (UIs.To_result(1)) 
+                        SceneManager.LoadScene("Result");
                     }
                     break;
                 case 8: //Game Over
+                    if (timeElapsed == 0.0f)
+                        UIs.BGM_on(Common.BGM.gameover); // ここでゲームオーバーBGM定義
+                    timeElapsed += Time.deltaTime;
                     if (UIs.To_result(0))
                     {
                         UIs.Set_Button();
@@ -952,8 +985,7 @@ public class Main : Functions
             }
             UIs.Effect(3);//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
             flg = 7;
-            Vector3 vec = GameObject.Find("Main Camera").GetComponent<Camera>().WorldToScreenPoint(player.Pos + Dire_to_Vec(Field_direct) * 0.5f);
-            GameObject.Find("Goal").GetComponent<RectTransform>().localPosition = vec - new Vector3(Screen.width, Screen.height) / 2f;
+            player.Pos = new Vector3(-3, -3);
         }
         else
         {
@@ -1025,6 +1057,24 @@ public class Main : Functions
         GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
     }
 
+    public void To_Red(bool time)
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            for(int j = 0; j < 5; j++)
+            {
+                Pazzle_fields[i, j].time = time;
+                move_fields[i, j].time = time;
+                Pazzle_fields[i, j].Set_img(Pazzle_data[3 * L(player.x) + i, 3 * L(player.y) + j].type);
+            }
+        }
+    }
+
+    public bool Flg(int n)
+    {
+        return flg == n;
+    }
+
     public void Map_color(float color_a)
     {
         for (int i = 0; i < treasure.Length; i++)
@@ -1041,7 +1091,7 @@ public class Main : Functions
         {
             for (int j = 0; j < 3; j++)
             {
-                GameObject.Find("Small_map" + i + "-" + j).GetComponent<Image>().color = new Color(1, 0.8f, 0, color_a);
+                GameObject.Find("Small_map" + i + "-" + j).GetComponent<Image>().color = new Color(0.7f, 0.4f, 0, color_a);
             }
         }
     }
@@ -1049,6 +1099,7 @@ public class Main : Functions
     #region Battle追加部分
     public void Battle_setup()
     {
+        UIs.timer_bool = true;
         Sentou_kaisi.GetComponent<Animator>().SetBool("Sentou_effect", false);
         Invoke("Battle_time_loss", 1.0f);
         Invoke("Battle_time_loss", 2.0f);
@@ -1058,7 +1109,7 @@ public class Main : Functions
     public void Battle_endset()
     {
         int i;
-        for (i = 0; i < UIs.get_Life(); i++)
+        for (i = 0; i <= UIs.get_Life(); i++)
             UIs.Anime(i, Common.Action.Walk);
 
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", 10);
@@ -1069,10 +1120,12 @@ public class Main : Functions
         UIs.Enemy_Anime(false, enemy[touch_ID].type);
         UIs.BGM_on(Common.BGM.tutorial); // ここで通常BGM定義
 
+        coin += Random.Range(10, 20); // コイン取得
+
+        UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
         enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
         flg = 1;
-        //Invoke("BGM_restart", 2.0f);
     }
 
     public void Battle_time_loss()
@@ -1080,22 +1133,9 @@ public class Main : Functions
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
 
-        // UIs.Lose_Time(900/UIs.Chara[0].Attack);  // dictinary 未発見のため据え置き　★いきなりChara[]で良いです。
-        if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
-        {
-            UIs.Lose_Time(900 / 30);
-            UIs.SE_on(Common.SE.Sword);
-        }
-        else if (UIs.Top_ID() == 2)
-        {
-            UIs.Lose_Time(900 / 60);
-            UIs.SE_on(Common.SE.Fire);
-        }
-        else if (UIs.Top_ID() == 3)
-        {
-            UIs.Lose_Time(900 / 60);
-            UIs.SE_on(Common.SE.Gun);
-        }
+        if(UIs.is_Skill(0)) UIs.Lose_Time(500 / UIs.Chara[0].Attack);
+        else UIs.Lose_Time(900/UIs.Chara[0].Attack);
+        UIs.SE_on(UIs.Chara[0].Action);//★Party.Action  音をChara[]に仕込みました
     }
     #endregion
 

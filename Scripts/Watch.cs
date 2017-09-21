@@ -5,71 +5,40 @@ using UnityEngine.UI;
 
 public class Watch : MonoBehaviour
 {
-    bool flg;//全画面なら真
-    int box_num_x,box_num_y;
-    Box_Chara[,] charas = new Box_Chara[2, 4];
     public GameObject back,Big,text;
-    float width, height;
-    
+    public GameObject[,] box_Chara = new GameObject[2,4];
 
-	// Use this for initialization
-	void Start ()
+
+
+    // Use this for initialization
+    void Start ()
     {
-        width = Screen.width;
-        height = Screen.height;
-        flg = false;
-        box_num_x = 0;
-        box_num_y = 0;
-        for(int i = 0; i < 2; i++)
-        {
-            for(int j = 0; j < 4; j++)
-            {
-                int num = 4 * i + j + 1;
-                GameObject o = Instantiate(Resources.Load<GameObject>("Prefab/box_chara")) as GameObject;
-                charas[i, j] = new Box_Chara(o, num);
-                int id = PlayerPrefs.GetInt("Box_ID" + num, 0);
-                int level = PlayerPrefs.GetInt("Box_LV" + num, 0);
-                in_data(charas[i,j],id, level);
-            }
-        }
+        float width = Screen.width;
+        float height = Screen.height;
+        float W_height = 10;
+        float W_width = width / height * W_height;
         back.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
         back.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         Big.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f*height, 0);
         Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f*width, 0.8f*width);
         text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.3f*height, 0);
         text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f*width, 0.15f*height);
+        for(int i = 0; i < 2; i++)
+        {
+            for(int j = 0; j < 4; j++)
+            {
+                box_Chara[i, j].GetComponent<RectTransform>().localPosition = new Vector3((2.1f + j) * W_width, (0.1f - i) * W_height);
+            }
+        }
+
+
+        Destroy(this.gameObject, 1f);
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        if (flg)
-        {
-            if (Input.GetMouseButtonUp(0))
-            {
-                flg = false;
-                back.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
-            }
-        }
-        else
-        {
-            if (Input.GetMouseButtonUp(0))
-            {
-                Vector3 vec = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                int x = Mathf.RoundToInt(vec.x);
-                int y = Mathf.RoundToInt(vec.y);
-                if (x > 0 && y < 0 && x < 4 && y > -2)
-                {
-                    box_num_x = x;
-                    box_num_y = y;
-                    flg = true;
-                    back.GetComponent<RectTransform>().localPosition = Vector3.zero;
-                    Big.GetComponent<Image>().sprite = charas[x, y].Big_img;
-                    text.GetComponent<Text>().text = "スキル発動時間：" + charas[x, y].skill_time + "秒　スキル補充：" + charas[x, y].skill_walk + "\n説明：" + charas[x, y].skill_Description;
-                }
-            }
 
-        }
     }
 
     public void in_data(Box_Chara chara, int ID, int level)
@@ -83,7 +52,7 @@ public class Watch : MonoBehaviour
             chara.attack = 30;
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.skill_walk = 25;
-            chara.skill_time = 5;
+            chara.skill_time = 8;
         }
         else if (ID == 2)//魔女
         {
@@ -116,6 +85,23 @@ public class Watch : MonoBehaviour
         {
         }
     }
+
+    public Box_Chara[,] get_Chara(int x, int y)
+    {
+        Box_Chara[,] chara = new Box_Chara[x, y];
+        for (int i = 0; i < x; i++)
+        {
+            for (int j = 0; j < y; j++)
+            {
+                int num = 4 * i + j + 1;
+                chara[i,j] = new Box_Chara(box_Chara[i,j], num);
+                int id = PlayerPrefs.GetInt("Box_ID" + num, 0);
+                int level = PlayerPrefs.GetInt("Box_LV" + num, 0);
+                in_data(chara[i, j], id, level);
+            }
+        }
+        return chara;
+    }
 }
 
 public class Box_Chara : MonoBehaviour
@@ -125,6 +111,7 @@ public class Box_Chara : MonoBehaviour
     public int attack,skill_walk,skill_time;
     public string skill_Description;
     GameObject obj;
+
     public Box_Chara(GameObject o,int ID)
     {
         obj = o;
