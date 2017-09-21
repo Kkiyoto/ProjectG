@@ -41,8 +41,6 @@ public class Result : Functions
         datas[3] = PlayerPrefs.GetInt("Coin", 0);
         datas[4] = PlayerPrefs.GetInt("treasure1", 0);
         datas[5] = PlayerPrefs.GetInt("treasure0", 0);
-        datas[4] = 2;
-        datas[5] = 1;
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
@@ -256,6 +254,7 @@ public class Result : Functions
         #region flg=5:  Treasure_Rare
         else if (flg == 5)
         {
+            Debug.Log(num + "data5=" + datas[5]);
             if (num < datas[5]) //宝が残ってる
             {
                 Vector3 vec = obj.GetComponent<RectTransform>().localPosition;

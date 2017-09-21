@@ -86,6 +86,8 @@ public class State_manage : Functions
         timer_bool = false;
         bg_bool = false;
         time = 300;
+        int easy = PlayerPrefs.GetInt("Easy", 2);
+        if (easy == 5) time *= 2f;
         needle = time;
         Max_Time = time/2f;
         Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();

@@ -57,6 +57,7 @@ public class Main : Functions
     // Use this for initialization
     void Start()
     {
+        int easy = PlayerPrefs.GetInt("Easy",2);
         UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
         #region Pazzle_dataの設定と読み取り
         for (int i = 0; i < 11; i++)
@@ -82,16 +83,16 @@ public class Main : Functions
         for (int i = 1; i < 10; i++)
         {
             int random = Random.Range(0, 5);
-            if (random < 2) { Pazzle_data[0, i].type = Common.Direction.Up; Pazzle_data[0, i].condition = Common.Condition.Normal; }
+            if (random < easy) { Pazzle_data[0, i].type = Common.Direction.Up; Pazzle_data[0, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[0, i].type = Common.Direction.None; Pazzle_data[0, i].condition = Common.Condition.Hole; }
             random = Random.Range(0, 5);
-            if (random < 2) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
+            if (random < easy) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[10, i].type = Common.Direction.None; Pazzle_data[10, i].condition = Common.Condition.Hole; }
             random = Random.Range(0, 5);
-            if (random < 2) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
+            if (random < easy) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 0].type = Common.Direction.None; Pazzle_data[i, 0].condition = Common.Condition.Hole; }
             random = Random.Range(0, 5);
-            if (random < 2) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
+            if (random < easy) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 10].type = Common.Direction.None; Pazzle_data[i, 10].condition = Common.Condition.Hole; }
             Pazzle_data[0, 0].type = Common.Direction.None; Pazzle_data[0, 0].condition = Common.Condition.Hole;
             Pazzle_data[0, 10].type = Common.Direction.None; Pazzle_data[0, 10].condition = Common.Condition.Hole;
@@ -1069,12 +1070,12 @@ public class Main : Functions
             }
         }
     }
-
+    
     public bool Flg(int n)
     {
         return flg == n;
     }
-
+    
     public void Map_color(float color_a)
     {
         for (int i = 0; i < treasure.Length; i++)
@@ -1132,10 +1133,25 @@ public class Main : Functions
     {
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
-
+        
+        /*
         if(UIs.is_Skill(0)) UIs.Lose_Time(500 / UIs.Chara[0].Attack);
         else UIs.Lose_Time(900/UIs.Chara[0].Attack);
-        UIs.SE_on(UIs.Chara[0].Action);//★Party.Action  音をChara[]に仕込みました
+        UIs.SE_on(UIs.Chara[0].Action);*/ //★Party.Action  音をChara[]に仕込みました、よかったらコメントアウト消してください
+
+        UIs.Lose_Time(900/UIs.Chara[0].Attack); 
+        if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
+        {
+            UIs.SE_on(Common.SE.Sword);
+        }
+        else if (UIs.Top_ID() == 2)
+        {
+            UIs.SE_on(Common.SE.Fire);
+        }
+        else if (UIs.Top_ID() == 3)
+        {
+            UIs.SE_on(Common.SE.Gun);
+        }
     }
     #endregion
 
