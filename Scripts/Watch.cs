@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class Watch : MonoBehaviour
 {
-    public GameObject back, Big, text,Menu;
-    public GameObject BG;
+    public GameObject detail, Big, text, Menu, Title, select;//Canvas
+    public GameObject BG;//BackCanvas
     public GameObject[] box_Chara = new GameObject[8];
     public GameObject[] party_Chara = new GameObject[3];
 
@@ -19,31 +19,38 @@ public class Watch : MonoBehaviour
         float height = Screen.height;
         float W_height = 10;
         float W_width = width / height * W_height;
-        back.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
-        back.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+        Vector2 max_vec = new Vector2(width, height);
+        select.GetComponent<RectTransform>().localPosition = max_vec;
+        select.GetComponent<RectTransform>().sizeDelta = max_vec;
+
+        detail.GetComponent<RectTransform>().localPosition = max_vec;
+        detail.GetComponent<RectTransform>().sizeDelta = max_vec;
         Big.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f * height, 0);
         Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.8f * width);
         text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.3f * height, 0);
         text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.15f * height);
 
-        Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.45f*height, 0);
-        Menu.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.1f*height);
+        Title.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.45f * height, 0);
+        Title.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.1f * height);
+        Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.43f * height, 0);
+        Menu.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.14f * height);
 
-        BG.GetComponent<RectTransform>().sizeDelta = new Vector2(5f*width, height);
+        BG.GetComponent<RectTransform>().sizeDelta = new Vector2(5f * width, height);
+        BG.GetComponent<RectTransform>().localPosition = new Vector2(2f * width, 0);
 
         for (int n = 0; n < 8; n++)
         {
             int i = Mathf.FloorToInt(n / 4f);
             int j = Mathf.RoundToInt(n % 4f);
             box_Chara[n].GetComponent<RectTransform>().sizeDelta = new Vector2(0.25f * width, 0.25f * width);
-            box_Chara[n].GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + j*0.25f) * width, 0.1f * height- i*0.25f*width );
+            box_Chara[n].GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + j * 0.25f) * width, 0.1f * height - i * 0.25f * width);
         }
         party_Chara[0].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
-        party_Chara[0].GetComponent<RectTransform>().localPosition = new Vector3(-0.33f * width, 0.3f * height);
+        party_Chara[0].GetComponent<RectTransform>().localPosition = new Vector3(0.33f * width, 0.3f * height);
         party_Chara[1].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
         party_Chara[1].GetComponent<RectTransform>().localPosition = new Vector3(0, 0.3f * height);
         party_Chara[2].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
-        party_Chara[2].GetComponent<RectTransform>().localPosition = new Vector3(0.33f * width, 0.3f * height);
+        party_Chara[2].GetComponent<RectTransform>().localPosition = new Vector3(-0.33f * width, 0.3f * height);
 
 
         Destroy(this.gameObject, 1f);
@@ -136,13 +143,13 @@ public class Watch : MonoBehaviour
 
 public class Box_Chara : MonoBehaviour
 {
-    public Sprite Big_img,Small_img;
-    public int Level, chara_ID,box_ID;
-    public int attack,HP,skill_walk,skill_time;
+    public Sprite Big_img, Small_img;
+    public int Level, chara_ID, box_ID;
+    public int attack, HP, skill_walk, skill_time;
     public string skill_Description;
     public GameObject obj;
 
-    public Box_Chara(GameObject o,int ID)
+    public Box_Chara(GameObject o, int ID)
     {
         obj = o;
         box_ID = ID;
