@@ -13,7 +13,7 @@ public class State_manage : Functions
 {
     GameObject Back_anime, Front_anime, Pause_Menu, gage,
         time_gage,skill_Icon;
-    float width, height, time;
+    public float width, height, time;
     float needle,time_delta,Max_Time;
     RectTransform Needle; //時計盤の準備
     bool pause_bool,is_red;
@@ -28,6 +28,8 @@ public class State_manage : Functions
     Main main;
     public AudioSource[] BGMs;
     private int last = 0;
+    private bool battle_move = false;
+
 
     GameObject Battle_enemy;
     float skill_time;//後でキャラによって変更、多分配列化
@@ -586,14 +588,19 @@ public class State_manage : Functions
             BGMs[last].Stop();
             BGMs[(int)music].volume = 0.1f;
             BGMs[(int)music].UnPause();
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 4; i++)
                 Invoke("BGM_volume_set", 0.2f * i);
         }
         last = (int)music;
     }
-    public void BGM_volume_set() // BGM 疑似フェードイン
+    // Invokeで使うので、引数なしの形です
+    public void BGM_volume_set() // 最終BGM 疑似フェード
     {
         BGMs[last].volume += 0.1f;
+    }
+    public void BGM_volume_set_out(float volume) // BGM 疑似フェード
+    {
+        BGMs[1].volume += volume;
     }
     public void SE_volume_set()
     {
@@ -626,5 +633,51 @@ public class State_manage : Functions
         #endregion
     }
 
+    public void Battle_move_anim(int type)
+    {
+
+        for (int i = 0; i < 3; i++)
+        {
+            GameObject chara = GameObject.Find("Chara" + i);
+
+            if (type==1) {      // 開始時の後退
+                chara.GetComponent<RectTransform>().localPosition += new Vector3(0.02f * width, -0.02f * height);
+                //Debug.Log(chara.GetComponent<RectTransform>().sizeDelta);
+                chara.GetComponent<RectTransform>().sizeDelta *= 0.9f;
+            }else if(type == 2) // 終了時の進行
+            {
+                chara.GetComponent<RectTransform>().localPosition += new Vector3(-0.03f * width, 0.02f * height);
+                chara.GetComponent<RectTransform>().sizeDelta /= 0.9f;
+            }
+            else if (type == 3 && !battle_move) // バトル時の進退
+            {
+                //chara.GetComponent<RectTransform>().localPosition += new Vector3(0.005f * width,0);
+                Move_set(chara, 0.01f);
+
+            }
+            else if (type == 3 && battle_move) // バトル時の進退
+            {
+                //chara.GetComponent<RectTransform>().localPosition += new Vector3(-0.005f * width, 0);
+                Move_set(chara, -0.01f);
+
+            }
+        }
+        battle_move = !battle_move;
+    }
+
+    public void Move_set(GameObject chara,float range)
+    {
+        if (range >= 0) {
+            for (float i = 0.0f; i < range; i += 0.001f)
+                chara.GetComponent<RectTransform>().localPosition += new Vector3(i * width, 0);
+        }
+        else
+        {
+            for (float i = 0.0f; i < range; i -= 0.001f)
+                chara.GetComponent<RectTransform>().localPosition += new Vector3(i * width, 0);
+        }
+
+
+    }
 
 }
