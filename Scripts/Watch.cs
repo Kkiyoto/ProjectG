@@ -5,13 +5,15 @@ using UnityEngine.UI;
 
 public class Watch : MonoBehaviour
 {
-    public GameObject back,Big,text;
-    public GameObject[,] box_Chara = new GameObject[2,4];
+    public GameObject back, Big, text,Menu;
+    public GameObject BG;
+    public GameObject[] box_Chara = new GameObject[8];
+    public GameObject[] party_Chara = new GameObject[3];
 
 
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         float width = Screen.width;
         float height = Screen.height;
@@ -19,24 +21,44 @@ public class Watch : MonoBehaviour
         float W_width = width / height * W_height;
         back.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
         back.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
-        Big.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f*height, 0);
-        Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f*width, 0.8f*width);
-        text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.3f*height, 0);
-        text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f*width, 0.15f*height);
-        for(int i = 0; i < 2; i++)
+        Big.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f * height, 0);
+        Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.8f * width);
+        text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.3f * height, 0);
+        text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.15f * height);
+
+        Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.45f*height, 0);
+        Menu.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.1f*height);
+
+        BG.GetComponent<RectTransform>().sizeDelta = new Vector2(5f*width, height);
+
+        for (int n = 0; n < 8; n++)
         {
-            for(int j = 0; j < 4; j++)
-            {
-                box_Chara[i, j].GetComponent<RectTransform>().localPosition = new Vector3((2.1f + j) * W_width, (0.1f - i) * W_height);
-            }
+            int i = Mathf.FloorToInt(n / 4f);
+            int j = Mathf.RoundToInt(n % 4f);
+            box_Chara[n].GetComponent<RectTransform>().sizeDelta = new Vector2(0.25f * width, 0.25f * width);
+            box_Chara[n].GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + j*0.25f) * width, 0.1f * height- i*0.25f*width );
         }
+        party_Chara[0].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
+        party_Chara[0].GetComponent<RectTransform>().localPosition = new Vector3(-0.33f * width, 0.3f * height);
+        party_Chara[1].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
+        party_Chara[1].GetComponent<RectTransform>().localPosition = new Vector3(0, 0.3f * height);
+        party_Chara[2].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
+        party_Chara[2].GetComponent<RectTransform>().localPosition = new Vector3(0.33f * width, 0.3f * height);
 
 
         Destroy(this.gameObject, 1f);
+
+
+
+        /*PlayerPrefs.SetInt("Box_ID" + 1, 3);
+        PlayerPrefs.SetInt("Box_ID" + 2, 2);
+        PlayerPrefs.SetInt("Box_ID" + 3, 4);
+        PlayerPrefs.SetInt("Box_ID" + 4, 3);
+        PlayerPrefs.SetInt("Box_ID" + 5, 2);*/
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
 
     }
@@ -45,60 +67,68 @@ public class Watch : MonoBehaviour
     {
         chara.Level = level;
         chara.chara_ID = ID;
-        if(ID==1)//剣士
+        if (ID == 1)//剣士
         {
             chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/1-Soldier/Big");
-            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/1-Soldier/player0-0");
-            chara.attack = 30;
-            chara.skill_Description = "早く敵を倒すことが出来る";
-            chara.skill_walk = 25;
-            chara.skill_time = 8;
-        }
-        else if (ID == 2)//魔女
-        {
-            chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/Big");
-            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/majio0-0");
-            chara.attack = 60;
-            chara.skill_Description = "見えている敵全体に攻撃";
-            chara.skill_walk = 25;
-            chara.skill_time = 1;
-        }
-        else if (ID == 1)//剣士
-        {
-            chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/Big");
-            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/kaizoku0-0");
-            chara.attack = 60;
-            chara.skill_Description = "アイテムの位置が分かる";
-            chara.skill_walk = 25;
-            chara.skill_time = 10;
-        }
-        else if (ID == 1)//女剣士
-        {
-            chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Big");
-            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Wsoldier0-0");
-            chara.attack = 30;
+            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/1-Soldier/player0-1");
+            chara.attack = 95;
+            chara.HP = 60;
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.skill_walk = 25;
             chara.skill_time = 5;
         }
+        else if (ID == 2)//魔女
+        {
+            chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/Big");
+            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/majio0-1");
+            chara.attack = 50;
+            chara.HP = 80;
+            chara.skill_Description = "見えている敵全体に攻撃";
+            chara.skill_walk = 25;
+            chara.skill_time = 1;
+        }
+        else if (ID == 3)//海賊
+        {
+            chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/Big");
+            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/kaizoku0-1");
+            chara.attack = 60;
+            chara.HP = 150;
+            chara.skill_Description = "アイテムの位置が分かる";
+            chara.skill_walk = 25;
+            chara.skill_time = 10;
+        }
+        else if (ID == 4)//女剣士
+        {
+            chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Big");
+            chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Wsoldier0-1");
+            chara.attack = 90;
+            chara.HP = 70;
+            chara.skill_Description = "早く敵を倒すことが出来る";
+            chara.skill_walk = 25;
+            chara.skill_time = 8;
+        }
         else//データなし
         {
+            chara.Big_img = Resources.Load<Sprite>("Images/GameScene/Road0");
+            chara.Small_img = Resources.Load<Sprite>("Images/GameScene/Road0");
+            chara.attack = 1;
+            chara.HP = 1;
+            chara.skill_Description = "データなし";
+            chara.skill_walk = 100;
+            chara.skill_time = 0;
         }
     }
 
-    public Box_Chara[,] get_Chara(int x, int y)
+    public Box_Chara[] get_Chara(int num)
     {
-        Box_Chara[,] chara = new Box_Chara[x, y];
-        for (int i = 0; i < x; i++)
+        Box_Chara[] chara = new Box_Chara[num];
+        for (int i = 0; i < num; i++)
         {
-            for (int j = 0; j < y; j++)
-            {
-                int num = 4 * i + j + 1;
-                chara[i,j] = new Box_Chara(box_Chara[i,j], num);
-                int id = PlayerPrefs.GetInt("Box_ID" + num, 0);
-                int level = PlayerPrefs.GetInt("Box_LV" + num, 0);
-                in_data(chara[i, j], id, level);
-            }
+            chara[i] = new Box_Chara(box_Chara[i], i + 1);
+            int id = PlayerPrefs.GetInt("Box_ID" + (i + 1), 0);
+            int level = PlayerPrefs.GetInt("Box_LV" + (i + 1), 0);
+            in_data(chara[i], id, level);
+            chara[i].obj.GetComponent<Image>().sprite = chara[i].Small_img;
         }
         return chara;
     }
@@ -108,9 +138,9 @@ public class Box_Chara : MonoBehaviour
 {
     public Sprite Big_img,Small_img;
     public int Level, chara_ID,box_ID;
-    public int attack,skill_walk,skill_time;
+    public int attack,HP,skill_walk,skill_time;
     public string skill_Description;
-    GameObject obj;
+    public GameObject obj;
 
     public Box_Chara(GameObject o,int ID)
     {

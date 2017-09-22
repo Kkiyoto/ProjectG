@@ -40,6 +40,12 @@ public class State_manage : Functions
     // Use this for initialization
     void Start()
     {
+        #region Find系
+        main = GameObject.Find("Director").GetComponent<Main>();
+        gage = GameObject.Find("Gage");
+        time_gage = GameObject.Find("Time_gage");
+        skill_Icon = GameObject.Find("Skill_Icon");
+        #endregion
         width = Screen.width;
         height = Screen.height;
         #region アニメの背景1
@@ -81,6 +87,7 @@ public class State_manage : Functions
         All_count = 0;
         skill_time = 20;
         Skill_text.text = Chara[0].skill_Description;
+        skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
         #endregion
         pause_bool = false;
         timer_bool = false;
@@ -91,7 +98,6 @@ public class State_manage : Functions
         needle = time;
         Max_Time = time/2f;
         Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();
-        Needle.sizeDelta = new Vector2(0.2f * width, 0.5f * width);
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         Battle_enemy = GameObject.Find("BattleEnemy");
@@ -109,12 +115,6 @@ public class State_manage : Functions
         }
         #endregion
 
-        #region Find系
-        main = GameObject.Find("Director").GetComponent<Main>();
-        gage = GameObject.Find("Gage");
-        time_gage = GameObject.Find("Time_gage");
-        skill_Icon = GameObject.Find("Skill_Icon");
-        #endregion
 
         Pause_Menu = GameObject.Find("Pause_Menu");
         Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.95f*height);
@@ -225,7 +225,7 @@ public class State_manage : Functions
             skillEffect.Emit(1);
             if (skill_time >= 20 && !pause_bool && timer_bool) skill_time += Time.deltaTime;
             if (skill_time > 30) skill_time -= 10;
-            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2((0.08f + 0.01f * Mathf.Sin(Mathf.PI * skill_time / 1.25f)) * height, (0.08f + 0.01f * Mathf.Sin(Mathf.PI * skill_time / 1.25f)) * height);
+            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2((0.055f + 0.01f * Mathf.Sin(Mathf.PI * skill_time / 1f)) * height, (0.055f + 0.01f * Mathf.Sin(Mathf.PI * skill_time / 1f)) * height);
         }
         #endregion
         #region ポーズメニュー
@@ -289,6 +289,8 @@ public class State_manage : Functions
             Chara[1] = Chara[2];
             Chara[2] = tmp;
             Skill_text.text = Chara[0].skill_Description;
+            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
+            skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
             return false;
         }
     }
@@ -435,7 +437,8 @@ public class State_manage : Functions
         timer_bool = true;
         bg_bool = true;
         BGM_on(Common.BGM.tutorial); // ここでゲームオーバーBGM定義
-
+        skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
+        skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
     }
 
     public bool To_goal(int Scale_or_Pos) //最後の宝箱の動きが終わったかどうか ●あとで挙動についてめっちゃ消します
@@ -472,6 +475,8 @@ public class State_manage : Functions
             float x = rect.localPosition.x/width;
             rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
             rect.sizeDelta = new Vector2((x+0.7f) * width, (x+0.7f) * width);
+            if (x < 0) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition=(new Vector3(width *x*2, 0.3f * height));
+            else if (x > 0.5f) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition=(new Vector3(width *(x-0.5f)*3, 0.3f * height));
             return x > 1;
         }
     }
@@ -514,8 +519,7 @@ public class State_manage : Functions
             bg_bool = false;
             timer_bool = false;
             Anime(0, Common.Action.Happy);
-            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
-
+            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
         }
     }
 
@@ -539,6 +543,8 @@ public class State_manage : Functions
             GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
             Skill_text.text = Chara[0].skill_Description;
             skill_time = 20;
+            skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
+            skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
         }
     }
 

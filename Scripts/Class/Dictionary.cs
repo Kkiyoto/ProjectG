@@ -24,21 +24,24 @@ public class Dictionary : MonoBehaviour
 
         GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.395f * width, 0.5f * height - 0.105f * width);
         GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.21f * width, 0.21f * width);
-        GameObject.Find("Image").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
-        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3(0.03f * height - 0.5f * width, 0.465f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.05f * height, 0.05f * height);
+        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.24f * height);
+        GameObject.Find("Time_base").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.24f * height);
+        GameObject.Find("Time_needle").GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f*height, 0.25f * height);
+        GameObject.Find("Time_needle").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.013f * height);
+        GameObject.Find("Time_gage").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.013f * height);
+        GameObject.Find("Time_gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f*height, 0.2f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3( - 0.42f * width, 0.462f * height);
+        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.14f *width, 0.064f * height);
         GameObject.Find("Skill").GetComponent<RectTransform>().localPosition = new Vector3(-0.13f * width, -0.46f * height);
         GameObject.Find("Skill").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.06f * width, 0.02f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.58f * width, 0.06f * height);
+        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.044f * width, 0.02f * height);
+        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.528f * width, 0.06f * height);
         GameObject.Find("Gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        //GameObject.Find("button").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
-        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().localPosition = new Vector2(-0.35f * width+0.04f * height, 0);
+        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
+        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().localPosition = new Vector2(-0.285f * width,-0.0015f*height);
         GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
         GameObject.Find("Change").GetComponent<RectTransform>().localPosition = new Vector3(0.48f * width - 0.04f * height, -0.46f * height);
-        GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * height, 0.08f * height);
+        GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f * height, 0.07f * height);
 
         GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.42f * height);
         GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f * height);
@@ -96,7 +99,7 @@ public class Dictionary : MonoBehaviour
         #region ID=2:魔女
         else if (ID == 2)
         {
-            chara.Attack = 45;
+            chara.Attack = 50;
             chara.HP = 80;
             chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 1; //その場の敵を一掃
@@ -169,8 +172,8 @@ public class Dictionary : MonoBehaviour
         #region ID=?:図鑑に入っていない場合（IDが考えられていない）
         else
         {
-            chara.Attack = 90;
-            chara.HP = 60;
+            chara.Attack = 1;
+            chara.HP = 1;
             chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
@@ -186,7 +189,7 @@ public class Dictionary : MonoBehaviour
             chara.skills[n9] = 0; //盤が1瞬で動く
             chara.skills[n10] = 0; //周りが見える（却下っぽい。。）*/
             chara.skill_Description = "図鑑に入っていません。。";
-            chara.Max_gage = 25;
+            chara.Max_gage = 100;
             chara.Max_second = 0;
         }
         #endregion
