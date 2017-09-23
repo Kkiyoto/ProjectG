@@ -28,7 +28,7 @@ public class Main : Functions
 
 
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
-    int flg = 1;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
+    int flg = 0;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
                 //ここのやり方が分からなかったので真偽地で無理矢理止めています。時間があればいい感じに変えてください。
 
     #region Battle追加部分
@@ -37,17 +37,20 @@ public class Main : Functions
     GameObject Sentou_kaisi;
     GameObject Battle_down_panel;
     GameObject Hako, Get;
-    GameObject player_pos_for_treasure;
     private RectTransform move_treasure_get;
-    float width, height;
+    GameObject player_pos_for_treasure;
     float timeElapsed, timeOut = 3.0f;
-    bool isBattle = false, isGet = false;
+    float width, height;
+    bool isBattle = false;
+    bool isGet = false;
 
     int coin = 0;
     #endregion
     #region タッチエフェクト追記
-    [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
-    [SerializeField] Camera _camera;                // カメラの座標
+    [SerializeField]
+    ParticleSystem touchEffect;    // タッチの際のエフェクト
+    [SerializeField]
+    Camera _camera;                // カメラの座標
     private bool isTouch = false;
     #endregion
     #region 初期アニメーション追加部分
@@ -66,7 +69,7 @@ public class Main : Functions
     // Use this for initialization
     void Start()
     {
-        int easy = PlayerPrefs.GetInt("Easy",2);
+        int easy = PlayerPrefs.GetInt("Easy", 2);
         UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
         #region Pazzle_dataの設定と読み取り
         for (int i = 0; i < 11; i++)
@@ -149,7 +152,7 @@ public class Main : Functions
         }
         Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
         ran = Random_position();
-        Pazzle_data[ran[0], ran[1]].treasure =6;
+        Pazzle_data[ran[0], ran[1]].treasure = 6;
         treasure[6] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Life);
         #endregion
         #region enemyの設定
@@ -192,12 +195,12 @@ public class Main : Functions
         camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
 
         #region Battle追加部分
-        time_minus          = GameObject.Find("minus");
-        Battle_effect       = GameObject.Find("Attack_effect");
-        Sentou_kaisi        = GameObject.Find("Sentou_kaisi");
-        Battle_down_panel   = GameObject.Find("Battle_down_panel");
-        Get                 = GameObject.Find("OtakaraGet");
-        Hako                = GameObject.Find("TakaraBako");
+        time_minus = GameObject.Find("minus");
+        Battle_effect = GameObject.Find("Attack_effect");
+        Sentou_kaisi = GameObject.Find("Sentou_kaisi");
+        Battle_down_panel = GameObject.Find("Battle_down_panel");
+        Hako = GameObject.Find("TakaraBako");
+        Get = GameObject.Find("OtakaraGet");
         player_pos_for_treasure = GameObject.Find("Player");
         #endregion
         #region 初期エフェクト追記
@@ -209,10 +212,9 @@ public class Main : Functions
 
         // BGMを抑え気味で流し始める
         UIs.BGMs[1].volume = 0.0f;
-        UIs.BGM_on(Common.BGM.tutorial);
+        UIs.BGM_on(Common.BGM.tutorial); // ここで最初にBGM定義
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return)) SceneManager.LoadScene("Tutorial");
@@ -450,6 +452,9 @@ public class Main : Functions
                             width = Screen.width;
                             height = Screen.height;
                             UIs.Anime(i, Common.Action.Battle);
+
+                            //UIs.Chara[i].Pos += new Vector3(width * 0.1f * (i + 1), -height * 0.08f);  // to back
+                            //UIs.Chara[i].Pos -= new Vector3(width * 0.1f * (i + 1), -height * 0.08f);  // to front
                         }
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
@@ -491,7 +496,6 @@ public class Main : Functions
                         UIs.bg_bool = false;
                         isGet = true;
                     }
-
                     for (int i = 0; i <= UIs.get_Life(); i++)
                         UIs.Anime(i, Common.Action.Happy);
 
@@ -577,9 +581,9 @@ public class Main : Functions
                 case 7: //ゴール
                     if (timeElapsed == 0.0f)
                         UIs.SE_on(Common.SE.Get);
-                    Transform tra= GameObject.Find("Goal_ship").transform;
+                    Transform tra = GameObject.Find("Goal_ship").transform;
                     Vector3 vector = tra.position;
-                    if(vector.y<50)tra.position = (16f*vector - new Vector3(10, 7.99f))/15f;
+                    if (vector.y < 50) tra.position = (16f * vector - new Vector3(10, 7.99f)) / 15f;
                     timeElapsed += Time.deltaTime;
                     if (UIs.To_goal(2))
                     {
@@ -651,6 +655,7 @@ public class Main : Functions
 
             Hikousen_pos = GameObject.Find("Hikousen").GetComponent<RectTransform>();
             pos_diff = (new Vector3(-130, 50, 0) - Hikousen_pos.localPosition);
+            //Debug.Log(pos_diff);
 
             if (Mathf.Abs(pos_diff.x) < 10 && Mathf.Abs(pos_diff.z) < 10)
                 FallChara.GetComponent<Animator>().SetTrigger("FallTrigger");
@@ -1031,6 +1036,8 @@ public class Main : Functions
                 UIs.Anime(i, Common.Action.Happy);
                 PlayerPrefs.SetInt("result", 1);
             }
+            //Hikousen.SetActive(true);
+            //Hikousen.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0, 0);
             UIs.Effect(3);//きらきらとかつけるのかな？そのアニメで時間を取ろうとしてます。
             flg = 7;
             player.Pos = new Vector3(-3, -3);
@@ -1107,9 +1114,9 @@ public class Main : Functions
 
     public void To_Red(bool time)
     {
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
-            for(int j = 0; j < 5; j++)
+            for (int j = 0; j < 5; j++)
             {
                 Pazzle_fields[i, j].time = time;
                 move_fields[i, j].time = time;
@@ -1117,12 +1124,12 @@ public class Main : Functions
             }
         }
     }
-    
+
     public bool Flg(int n)
     {
         return flg == n;
     }
-    
+
     public void Map_color(float color_a)
     {
         for (int i = 0; i < treasure.Length; i++)
@@ -1169,6 +1176,10 @@ public class Main : Functions
 
         coin += Random.Range(10, 20); // コイン取得
 
+
+        UIs.Battle_move_anim(2);
+
+
         UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
         enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
@@ -1186,7 +1197,7 @@ public class Main : Functions
         else UIs.Lose_Time(900/UIs.Chara[0].Attack);
         UIs.SE_on(UIs.Chara[0].Action);*/ //★Party.Action  音をChara[]に仕込みました、よかったらコメントアウト消してください
 
-        UIs.Lose_Time(900/UIs.Chara[0].Attack); 
+        UIs.Lose_Time(900 / UIs.Chara[0].Attack);
         if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
         {
             UIs.SE_on(Common.SE.Sword);
@@ -1217,7 +1228,6 @@ public class Main : Functions
 
         for (int i = 0; i < 3; i++)
             UIs.Chara[i].Pos -= new Vector3(UIs.width * 0.8f * (i + 1), 0, 0);
-
     }
 
     public void After_start_animation()
@@ -1232,7 +1242,6 @@ public class Main : Functions
         FadePanel.SetActive(false);
         FallChara.SetActive(false);
         Hikousen.SetActive(false);
-
     }
 
     #endregion

@@ -32,7 +32,7 @@ public class Home : MonoBehaviour
         is_tap = false;
         for (int i = 0; i < 3; i++)
         {
-            party_ID[i] = PlayerPrefs.GetInt("Party" + i, i + 1);
+            party_ID[i] = PlayerPrefs.GetInt("Box_Party" + i, i + 1);
             party_chara[i].GetComponent<Image>().sprite = charas[party_ID[i] - 1].Small_img;
         }
         in_flg = 0;
@@ -145,7 +145,11 @@ public class Home : MonoBehaviour
     #region 0の関数
     void Game_Start()
     {
-        for (int i = 0; i < 3; i++) PlayerPrefs.SetInt("Party" + i, charas[party_ID[i] - 1].chara_ID);
+        for (int i = 0; i < 3; i++)
+        {
+            PlayerPrefs.SetInt("Party" + i, charas[party_ID[i] - 1].chara_ID);
+            PlayerPrefs.SetInt("Box_Party" + i, party_ID[i]);
+        }
         SceneManager.LoadScene("Tutorial");
     }
     #endregion

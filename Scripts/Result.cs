@@ -13,8 +13,8 @@ using UnityEngine.SceneManagement;
 public class Result : Functions
 {
     float width, height;
-    int flg,count,num,coin;
-    GameObject obj,o,Audio;
+    int flg, count, num, coin;
+    GameObject obj, o, Audio;
     float delta_time;
     int[] datas = new int[6]; //順にtime,Life,Enemy,Coin,treasure普通、レア
     Text text;
@@ -22,8 +22,10 @@ public class Result : Functions
     public AudioSource[] Result_BGM;
     AudioClip[] Result_SE = new AudioClip[4];
     #region タッチエフェクト追記
-    [SerializeField] ParticleSystem touchEffect;    // タッチの際のエフェクト
-    [SerializeField] Camera _camera;                // カメラの座標
+    [SerializeField]
+    ParticleSystem touchEffect;    // タッチの際のエフェクト
+    [SerializeField]
+    Camera _camera;                // カメラの座標
     private bool isTouch = true;
     #endregion
 
@@ -46,7 +48,7 @@ public class Result : Functions
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
-        flg =-1;
+        flg = -1;
         count = 0;
         num = 0;
         delta_time = 0;
@@ -59,9 +61,9 @@ public class Result : Functions
         Result_SE[3] = Resources.Load<AudioClip>("Audio/SE/Tap");
         Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ペラッ
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update()
     {
         Debug.Log("flg=" + flg);
         if (Input.GetKeyDown(KeyCode.Return)) Next();
@@ -69,8 +71,8 @@ public class Result : Functions
         if (flg < 0)
         {
 
-            o.GetComponent<Image>().color -= new Color(0,0,0,0.01f);
-            if (o.GetComponent<Image>().color.a< 0.01f)
+            o.GetComponent<Image>().color -= new Color(0, 0, 0, 0.01f);
+            if (o.GetComponent<Image>().color.a < 0.01f)
             {
                 Destroy(o);
                 flg++;
@@ -162,7 +164,7 @@ public class Result : Functions
                     o.transform.SetSiblingIndex(0);
                     o.GetComponent<RectTransform>().localPosition = new Vector3(width, height, 0);
                 }*/
-                o = GameObject.Find("Coin_Plus"); 
+                o = GameObject.Find("Coin_Plus");
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
                 coin = Random.Range(100, 200);
                 o.GetComponent<Text>().text = coin.ToString();
@@ -189,9 +191,9 @@ public class Result : Functions
                         count++;
                         if (count < 40)
                         {
-                            o.GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*width, -height * (0.05f * Mathf.Cos(Mathf.PI / 40f * count)+0.2f), 0);
+                            o.GetComponent<RectTransform>().localPosition = new Vector3(-0.05f * width, -height * (0.05f * Mathf.Cos(Mathf.PI / 40f * count) + 0.2f), 0);
                             Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
-                            if(count>30)
+                            if (count > 30)
                             {
                                 obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
                             }
@@ -200,7 +202,7 @@ public class Result : Functions
                         {
                             obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
                             Vector3 pos = o.GetComponent<RectTransform>().localPosition;
-                            o.GetComponent<RectTransform>().localPosition = (9f * pos + new Vector3(0.13f * width, -0.065f * height))/10f;
+                            o.GetComponent<RectTransform>().localPosition = (9f * pos + new Vector3(0.13f * width, -0.065f * height)) / 10f;
                             if ((o.GetComponent<RectTransform>().localPosition - new Vector3(0.13f * width, -0.065f * height)).magnitude < 0.1f)
                             {
                                 o.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, -0.065f * height);
@@ -246,7 +248,7 @@ public class Result : Functions
                     o.name = "GetRare" + i;
                     o.transform.parent = GameObject.Find("Treasure").transform;
                     int n = Random.Range(0, 5);
-                    o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/Item"+n);
+                    o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Item/Item" + n);
                     /*if(n==0)o.transform.Find("Get_Text").GetComponent<Text>().text = "蒼水剣";
                     else if (n == 1) o.transform.Find("Get_Text").GetComponent<Text>().text = "シャムシール";
                     else if (n == 2) o.transform.Find("Get_Text").GetComponent<Text>().text = "揺炎刀";
@@ -305,7 +307,7 @@ public class Result : Functions
                             {
                                 o.transform.parent = GameObject.Find("BackCanvas").transform;
                                 o.GetComponent<RectTransform>().localPosition = new Vector3(0.3f * (num - 1) * width, -0.12f * height);
-                                o.GetComponent<RectTransform>().localScale = new Vector3(0.6f,0.6f,0.6f);
+                                o.GetComponent<RectTransform>().localScale = new Vector3(0.6f, 0.6f, 0.6f);
                                 num++;
                                 obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                 obj.GetComponent<Animator>().SetBool("Open_Bool", false);
@@ -322,8 +324,8 @@ public class Result : Functions
                 flg++;
                 count = 0;
                 GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
-                    Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
-                
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
+
             }
         }
         #endregion

@@ -12,15 +12,15 @@ using UnityEngine.UI;
 public class State_manage : Functions
 {
     GameObject Back_anime, Front_anime, Pause_Menu, gage,
-        time_gage,skill_Icon;
+        time_gage, skill_Icon;
     public float width, height, time;
-    float needle,time_delta,Max_Time;
+    float needle, time_delta, Max_Time;
     RectTransform Needle; //時計盤の準備
-    bool pause_bool,is_red;
+    bool pause_bool, is_red;
     public bool timer_bool, bg_bool;
     Text Time_text, Skill_text;
     int Life_point;
-    int Road_count,All_count;
+    int Road_count, All_count;
     public float[] tresure = new float[2];
     public float road = 0;
     public Party[] Chara = new Party[3];
@@ -97,7 +97,7 @@ public class State_manage : Functions
         int easy = PlayerPrefs.GetInt("Easy", 2);
         if (easy == 5) time *= 2f;
         needle = time;
-        Max_Time = time/2f;
+        Max_Time = time / 2f;
         Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
@@ -118,7 +118,7 @@ public class State_manage : Functions
 
 
         Pause_Menu = GameObject.Find("Pause_Menu");
-        Pause_Menu.GetComponent<RectTransform>().sizeDelta=new Vector2(0.9f*width,0.95f*height);
+        Pause_Menu.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.95f * height);
         Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);
         tresure[0] = 0;
         tresure[1] = 0;
@@ -167,7 +167,7 @@ public class State_manage : Functions
         if (time < needle)
         {
             time_gage.GetComponent<RectTransform>().localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
-            time_gage.GetComponent<Image>().fillAmount = (needle - time) / Max_Time /4f;
+            time_gage.GetComponent<Image>().fillAmount = (needle - time) / Max_Time / 4f;
             if (!pause_bool && timer_bool)
             {
                 if (time_delta < 0) time_delta += Time.deltaTime;
@@ -177,14 +177,14 @@ public class State_manage : Functions
         else
         {
             time_gage.GetComponent<RectTransform>().localRotation = new Quaternion(0, 0, 1, 1 - time / Max_Time);
-            time_gage.GetComponent<Image>().fillAmount = (time-needle) / Max_Time / 4f;
+            time_gage.GetComponent<Image>().fillAmount = (time - needle) / Max_Time / 4f;
             if (!pause_bool && timer_bool)
             {
                 if (time_delta < 0) time_delta += Time.deltaTime;
                 else needle += 0.5f;
             }
         }
-        if (needle < 80&&!is_red)
+        if (needle < 80 && !is_red)
         {
             Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG_red" + (int)Common.Thema.Sky);
             Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front_red" + (int)Common.Thema.Sky);
@@ -215,7 +215,7 @@ public class State_manage : Functions
         }
         if (skill_time < Chara[0].Max_second)
         {
-            var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f,(1-skill_time/Chara[0].Max_second)*0.66f) * width, 0.04f * height, 10));
+            var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, (1 - skill_time / Chara[0].Max_second) * 0.66f) * width, 0.04f * height, 10));
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
         }
@@ -243,7 +243,7 @@ public class State_manage : Functions
             float x = v.z * 11f;
             x--;
             Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
-            if (Mathf.Abs(v.z+5) <0.1f)
+            if (Mathf.Abs(v.z + 5) < 0.1f)
             {
                 Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5.1f);
                 main.Pause_button_down(false);
@@ -259,7 +259,7 @@ public class State_manage : Functions
         int m = Mathf.FloorToInt(time / 60f);
         int s = Mathf.FloorToInt(time % 60f);
         Time_text.text = ("Time   " + m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
-        GameObject.Find("Walk_F").GetComponent<Text>().text = "踏破率：" + Mathf.RoundToInt(road/72f*100f) + " %";
+        GameObject.Find("Walk_F").GetComponent<Text>().text = "踏破率：" + Mathf.RoundToInt(road / 72f * 100f) + " %";
         GameObject.Find("Walk").GetComponent<Text>().text = "歩いた距離：" + All_count + "歩";
         GameObject.Find("Item_coin").GetComponent<Image>().fillAmount = tresure[1] / 3f;
         GameObject.Find("Item_weapon").GetComponent<Image>().fillAmount = tresure[0] / 3f;
@@ -346,7 +346,7 @@ public class State_manage : Functions
         {
             Life_point++;
             Chara[Life_point].Pos = new Vector3(width * 0.65f * (3 - Life_point), height * 0.277f);
-            Chara[Life_point].Anime().SetBool("Out_Bool",false);
+            Chara[Life_point].Anime().SetBool("Out_Bool", false);
             Anime(Life_point, Common.Action.Walk);
         }
     }
@@ -392,17 +392,9 @@ public class State_manage : Functions
             GameObject.Find("Start_and_End_anim").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
             GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f * height);
             GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector3(0.8f * width, 0.13f * height);
-            //o = Instantiate(Resources.Load<GameObject>("Prefab/Big_Treasure")) as GameObject;
-            //o.name = "Goal";
-            o = GameObject.Find("Hikousen");
-            o.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0, 0);/*
-            o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
-            o.transform.parent = GameObject.Find("Canvas").transform;
-            o.name = "light";
-            o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/light");
-            o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.05f * height);
-            o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.005f * width, 0.005f * width);
-            o.GetComponent<Image>().color = new Color(1, 1, 0.5f);*/
+            o = GameObject.Find("GameOver_text");
+            o.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0, 0);
+            o.GetComponent<Animator>().SetTrigger("Goal_Trigger");
         }
         else
         {
@@ -425,7 +417,7 @@ public class State_manage : Functions
         for (int i = 0; i < 3; i++)
         {
             Chara[i].Pos = new Vector3(width * 0.65f * (4 - i), height * 0.277f);
-            Chara[i].Anime().SetBool("Out_Bool",false);
+            Chara[i].Anime().SetBool("Out_Bool", false);
             Anime(i, Common.Action.Walk);
         }
         Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG" + (int)Common.Thema.Sky);
@@ -456,7 +448,7 @@ public class State_manage : Functions
             }
             else return false;
         }
-        else if(Scale_or_Pos==1)
+        else if (Scale_or_Pos == 1)
         {
             Vector3 vec = o.GetComponent<RectTransform>().localPosition;
             if (vec.magnitude < 0.55f)
@@ -472,12 +464,12 @@ public class State_manage : Functions
         }
         else
         {
-            RectTransform rect =GameObject.Find("Hikousen").GetComponent<RectTransform>();
-            float x = rect.localPosition.x/width;
+            RectTransform rect = GameObject.Find("GameOver_text").GetComponent<RectTransform>();
+            float x = rect.localPosition.x / width;
             rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
-            rect.sizeDelta = new Vector2((x+0.7f) * width, (x+0.7f) * width);
-            if (x < 0) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition=(new Vector3(width *x*2, 0.3f * height));
-            else if (x > 0.5f) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition=(new Vector3(width *(x-0.5f)*3, 0.3f * height));
+            rect.sizeDelta = new Vector2((x + 0.7f) * width, (x + 0.7f) * width) / 2f;
+            if (x < 0) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, 0.3f * height));
+            else if (x > 0.5f) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 3, 0.3f * height));
             return x > 1;
         }
     }
@@ -532,7 +524,7 @@ public class State_manage : Functions
 
     public void Change_Chara(bool b)
     {
-        if (main.Flg(1)||b)
+        if (main.Flg(1) || b)
         {
             Party tmp = Chara[0];
             for (int i = 0; i < Life_point; i++)
@@ -569,7 +561,7 @@ public class State_manage : Functions
             for (int i = 0; i < 6; i++)
                 Invoke("BGM_volume_set", 0.2f * i);
         }
-        else if (last == 1 && (int)music == 2 )      // 通常 → 戦闘へ遷移時
+        else if (last == 1 && (int)music == 2)      // 通常 → 戦闘へ遷移時
         {
             BGMs[last].Pause();
             BGMs[(int)music].Play();
@@ -587,7 +579,7 @@ public class State_manage : Functions
             for (int i = 0; i < 8; i++)
                 Invoke("SE_volume_set", 0.2f * i);
         }
-        else if(last == 2)
+        else if (last == 2)
         {              // 戦闘 → 通常への遷移時 この時だけフェードイン
             Debug.Log("set");
             BGMs[last].Stop();
@@ -598,7 +590,8 @@ public class State_manage : Functions
         }
         last = (int)music;
     }
-    public void BGM_volume_set() // BGM 疑似フェードイン
+    // Invokeで使うので、引数なしの形です
+    public void BGM_volume_set() // 最終BGM 疑似フェード
     {
         BGMs[last].volume += 0.1f;
     }
@@ -637,9 +630,9 @@ public class State_manage : Functions
         #endregion
     }
     #region　バトルのアニメーション関連 // 書き直し必須
+
     public void Battle_move_anim(int type)
     {
-
         for (int i = 0; i < 3; i++)
         {
             GameObject chara = GameObject.Find("Chara" + i);
