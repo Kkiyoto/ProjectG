@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /* State_manage
  * ゲーム自体に関係なくても必要かなという部分を書こうかと
@@ -24,7 +25,7 @@ public class State_manage : Functions
     public float[] tresure = new float[2];
     public float road = 0;
     public Party[] Chara = new Party[3];
-    AudioClip[] SEs = new AudioClip[15];//音増えるごとに追加お願いします
+    AudioClip[] SEs = new AudioClip[16];//音増えるごとに追加お願いします
     Main main;
     public AudioSource[] BGMs;
     private int last = 0;
@@ -93,7 +94,7 @@ public class State_manage : Functions
         pause_bool = false;
         timer_bool = false;
         bg_bool = false;
-        time = 300;
+        time = Chara[0].HP + Chara[1].HP + Chara[2].HP;
         int easy = PlayerPrefs.GetInt("Easy", 2);
         if (easy == 5) time *= 2f;
         needle = time;
@@ -156,7 +157,8 @@ public class State_manage : Functions
         #region 時間表示
         if (!pause_bool && timer_bool)
         {
-            time -= Time.deltaTime;//is_Skill(n2)
+            if (is_Skill(5)) time += Time.deltaTime / 2f;
+            time -= Time.deltaTime;
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
         }
         if (time < 0) //GameOver
@@ -208,6 +210,8 @@ public class State_manage : Functions
             else
             {
                 Anime(0, Common.Action.Walk);
+                Anime(1, Common.Action.Walk);
+                Anime(2, Common.Action.Walk);
                 main.Pause_button_down(false);
                 bg_bool = true;
                 timer_bool = true;
@@ -216,6 +220,11 @@ public class State_manage : Functions
         if (skill_time < Chara[0].Max_second)
         {
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, (1 - skill_time / Chara[0].Max_second) * 0.66f) * width, 0.04f * height, 10));
+            skillEffect.transform.position = pos;
+            skillEffect.Emit(1);
+            float ran = Random.value;
+            //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f * Mathf.Cos(ran * 2*Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) +2f);
+            pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
         }
@@ -416,7 +425,7 @@ public class State_manage : Functions
         Change_Chara(true);
         for (int i = 0; i < 3; i++)
         {
-            Chara[i].Pos = new Vector3(width * 0.65f * (4 - i), height * 0.277f);
+            Chara[i].Pos = new Vector3(-width * 0.65f * (4 - i), height * 0.277f);
             Chara[i].Anime().SetBool("Out_Bool", false);
             Anime(i, Common.Action.Walk);
         }
@@ -434,44 +443,25 @@ public class State_manage : Functions
         skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
     }
 
-    public bool To_goal(int Scale_or_Pos) //最後の宝箱の動きが終わったかどうか ●あとで挙動についてめっちゃ消します
+    public bool To_goal() //最後の宝箱の動きが終わったかどうか
     {
-        GameObject o = GameObject.Find("Goal");
-        if (Scale_or_Pos == 0)
-        {
-            Vector3 vec = o.GetComponent<RectTransform>().localScale;
-            o.GetComponent<RectTransform>().localScale = (24f * vec + new Vector3(width * 0.01f, width * 0.01f)) / 25f;
-            if ((vec - new Vector3(width * 0.01f, width * 0.01f)).magnitude < 0.01f)
-            {
-                o.GetComponent<RectTransform>().localScale = new Vector3(width * 0.01f, width * 0.01f);
-                return true;
-            }
-            else return false;
-        }
-        else if (Scale_or_Pos == 1)
-        {
-            Vector3 vec = o.GetComponent<RectTransform>().localPosition;
-            if (vec.magnitude < 0.55f)
-            {
-                o.GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
-                return true;
-            }
-            else
-            {
-                vec = vec / (vec.magnitude);
-                o.GetComponent<RectTransform>().localPosition -= vec; return false;
-            }
-        }
-        else
-        {
-            RectTransform rect = GameObject.Find("GameOver_text").GetComponent<RectTransform>();
-            float x = rect.localPosition.x / width;
-            rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
-            rect.sizeDelta = new Vector2((x + 0.7f) * width, (x + 0.7f) * width) / 2f;
-            if (x < 0) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, 0.3f * height));
-            else if (x > 0.5f) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 3, 0.3f * height));
-            return x > 1;
-        }
+        RectTransform rect = GameObject.Find("GameOver_text").GetComponent<RectTransform>();
+        float x = rect.localPosition.x / width;
+        rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
+        rect.sizeDelta = new Vector2((x + 0.7f) * width, (x + 0.7f) * width) / 2f;
+        if (x < 0) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, 0.3f * height));
+        else if (x > 0.5f) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 4, 0.3f * height));
+        return x > 1;
+    }
+
+    public void To_Menu()
+    {
+        SceneManager.LoadScene("Home");
+    }
+    
+    public void On_Button()
+    {
+        SE_on(Common.SE.Button);
     }
     #endregion
 
@@ -507,18 +497,21 @@ public class State_manage : Functions
             skill_time = -2;//秒
             Road_count = 0;
             gage.GetComponent<Image>().color = new Color(0, 1, 1, 1);
-            main.Pause_button_down(true);
+            //main.Pause_button_down(true);
             pause_bool = false;
             bg_bool = false;
             timer_bool = false;
             Anime(0, Common.Action.Happy);
+            Anime(1, Common.Action.Stop);
+            Anime(2, Common.Action.Stop);
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
+            SE_on(Common.SE.Skill);
         }
     }
 
     public bool is_Skill(int n)
     {
-        return skill_time < Chara[0].skills[n] && skill_time > 0;
+        return skill_time < Chara[0].skills[n] && (skill_time > 0||n==3||n==4);
     }
     #endregion
 
@@ -622,6 +615,7 @@ public class State_manage : Functions
         SEs[12] = Resources.Load<AudioClip>("Audio/SE/Stamp");
         SEs[13] = Resources.Load<AudioClip>("Audio/SE/Result");
         SEs[14] = Resources.Load<AudioClip>("Audio/SE/Retired");
+        SEs[15] = Resources.Load<AudioClip>("Audio/SE/Skill");
 
         #endregion
 

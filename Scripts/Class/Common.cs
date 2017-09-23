@@ -68,7 +68,9 @@ public class Common : MonoBehaviour
         Coin,
         Count,
         Stamp,
+        Result,
         Retired,
+        Skill,
     }
 
 

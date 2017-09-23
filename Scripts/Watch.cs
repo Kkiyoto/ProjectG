@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class Watch : MonoBehaviour
 {
-    public GameObject detail, Big, text, Menu, Title, select;//Canvas
-    public GameObject BG;//BackCanvas
+    public GameObject detail, Big, text, Menu, Title;//Canvas
+    public GameObject BG,carsol;//BackCanvas
+    public GameObject select, back_home, stage1;//Select
     public GameObject[] box_Chara = new GameObject[8];
     public GameObject[] party_Chara = new GameObject[3];
 
@@ -22,11 +23,15 @@ public class Watch : MonoBehaviour
         Vector2 max_vec = new Vector2(width, height);
         select.GetComponent<RectTransform>().localPosition = max_vec;
         select.GetComponent<RectTransform>().sizeDelta = max_vec;
+        back_home.GetComponent<RectTransform>().localPosition = new Vector3(-0.34f*width, -0.46f * height, 0);
+        back_home.GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f*width, 0.06f * height);
+        stage1.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.43f * height, 0);
+        stage1.GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f*width, 0.15f * height);
 
         detail.GetComponent<RectTransform>().localPosition = max_vec;
         detail.GetComponent<RectTransform>().sizeDelta = max_vec;
         Big.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f * height, 0);
-        Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.8f * width);
+        Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, width);
         text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.3f * height, 0);
         text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.15f * height);
 
@@ -37,20 +42,22 @@ public class Watch : MonoBehaviour
 
         BG.GetComponent<RectTransform>().sizeDelta = new Vector2(5f * width, height);
         BG.GetComponent<RectTransform>().localPosition = new Vector2(2f * width, 0);
+        carsol.GetComponent<RectTransform>().sizeDelta = new Vector2(0.24f * width, 0.2f*height);
+        carsol.GetComponent<RectTransform>().localPosition = max_vec;
 
         for (int n = 0; n < 8; n++)
         {
             int i = Mathf.FloorToInt(n / 4f);
             int j = Mathf.RoundToInt(n % 4f);
             box_Chara[n].GetComponent<RectTransform>().sizeDelta = new Vector2(0.25f * width, 0.25f * width);
-            box_Chara[n].GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + j * 0.25f) * width, 0.1f * height - i * 0.25f * width);
+            box_Chara[n].GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + j * 0.25f) * width, -0.05f * height - i * 0.25f * width);
         }
         party_Chara[0].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
-        party_Chara[0].GetComponent<RectTransform>().localPosition = new Vector3(0.33f * width, 0.3f * height);
+        party_Chara[0].GetComponent<RectTransform>().localPosition = new Vector3(0.33f * width, 0.25f * height);
         party_Chara[1].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
-        party_Chara[1].GetComponent<RectTransform>().localPosition = new Vector3(0, 0.3f * height);
+        party_Chara[1].GetComponent<RectTransform>().localPosition = new Vector3(0, 0.25f * height);
         party_Chara[2].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.33f * width);
-        party_Chara[2].GetComponent<RectTransform>().localPosition = new Vector3(-0.33f * width, 0.3f * height);
+        party_Chara[2].GetComponent<RectTransform>().localPosition = new Vector3(-0.33f * width, 0.25f * height);
 
 
         Destroy(this.gameObject, 1f);
@@ -78,8 +85,8 @@ public class Watch : MonoBehaviour
         {
             chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/1-Soldier/Big");
             chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/1-Soldier/player0-1");
-            chara.attack = 95;
-            chara.HP = 60;
+            chara.attack = 95;//+2*level;
+            chara.HP = 50;//+level
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.skill_walk = 25;
             chara.skill_time = 5;
@@ -88,8 +95,8 @@ public class Watch : MonoBehaviour
         {
             chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/Big");
             chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/majio0-1");
-            chara.attack = 50;
-            chara.HP = 80;
+            chara.attack = 50;//+level
+            chara.HP = 80;//+4*level;
             chara.skill_Description = "見えている敵全体に攻撃";
             chara.skill_walk = 25;
             chara.skill_time = 1;
@@ -98,8 +105,8 @@ public class Watch : MonoBehaviour
         {
             chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/Big");
             chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/kaizoku0-1");
-            chara.attack = 60;
-            chara.HP = 150;
+            chara.attack = 60;//+level;
+            chara.HP = 160;//+7*level
             chara.skill_Description = "アイテムの位置が分かる";
             chara.skill_walk = 25;
             chara.skill_time = 10;
@@ -108,8 +115,8 @@ public class Watch : MonoBehaviour
         {
             chara.Big_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Big");
             chara.Small_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Wsoldier0-1");
-            chara.attack = 90;
-            chara.HP = 70;
+            chara.attack = 90;//+2*level
+            chara.HP = 60;//+level
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.skill_walk = 25;
             chara.skill_time = 8;

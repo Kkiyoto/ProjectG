@@ -43,8 +43,6 @@ public class Result : Functions
         datas[3] = PlayerPrefs.GetInt("Coin", 0);
         datas[4] = PlayerPrefs.GetInt("treasure1", 0);
         datas[5] = PlayerPrefs.GetInt("treasure0", 0);
-        datas[4] = 2;
-        datas[5] = 2;
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);

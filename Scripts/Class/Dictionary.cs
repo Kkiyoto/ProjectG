@@ -68,22 +68,22 @@ public class Dictionary : MonoBehaviour
         Destroy(this.gameObject, 1f);
     }
 
-    public void Set_Box(Party chara,int ID)
+    public void Set_Box(Party chara,int ID) //,int level)
     {
         //スキルについて、20未満だとその秒数がタップスキルになる（組み合わせ可能）、35にすると常時発動（リーダースキル化、組み合わせ可能）
         #region ID=1:剣士
         if (ID == 1)
         {
-            chara.Attack = 95;
-            chara.HP = 60;
+            chara.Attack = 95;//+2*level;
+            chara.HP = 50;//+level;
             chara.skills[0] = 5; //敵を早く倒す 
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
+            chara.skills[3] = 0; //敵を留める
+            chara.skills[4] = 0; //立ち止まる
+            chara.skills[5] = 0; //時間が減るのが遅くなる
             /*chara.skills[n0] = 0; //敵が見える
             chara.skills[n1] = 0; //敵と会いにくくなる
-            chara.skills[n2] = 0; //時間が減るのが遅くなる
-            chara.skills[n3] = 0; //敵を留める
-            chara.skills[n4] = 0; //立ち止まる
             chara.skills[n5] = 0; //敵に完全に合わなくなる（n3,n4と組み合わせで道を自由に)単体だと強すぎる気もする
             chara.skills[n6] = 0; //見たやつを覚える
             chara.skills[n7] = 0; //引き返す
@@ -99,21 +99,14 @@ public class Dictionary : MonoBehaviour
         #region ID=2:魔女
         else if (ID == 2)
         {
-            chara.Attack = 50;
-            chara.HP = 80;
+            chara.Attack = 50;//+level;
+            chara.HP = 80;//+4*level;
             chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 1; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
-            /*chara.skills[n0] = 0; //敵が見える
-            chara.skills[n1] = 0; //敵と会いにくくなる
-            chara.skills[n2] = 0; //時間が減るのが遅くなる
-            chara.skills[n3] = 0; //敵を留める
-            chara.skills[n4] = 0; //立ち止まる（n3と組み合わせで道を自由に)
-            chara.skills[n5] = 0; //見たやつを覚える
-            chara.skills[n6] = 0; //引き返す
-            chara.skills[n7] = 0; //Coinが増える
-            chara.skills[n8] = 0; //盤が1瞬で動く
-            chara.skills[n9] = 0; //周りが見える（却下っぽい。。）*/
+            chara.skills[3] = 1; //敵を留める
+            chara.skills[4] = 1; //立ち止まる
+            chara.skills[5] = 0; //時間が減るのが遅くなる
             chara.skill_Description = "見えている敵全体に攻撃";
             chara.Max_gage = 25;
             chara.Max_second = 1;
@@ -123,21 +116,14 @@ public class Dictionary : MonoBehaviour
         #region ID=3:海賊
         else if (ID == 3)
         {
-            chara.Attack = 60;
-            chara.HP = 150;
+            chara.Attack = 60;//+level;
+            chara.HP = 160;//+7*level;
             chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 10; //宝が見える
-            /*chara.skills[n0] = 0; //敵が見える
-            chara.skills[n1] = 0; //敵と会いにくくなる
-            chara.skills[n2] = 0; //時間が減るのが遅くなる
-            chara.skills[n3] = 0; //敵を留める
-            chara.skills[n4] = 0; //立ち止まる（n3と組み合わせで道を自由に)
-            chara.skills[n5] = 0; //見たやつを覚える
-            chara.skills[n6] = 0; //引き返す
-            chara.skills[n7] = 0; //Coinが増える
-            chara.skills[n8] = 0; //盤が1瞬で動く
-            chara.skills[n9] = 0; //周りが見える（却下っぽい。。）*/
+            chara.skills[3] = 0; //敵を留める
+            chara.skills[4] = 0; //立ち止まる
+            chara.skills[5] = 0; //時間が減るのが遅くなる
             chara.skill_Description = "アイテムの位置が分かる";
             chara.Max_gage = 25;
             chara.Max_second = 10;
@@ -147,22 +133,14 @@ public class Dictionary : MonoBehaviour
         #region ID=4:女剣士
         else if (ID == 4)
         {
-            chara.Attack = 90;
-            chara.HP = 70;
+            chara.Attack = 90;//+2*level;
+            chara.HP = 60;//+level;
             chara.skills[0] = 10; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
-            /*chara.skills[n0] = 0; //敵が見える
-            chara.skills[n1] = 0; //敵と会いにくくなる
-            chara.skills[n2] = 0; //時間が減るのが遅くなる
-            chara.skills[n3] = 0; //敵を留める
-            chara.skills[n4] = 0; //立ち止まる
-            chara.skills[n5] = 0; //敵に完全に合わなくなる（n3,n4と組み合わせで道を自由に)単体だと強すぎる気もする
-            chara.skills[n6] = 0; //見たやつを覚える
-            chara.skills[n7] = 0; //引き返す
-            chara.skills[n8] = 0; //Coinが増える
-            chara.skills[n9] = 0; //盤が1瞬で動く
-            chara.skills[n10] = 0; //周りが見える（却下っぽい。。）*/
+            chara.skills[3] = 0; //敵を留める
+            chara.skills[4] = 0; //立ち止まる
+            chara.skills[5] = 0; //時間が減るのが遅くなる
             chara.skill_Description = "早く敵を倒すことが出来る";
             chara.Max_gage = 25;
             chara.Max_second = 8;

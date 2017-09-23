@@ -131,19 +131,19 @@ public class Main : Functions
         player.Set_Chara(UIs.Top_ID());
         #endregion
         #region 宝物の設定
-        treasure = new Item[7]; //ここで宝の数
+        treasure = new Item[6]; //ここで宝の数
         GameObject Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
         int[] ran = Random_position();
         Pazzle_data[ran[0], ran[1]].treasure = 0;
         treasure[0] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Item);
-        for (int i = 1; i < 4; i++)
+        for (int i = 1; i < 3; i++)
         {
             Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
             ran = Random_position();
             Pazzle_data[ran[0], ran[1]].treasure = i;
             treasure[i] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Coin);
         }
-        for (int i = 4; i < 6; i++)
+        for (int i = 3; i < 5; i++)
         {
             Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
             ran = Random_position();
@@ -152,11 +152,13 @@ public class Main : Functions
         }
         Treasure = Instantiate(Resources.Load<GameObject>("Prefab/Treasure")) as GameObject;
         ran = Random_position();
-        Pazzle_data[ran[0], ran[1]].treasure = 6;
-        treasure[6] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Life);
+        Pazzle_data[ran[0], ran[1]].treasure = 5;
+        treasure[5] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Life);
         #endregion
         #region enemyの設定
-        enemy = new Character[8];//ここで敵の数
+        int ene_num = 8;
+        if (easy == 5) ene_num = 6;
+        enemy = new Character[ene_num];//ここで敵の数
         Common.Type[] types = { Common.Type.Walk, Common.Type.Stop, Common.Type.Fly };
         for (int i = 0; i < enemy.Length; i++)
         {
@@ -240,7 +242,7 @@ public class Main : Functions
                         {
                             Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
                             if (enemy[i].type != Common.Type.Fly && L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[(enemy[i].x - 1) % 3 + 1, (enemy[i].y - 1) % 3 + 1].Pos;
-                            if (enemy[i].Move(v)) //is_Skill(n3)
+                            if (enemy[i].Move(v,UIs.is_Skill(3))) 
                             {
                                 enemy[i].pre_x = enemy[i].x;
                                 enemy[i].pre_y = enemy[i].y;
@@ -270,7 +272,8 @@ public class Main : Functions
                                 if (UIs.is_Skill(1))
                                 {
                                     enemy[i].act = Common.Action.Sad;//★強制送還。コインゲット等のアクションをバトルに入れた場合、ここにもお願いします
-                                    enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
+                                    //enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
+                                    enemy[i].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
                                 }
                                 else if ((enemy[i].Pos - player.Pos).magnitude < 0.6f)  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
                                 {
@@ -282,7 +285,7 @@ public class Main : Functions
                     }
                     #endregion
                     #region プレイヤーの動き
-                    if (player.Move(Pazzle_fields[(player.x - 1) % 3 + 1, (player.y - 1) % 3 + 1].Pos)) //動き終えたらtrue is_Skill(n4)
+                    if (player.Move(Pazzle_fields[(player.x - 1) % 3 + 1, (player.y - 1) % 3 + 1].Pos,UIs.is_Skill(4))) //動き終えたらtrue 
                     {
                         if (Pazzle_data[player.x, player.y].walk)
                         {
@@ -364,6 +367,7 @@ public class Main : Functions
                                     Move_condition = Pazzle_data[X - 1, Y].condition;
                                     Pazzle_data[X, Y].condition = Common.Condition.Moving;
                                     Pazzle_data[X - 1, Y].condition = Common.Condition.Moving;
+                                    UIs.SE_on(Common.SE.Slide);
                                 }
                                 else if (delta.x < 0 && X % 3 != 0 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
                                 {
@@ -373,6 +377,7 @@ public class Main : Functions
                                     Move_condition = Pazzle_data[X + 1, Y].condition;
                                     Pazzle_data[X, Y].condition = Common.Condition.Moving;
                                     Pazzle_data[X + 1, Y].condition = Common.Condition.Moving;
+                                    UIs.SE_on(Common.SE.Slide);
                                 }
                             }
                             #endregion
@@ -389,6 +394,7 @@ public class Main : Functions
                                     Move_condition = Pazzle_data[X, Y - 1].condition;
                                     Pazzle_data[X, Y].condition = Common.Condition.Moving;
                                     Pazzle_data[X, Y - 1].condition = Common.Condition.Moving;
+                                    UIs.SE_on(Common.SE.Slide);
                                 }
                                 else if (delta.y < 0 && Y % 3 != 0 && Pazzle_data[X, Y].condition == Common.Condition.Hole)
                                 {
@@ -398,6 +404,7 @@ public class Main : Functions
                                     Move_condition = Pazzle_data[X, Y + 1].condition;
                                     Pazzle_data[X, Y].condition = Common.Condition.Moving;
                                     Pazzle_data[X, Y + 1].condition = Common.Condition.Moving;
+                                    UIs.SE_on(Common.SE.Slide);
                                 }
                                 #endregion
                             }
@@ -523,6 +530,7 @@ public class Main : Functions
                         UIs.bg_bool = false;
                     }
                     timeElapsed += Time.deltaTime;
+                    if (timeElapsed > 0.1f && timeElapsed < 0.2f) player.Set_Chara(0);
                     if (player.Wait_chara())
                     {
                         flg = 1;
@@ -585,7 +593,7 @@ public class Main : Functions
                     Vector3 vector = tra.position;
                     if (vector.y < 50) tra.position = (16f * vector - new Vector3(10, 7.99f)) / 15f;
                     timeElapsed += Time.deltaTime;
-                    if (UIs.To_goal(2))
+                    if (UIs.To_goal())
                     {
                         //GameObject.Find("Goal").GetComponent<Animator>().SetBool("Open_Bool", true);
                         //if (UIs.To_result(1)) 
@@ -903,7 +911,7 @@ public class Main : Functions
     public void Fall(Common.Condition con) //is_Skill(n7)
     {
         player.OutScreen();
-        player.Set_Chara(0); //アニメーション交換
+        //player.Set_Chara(0); //アニメーション交換
         UIs.Anime(0, Common.Action.Sad);
         //UIs.SE_on(Common.SE.Fall);
         flg = 5;
@@ -998,6 +1006,7 @@ public class Main : Functions
     {
         pause_bool = which;
         UIs.Pause_flg(pause_bool);
+        UIs.SE_on(Common.SE.Button);
     }
 
     public void OutScreen() //move_fieldsを外にやる
@@ -1182,7 +1191,8 @@ public class Main : Functions
 
         UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
-        enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
+        //enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
+        enemy[touch_ID].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
         flg = 1;
     }
 
@@ -1191,13 +1201,10 @@ public class Main : Functions
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
         UIs.Battle_move_anim(3);
-
-        /*
+        
         if(UIs.is_Skill(0)) UIs.Lose_Time(500 / UIs.Chara[0].Attack);
         else UIs.Lose_Time(900/UIs.Chara[0].Attack);
-        UIs.SE_on(UIs.Chara[0].Action);*/ //★Party.Action  音をChara[]に仕込みました、よかったらコメントアウト消してください
-
-        UIs.Lose_Time(900 / UIs.Chara[0].Attack);
+        //UIs.SE_on(UIs.Chara[0].Action); //★Party.Action  音をChara[]に仕込みました、よかったらコメントアウト消してください
         if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
         {
             UIs.SE_on(Common.SE.Sword);

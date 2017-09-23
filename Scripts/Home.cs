@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class Home : MonoBehaviour
 {
     public GameObject select;//Canvas
-    public GameObject BG;//BackCanvas
+    public GameObject BG,carsol;//BackCanvas
     public GameObject detail, Big_img, text;//キャラ詳細
     Box_Chara[] charas = new Box_Chara[8];
     public GameObject[] party_chara = new GameObject[3];
@@ -34,6 +34,7 @@ public class Home : MonoBehaviour
         {
             party_ID[i] = PlayerPrefs.GetInt("Box_Party" + i, i + 1);
             party_chara[i].GetComponent<Image>().sprite = charas[party_ID[i] - 1].Small_img;
+            charas[party_ID[i] - 1].obj.GetComponent<Image>().color = Color.gray;
         }
         in_flg = 0;
     }
@@ -62,7 +63,7 @@ public class Home : MonoBehaviour
             if (in_flg == 1)
             {
                 //if (Input.GetMouseButtonDown(0)) {select.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);in_flg=0;}
-                if (Input.GetMouseButtonDown(0)) Game_Start();
+                //if (Input.GetMouseButtonDown(0)) Game_Start();
             }
         }
         #endregion
@@ -94,6 +95,7 @@ public class Home : MonoBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 detail.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+                carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
                 pos_num = 2;
             }
         }
@@ -125,12 +127,17 @@ public class Home : MonoBehaviour
     }
 
     #region 全部の関数
-    public void Menu()
+    public void Menu(int n)
     {
-        Vector3 vec = Input.mousePosition;
-        int num = Mathf.FloorToInt(vec.x * 5f / width);
+        int num = n;
+        if (n > 4)
+        {
+            Vector3 vec = Input.mousePosition;
+            num = Mathf.FloorToInt(vec.x * 5f / width);
+        }
         pos_num = num;
         detail.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+        select.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
     }
 
     public void Get_Button()
@@ -143,7 +150,7 @@ public class Home : MonoBehaviour
     }
     #endregion
     #region 0の関数
-    void Game_Start()
+    public void Game_Start()
     {
         for (int i = 0; i < 3; i++)
         {
@@ -163,7 +170,7 @@ public class Home : MonoBehaviour
             pos_num = -2;
             detail.GetComponent<RectTransform>().localPosition = Vector3.zero;
             Big_img.GetComponent<Image>().sprite = charas[x].Big_img;
-            text.GetComponent<Text>().text = "攻撃力：" + charas[x].attack + "   HP：" + charas[x].HP
+            text.GetComponent<Text>().text = "Lv.1   攻撃力：" + charas[x].attack + "   HP：" + charas[x].HP
                 + "\nスキル発動時間：" + charas[x].skill_time + "秒　発動：" + charas[x].skill_walk
                 + "歩\n説明：" + charas[x].skill_Description;
         }
@@ -174,18 +181,23 @@ public class Home : MonoBehaviour
         tap_num = ID;
         tap_second = 0;
         is_tap = true;
+        in_flg = 1;
+        carsol.GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + (ID-1) % 4 * 0.25f) * width, -0.05f * height - Mathf.FloorToInt((ID-1) / 4) * 0.25f * width);
     }
     public void Set_ID_Up(int ID)
     {
         if (tap_num == ID && tap_second < 1 && is_tap)
         {
-            if (target_num != 0)
+            if (target_num != 0 && charas[tap_num - 1].chara_ID != 0 && party_ID[0] != tap_num && party_ID[1] != tap_num && party_ID[2] != tap_num)
             {
+                charas[party_ID[target_num - 1] - 1].obj.GetComponent<Image>().color = Color.white;
+                charas[tap_num - 1].obj.GetComponent<Image>().color = Color.gray;
                 party_ID[target_num - 1] = tap_num;
                 party_chara[target_num - 1].GetComponent<Image>().sprite = charas[tap_num - 1].Small_img;
-                target_num = 0;
+                carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
                 tap_num = 0;
             }
+            target_num = 0;
         }
         is_tap = false;
     }
@@ -196,6 +208,7 @@ public class Home : MonoBehaviour
         {
             is_tap = false;
             tap_num = 0;
+            carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
             target_num = 0;
         }
     }
@@ -204,19 +217,24 @@ public class Home : MonoBehaviour
     {
         target_num = ID;
         tap_second = 0;
+        in_flg = 0;
+        carsol.GetComponent<RectTransform>().localPosition = new Vector3((2-ID)*0.33f * width, 0.25f * height);
         is_tap = true;
     }
     public void Set_party_Up(int ID)
     {
         if (target_num == ID && tap_second < 1 && is_tap)
         {
-            if (tap_num != 0)
+            if (tap_num != 0 && charas[tap_num - 1].chara_ID != 0 && party_ID[0] != tap_num && party_ID[1] != tap_num && party_ID[2] != tap_num)
             {
+                charas[party_ID[target_num - 1] - 1].obj.GetComponent<Image>().color = Color.white;
+                charas[tap_num - 1].obj.GetComponent<Image>().color = Color.gray;
                 party_ID[target_num - 1] = tap_num;
                 party_chara[target_num - 1].GetComponent<Image>().sprite = charas[tap_num - 1].Small_img;
                 target_num = 0;
-                tap_num = 0;
+                carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
             }
+            tap_num = 0;
         }
         is_tap = false;
     }
