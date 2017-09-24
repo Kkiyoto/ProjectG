@@ -131,6 +131,7 @@ public class Result : Functions
             delta_time += Time.deltaTime;
             if (delta_time > 1)
             {
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
                 flg++;
                 obj = GameObject.Find("Coin");
                 obj.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, 0.065f * height);
@@ -148,11 +149,12 @@ public class Result : Functions
             if (count == datas[3])
             {
                 flg++;
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
                 count = 0;
                 obj = GameObject.Find("Treasure");
                 obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                 GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
-                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.3f * height);/*
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.37f * height);/*
                 for (int i = 0; i < datas[4]; i++)
                 {
                     o = Instantiate(Resources.Load<GameObject>("Prefab/Get")) as GameObject;
@@ -175,8 +177,8 @@ public class Result : Functions
             if (num < datas[4]) //宝が残ってる
             {
                 Vector3 vec = obj.GetComponent<RectTransform>().localPosition;
-                obj.GetComponent<RectTransform>().localPosition = (11f * vec + new Vector3(0, -0.3f * height, 0)) / 12f;
-                if ((vec - new Vector3(0, -0.3f * height, 0)).magnitude < 0.15f)//宝移動後
+                obj.GetComponent<RectTransform>().localPosition = (11f * vec + new Vector3(0, -0.37f * height, 0)) / 12f;
+                if ((vec - new Vector3(0, -0.37f * height, 0)).magnitude < 0.15f)//宝移動後
                 {
                     if (obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("Closed_pink"))
                     {
@@ -189,7 +191,7 @@ public class Result : Functions
                         count++;
                         if (count < 40)
                         {
-                            o.GetComponent<RectTransform>().localPosition = new Vector3(-0.05f * width, -height * (0.05f * Mathf.Cos(Mathf.PI / 40f * count) + 0.2f), 0);
+                            o.GetComponent<RectTransform>().localPosition = new Vector3(-0.05f * width, -height * (0.03f * Mathf.Cos(Mathf.PI / 40f * count) + 0.28f), 0);
                             Vector2 scale = o.GetComponent<RectTransform>().sizeDelta;
                             if (count > 30)
                             {
@@ -200,10 +202,10 @@ public class Result : Functions
                         {
                             obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(2, 2);
                             Vector3 pos = o.GetComponent<RectTransform>().localPosition;
-                            o.GetComponent<RectTransform>().localPosition = (9f * pos + new Vector3(0.13f * width, -0.065f * height)) / 10f;
-                            if ((o.GetComponent<RectTransform>().localPosition - new Vector3(0.13f * width, -0.065f * height)).magnitude < 0.1f)
+                            o.GetComponent<RectTransform>().localPosition = (9f * pos + new Vector3(0.13f * width, -0.038f * height)) / 10f;
+                            if ((o.GetComponent<RectTransform>().localPosition - new Vector3(0.13f * width, -0.038f * height)).magnitude < 0.1f)
                             {
-                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, -0.065f * height);
+                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, -0.038f * height);
                                 if (coin > 0)
                                 {
                                     int ran = Random.Range(5, 10);
@@ -224,7 +226,7 @@ public class Result : Functions
                                     num++;
                                     obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                     obj.GetComponent<Animator>().SetBool("Open_Bool", false);
-                                    obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.3f * height);
+                                    obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.37f * height);
                                     coin = Random.Range(100, 200);
                                     o.GetComponent<Text>().text = coin.ToString();
                                     count = 0;
@@ -254,6 +256,7 @@ public class Result : Functions
                     else o.transform.Find("Get_Text").GetComponent<Text>().text = "翡翠杖";*/
                 }
                 GameObject.Find("Box").GetComponent<Image>().color = Color.white;
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.3f * height);
                 GameObject.Find("Box").transform.SetAsLastSibling();
                 num = 0;
             }
@@ -304,8 +307,8 @@ public class Result : Functions
                             if (obj.GetComponent<RectTransform>().sizeDelta.x < 1)
                             {
                                 o.transform.parent = GameObject.Find("BackCanvas").transform;
-                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.3f * (num - 1) * width, -0.12f * height);
-                                o.GetComponent<RectTransform>().localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.27f * (num - 1) * width, -0.125f * height);
+                                o.GetComponent<RectTransform>().localScale = new Vector3(0.5f, 0.5f,0.5f);
                                 num++;
                                 obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                 obj.GetComponent<Animator>().SetBool("Open_Bool", false);

@@ -6,19 +6,24 @@ using UnityEngine.SceneManagement;
 
 public class Home : MonoBehaviour
 {
-    public GameObject select;//Canvas
-    public GameObject BG,carsol;//BackCanvas
-    public GameObject detail, Big_img, text;//キャラ詳細
+    public GameObject select,Audio;
+    public GameObject carsol;
+    public RectTransform BG,detail;//キャラ詳細
+    public Text  text;
+    public Image home_img, Big_img;
     Box_Chara[] charas = new Box_Chara[8];
-    public GameObject[] party_chara = new GameObject[3];
+    public Image[] party_chara = new Image[3];
     int pos_num, tap_num, target_num;//pos:カメラの位置, tap:触ったやつ, target:tapに対して何するか
     Vector3[] Camera_Pos = new Vector3[5];
     float width, height;
     float tap_second;
     int[] party_ID = new int[3];
+    Vector3 out_vec;
 
     int in_flg;
     bool is_tap;
+    public AudioSource[] Home_BGM = new AudioSource[2];
+    public AudioClip[] Home_SE = new AudioClip[4];//BGM2つ,Button,シュ,
 
     // Use this for initialization
     void Start()
@@ -33,10 +38,12 @@ public class Home : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             party_ID[i] = PlayerPrefs.GetInt("Box_Party" + i, i + 1);
-            party_chara[i].GetComponent<Image>().sprite = charas[party_ID[i] - 1].Small_img;
+            party_chara[i].sprite = charas[party_ID[i] - 1].Small_img;
             charas[party_ID[i] - 1].obj.GetComponent<Image>().color = Color.gray;
         }
+        home_img.sprite = charas[party_ID[0] - 1].Big_img;
         in_flg = 0;
+        out_vec = new Vector3(0, height, 0);
     }
 
     // Update is called once per frame
@@ -44,8 +51,8 @@ public class Home : MonoBehaviour
     {
         #region いつでもやるやつ
         if (Input.GetKeyDown(KeyCode.Return)) pos_num = (pos_num + 1) % 5;
-        Vector3 bg_vec = BG.GetComponent<RectTransform>().localPosition;
-        BG.GetComponent<RectTransform>().localPosition = (Camera_Pos[Mathf.Abs(pos_num)] + 9f * bg_vec) / 10f;
+        Vector3 bg_vec = BG.localPosition;
+        BG.localPosition = (Camera_Pos[Mathf.Abs(pos_num)] + 9f * bg_vec) / 10f;
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 vec = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -94,8 +101,8 @@ public class Home : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
-                detail.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
-                carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
+                detail.localPosition = out_vec;
+                carsol.GetComponent<RectTransform>().localPosition = out_vec;
                 pos_num = 2;
             }
         }
@@ -135,17 +142,20 @@ public class Home : MonoBehaviour
             Vector3 vec = Input.mousePosition;
             num = Mathf.FloorToInt(vec.x * 5f / width);
         }
+        //else Audio.GetComponent<AudioSource>().clip = Home_SE[0];
+        Audio.GetComponent<AudioSource>().PlayOneShot(Home_SE[2]);//Button
         pos_num = num;
-        detail.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
-        select.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+        detail.localPosition = out_vec;
+        select.GetComponent<RectTransform>().localPosition = out_vec;
     }
 
     public void Get_Button()
     {
         if (Mathf.Abs(pos_num) == 0)
         {
+            Audio.GetComponent<AudioSource>().PlayOneShot(Home_SE[2]);//Button
             select.GetComponent<RectTransform>().localPosition = Vector3.zero;
-            in_flg = 1;
+            //Audio.GetComponent<AudioSource>().clip = Home_SE[1];
         }
     }
     #endregion
@@ -168,9 +178,9 @@ public class Home : MonoBehaviour
         if (x >= 0 && charas[x].chara_ID != 0)
         {
             pos_num = -2;
-            detail.GetComponent<RectTransform>().localPosition = Vector3.zero;
-            Big_img.GetComponent<Image>().sprite = charas[x].Big_img;
-            text.GetComponent<Text>().text = "Lv.1   攻撃力：" + charas[x].attack + "   HP：" + charas[x].HP
+            detail.localPosition = Vector3.zero;
+            Big_img.sprite = charas[x].Big_img;
+            text.text = "Lv.1   攻撃力：" + charas[x].attack + "   HP：" + charas[x].HP
                 + "\nスキル発動時間：" + charas[x].skill_time + "秒　発動：" + charas[x].skill_walk
                 + "歩\n説明：" + charas[x].skill_Description;
         }
@@ -182,7 +192,9 @@ public class Home : MonoBehaviour
         tap_second = 0;
         is_tap = true;
         in_flg = 1;
-        carsol.GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + (ID-1) % 4 * 0.25f) * width, -0.05f * height - Mathf.FloorToInt((ID-1) / 4) * 0.25f * width);
+        if (charas[ID - 1].chara_ID != 0)
+            carsol.GetComponent<RectTransform>().localPosition = new Vector3((-0.375f + (ID - 1) % 4 * 0.25f) * width, -0.05f * height - Mathf.FloorToInt((ID - 1) / 4) * 0.25f * width);
+        else carsol.GetComponent<RectTransform>().localPosition = out_vec;
     }
     public void Set_ID_Up(int ID)
     {
@@ -193,8 +205,9 @@ public class Home : MonoBehaviour
                 charas[party_ID[target_num - 1] - 1].obj.GetComponent<Image>().color = Color.white;
                 charas[tap_num - 1].obj.GetComponent<Image>().color = Color.gray;
                 party_ID[target_num - 1] = tap_num;
-                party_chara[target_num - 1].GetComponent<Image>().sprite = charas[tap_num - 1].Small_img;
+                party_chara[target_num - 1].sprite = charas[tap_num - 1].Small_img;
                 carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
+                home_img.sprite = charas[party_ID[0] - 1].Big_img;
                 tap_num = 0;
             }
             target_num = 0;
@@ -230,9 +243,10 @@ public class Home : MonoBehaviour
                 charas[party_ID[target_num - 1] - 1].obj.GetComponent<Image>().color = Color.white;
                 charas[tap_num - 1].obj.GetComponent<Image>().color = Color.gray;
                 party_ID[target_num - 1] = tap_num;
-                party_chara[target_num - 1].GetComponent<Image>().sprite = charas[tap_num - 1].Small_img;
-                target_num = 0;
+                home_img.sprite = charas[party_ID[0] - 1].Big_img;
                 carsol.GetComponent<RectTransform>().localPosition = new Vector3(0, height);
+                party_chara[target_num - 1].sprite = charas[tap_num - 1].Small_img;
+                target_num = 0;
             }
             tap_num = 0;
         }

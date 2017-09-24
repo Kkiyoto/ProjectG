@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Watch : MonoBehaviour
 {
     public GameObject detail, Big, text, Menu, Title;//Canvas
-    public GameObject BG,carsol;//BackCanvas
+    public GameObject BG,carsol,home_img;//BackCanvas
     public GameObject select, back_home, stage1;//Select
     public GameObject[] box_Chara = new GameObject[8];
     public GameObject[] party_Chara = new GameObject[3];
@@ -44,6 +44,8 @@ public class Watch : MonoBehaviour
         BG.GetComponent<RectTransform>().localPosition = new Vector2(2f * width, 0);
         carsol.GetComponent<RectTransform>().sizeDelta = new Vector2(0.24f * width, 0.2f*height);
         carsol.GetComponent<RectTransform>().localPosition = max_vec;
+        home_img.GetComponent<RectTransform>().sizeDelta = new Vector2(1.4f*width, 1.1f*height);
+        home_img.GetComponent<RectTransform>().localPosition = new Vector2(-2.1f * width, -0.1f*height);
 
         for (int n = 0; n < 8; n++)
         {

@@ -223,11 +223,12 @@ public class State_manage : Functions
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
             float ran = Random.value;
-            //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f * Mathf.Cos(ran * 2*Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) +2f);
-            pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
+            pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f * Mathf.Cos(ran * 2*Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) +2f);
+            //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
         }
+        //if (Chara[0].walk_count >= Chara[0].Max_gage)
         if (Road_count >= Chara[0].Max_gage)
         {
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f, 0.66f) * width, 0.04f * height, 10));
@@ -476,6 +477,7 @@ public class State_manage : Functions
         {
             float max = Chara[0].Max_gage;
             float child = Road_count;
+            //float child = Chara[0].walk_count;
             gage.GetComponent<Image>().color = new Color(1, 1, 1, 1);
             gage.GetComponent<Image>().fillAmount = child / max;
         }
@@ -486,6 +488,7 @@ public class State_manage : Functions
         if (Chara[0].Max_second < skill_time)
         {
             Road_count++;
+            //Chara[0].walk_count++;
         }
         All_count++;
     }
@@ -496,6 +499,7 @@ public class State_manage : Functions
         {
             skill_time = -2;//秒
             Road_count = 0;
+            //Chara[0].walk_count = 0;
             gage.GetComponent<Image>().color = new Color(0, 1, 1, 1);
             //main.Pause_button_down(true);
             pause_bool = false;

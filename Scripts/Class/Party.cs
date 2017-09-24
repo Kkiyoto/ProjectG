@@ -20,6 +20,7 @@ public class Party : MonoBehaviour
     public int Max_gage;//何歩で?もしキャラごとにならそれぞれ変えられる。
     public float Max_second;//何秒分スキルある?青くする時間
     public Common.SE Action;//音のタイプ
+    //public float walk_count;
     #endregion
 
     public Party(GameObject o,int ID)
@@ -28,6 +29,7 @@ public class Party : MonoBehaviour
         chara_ID = ID;
         Anime().SetInteger("Chara_Int", ID);
         chara.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width * 0.36f, Screen.width * 0.4f);
+        //walk_count = 0;
     }
 
     public Animator Anime()
