@@ -33,10 +33,10 @@ public class Title : Functions
         width = Screen.width;
         height = Screen.height;
 
-        GameObject.Find("Background").GetComponent<RectTransform>().localPosition = new Vector3(0,0);
-        GameObject.Find("Background").GetComponent<RectTransform>().sizeDelta = new Vector2(width,height);
-        GameObject.Find("FadePanel").GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
-        GameObject.Find("FadePanel").GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+        //GameObject.Find("Background").GetComponent<RectTransform>().localPosition = new Vector3(0,0);
+        //GameObject.Find("Background").GetComponent<RectTransform>().sizeDelta = new Vector2(width,height);
+        //GameObject.Find("FadePanel").GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        //GameObject.Find("FadePanel").GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         GameObject.Find("TapStart").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.4f*height);
         GameObject.Find("TapStart").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f*width, 0.06f * height);
 

@@ -15,7 +15,7 @@ public class State_manage : Functions
     public GameObject Back_anime, Front_anime,
         time_gage, skill_Icon,Skill_Flame;
     public RectTransform Pause_Menu,Needle;
-    public Image gage,Flame;
+    public Image gage,Flame, Background;
     public float width, height, time;
     float needle, time_delta, Max_Time;
     bool pause_bool, is_red;
@@ -193,7 +193,7 @@ public class State_manage : Functions
         {
             Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG_red" + (int)Common.Thema.Sky);
             Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front_red" + (int)Common.Thema.Sky);
-            GameObject.Find("Background").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Back_red" + (int)Common.Thema.Sky);
+            Background.sprite = Resources.Load<Sprite>("Images/Background/Back_red" + (int)Common.Thema.Sky);
             is_red = true;
             main.To_Red(true);
         }
@@ -309,6 +309,7 @@ public class State_manage : Functions
         }
         else
         {
+            time = Mathf.Min(time, Max_Time);
             time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
             Flame.color = new Color(1, 0, 0, 1);
         }
@@ -319,6 +320,8 @@ public class State_manage : Functions
         Chara[0].Anime().SetBool("Out_Bool", true);
         Life_point--;
         skill_time = 20;
+        skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+        Skill_Flame.GetComponent<Image>().color = Color.clear;
         if (Life_point < 0)//GameOver
         {
             Skill_text.text = "";
@@ -386,7 +389,7 @@ public class State_manage : Functions
         if (Life_point < 2)
         {
             Life_point++;
-            Chara[Life_point].Pos = new Vector3(width * 0.65f * (3 - Life_point), height * 0.277f);
+            Chara[Life_point].Pos = new Vector3(-width * 2f , height * 0.277f);
             Chara[Life_point].Anime().SetBool("Out_Bool", false);
             Anime(Life_point, Common.Action.Walk);
         }
@@ -568,6 +571,7 @@ public class State_manage : Functions
             skill_time = 20;
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+            Skill_Flame.GetComponent<Image>().color = Color.clear;
             main.Set_Speed(90f);
         }
     }

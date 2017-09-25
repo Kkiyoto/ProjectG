@@ -249,6 +249,7 @@ public class Main : Functions
                     {
                         if (enemy[i].act != Common.Action.Sad)
                         {
+                            if (UIs.is_Skill(3)) enemy[i].Sprite().color = new Color(0, 0.5f, 1, 1);
                             Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
                             if (enemy[i].type != Common.Type.Fly && L(player.x) == L(enemy[i].x) && L(player.y) == L(enemy[i].y)) v = Pazzle_fields[(enemy[i].x - 1) % 3 + 1, (enemy[i].y - 1) % 3 + 1].Pos;
                             if (enemy[i].Move(v,UIs.is_Skill(3))) 
@@ -284,7 +285,7 @@ public class Main : Functions
                                     //enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
                                     enemy[i].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
                                 }
-                                else if ((enemy[i].Pos - player.Pos).magnitude < 0.6f||(UIs.is_Skill(7)&& (enemy[i].Pos - player.Pos).magnitude < 0.25f))  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
+                                else if (!UIs.is_Skill(7)&&(enemy[i].Pos - player.Pos).magnitude < 0.6f)  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
                                 {
                                     touch_ID = i;
                                     flg = 3;

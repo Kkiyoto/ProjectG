@@ -367,7 +367,7 @@ public class Result : Functions
 
     public void Next()
     {
-        FadeManager.Instance.LoadScene("start", 3.0f);
+        FadeManager.Instance.LoadScene("Home", 3.0f);
         Panel.GetComponent<Animator>().SetTrigger("Fader");
     }
 }

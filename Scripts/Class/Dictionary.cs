@@ -87,8 +87,8 @@ public class Dictionary : MonoBehaviour
 
         GameObject.Find("Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
         GameObject.Find("Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.94f * height);
-        GameObject.Find("Skill_Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -height/2f);
-        GameObject.Find("Skill_Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 2f * height);
+        GameObject.Find("Skill_Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -height);
+        GameObject.Find("Skill_Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(1.2f*width, 4f * height);
 
         GameObject.Find("Treasure_count").GetComponent<RectTransform>().localPosition = new Vector3(-0.3f * width, 0.47f * height);
         GameObject.Find("Treasure_count").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * width, 0.045f * height);

@@ -34,7 +34,7 @@ public class Watch : MonoBehaviour
         detail.GetComponent<RectTransform>().localPosition = max_vec;
         detail.GetComponent<RectTransform>().sizeDelta = max_vec;
         Big.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.1f * height, 0);
-        Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, width);
+        Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.95f*width, 1.3f*width);
         text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.3f * height, 0);
         text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.15f * height);
 
