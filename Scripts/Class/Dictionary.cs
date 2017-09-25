@@ -54,16 +54,15 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Walk").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
         GameObject.Find("Walk").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f*width, 0.08f * height);
         GameObject.Find("To_Game").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.12f * height);
-        GameObject.Find("To_Game").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);
+        GameObject.Find("To_Game").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f * height);
         GameObject.Find("To_Menu").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.25f * height);
         GameObject.Find("To_Menu").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);
         GameObject.Find("Option").GetComponent<RectTransform>().localPosition = new Vector3(0.4f*width-0.05f*height, -0.38f * height);
         GameObject.Find("Option").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f*height, 0.1f * height);
         GameObject.Find("Help").GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*height-0.025f*width, -0.38f * height);
         GameObject.Find("Help").GetComponent<RectTransform>().sizeDelta = new Vector2(0.75f*width-0.1f*height, 0.1f * height);
-        //GameObject.Find("Status").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.465f * height);
-        //GameObject.Find("Status").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.07f * height);
 
+<<<<<<< HEAD
         GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, -0.05f * height);
         GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * width, 0.065f * height);
         GameObject.Find("Hikousen").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, 0.8f * height);
@@ -87,24 +86,37 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Skill_Icon_effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f * height, 0.2f * height);
         GameObject.Find("Skill_Icon_effect").GetComponent<RectTransform>().localPosition = new Vector2(-0.285f * width, -0.0015f * height);
 
+=======
+        GameObject.Find("Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
+        GameObject.Find("Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.94f * height);
+        GameObject.Find("Skill_Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -height/2f);
+        GameObject.Find("Skill_Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 2f * height);
+
+        GameObject.Find("Treasure_count").GetComponent<RectTransform>().localPosition = new Vector3(-0.3f * width, 0.47f * height);
+        GameObject.Find("Treasure_count").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * width, 0.045f * height);
+        GameObject.Find("Count_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.05f*width, -0.015f * height);
+        GameObject.Find("Count_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f * width, 0.05f * height);
+>>>>>>> d97e10e2331264522a8f9cce08a6328876ad8222
 
         Destroy(this.gameObject, 1f);
     }
 
-    public void Set_Box(Party chara,int ID) //,int level)
+    public void Set_Box(Party chara,int ID,int level)
     {
         //スキルについて、20未満だとその秒数がタップスキルになる（組み合わせ可能）、35にすると常時発動（リーダースキル化、組み合わせ可能）
         #region ID=1:剣士
         if (ID == 1)
         {
-            chara.Attack = 95;//+2*level;
-            chara.HP = 50;//+level;
-            chara.skills[0] = 5; //敵を早く倒す 
+            chara.Attack = 95+2*level;
+            chara.HP = 50+level;
+            chara.skills[0] = 35; //敵を早く倒す 
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
             chara.skills[3] = 0; //敵を留める
             chara.skills[4] = 0; //立ち止まる
             chara.skills[5] = 0; //時間が減るのが遅くなる
+            chara.skills[6] = 5; //走る
+            chara.skills[7] = 0; //敵と会いにくくなる
             /*chara.skills[n0] = 0; //敵が見える
             chara.skills[n1] = 0; //敵と会いにくくなる
             chara.skills[n5] = 0; //敵に完全に合わなくなる（n3,n4と組み合わせで道を自由に)単体だと強すぎる気もする
@@ -113,61 +125,74 @@ public class Dictionary : MonoBehaviour
             chara.skills[n8] = 0; //Coinが増える
             chara.skills[n9] = 0; //盤が1瞬で動く
             chara.skills[n10] = 0; //周りが見える（却下っぽい。。）*/
-            chara.skill_Description = "早く敵を倒すことが出来る";
+            chara.skill_Description = "走り抜ける";
             chara.Max_gage = 25;
             chara.Max_second = 5;
             chara.Action = Common.SE.Sword;
+            chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/1-Soldier/Skill");
         }
         #endregion
         #region ID=2:魔女
         else if (ID == 2)
         {
-            chara.Attack = 50;//+level;
-            chara.HP = 80;//+4*level;
+            chara.Attack = 32+level;
+            chara.HP = 80+4*level;
             chara.skills[0] = 0; //敵を早く倒す
-            chara.skills[1] = 1; //その場の敵を一掃
+            chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
-            chara.skills[3] = 1; //敵を留める
-            chara.skills[4] = 1; //立ち止まる
-            chara.skills[5] = 0; //時間が減るのが遅くなる
-            chara.skill_Description = "見えている敵全体に攻撃";
+            chara.skills[3] = 10; //敵を留める
+            chara.skills[4] = 0; //立ち止まる
+            chara.skills[5] = 35; //時間が減るのが遅くなる
+            chara.skills[6] = 0; //走る
+            chara.skills[7] = 10; //敵と会いにくくなる
+            chara.skill_Description = "敵の動きを留める";
             chara.Max_gage = 25;
-            chara.Max_second = 1;
+            chara.Max_second = 10;
             chara.Action = Common.SE.Fire;
+            chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/Skill");
+            chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill-ice");
         }
         #endregion
         #region ID=3:海賊
         else if (ID == 3)
         {
-            chara.Attack = 60;//+level;
-            chara.HP = 160;//+7*level;
+            chara.Attack = 60+level;
+            chara.HP = 160+7*level;
             chara.skills[0] = 0; //敵を早く倒す
-            chara.skills[1] = 0; //その場の敵を一掃
-            chara.skills[2] = 10; //宝が見える
-            chara.skills[3] = 0; //敵を留める
-            chara.skills[4] = 0; //立ち止まる
+            chara.skills[1] = 1; //その場の敵を一掃
+            chara.skills[2] = 35; //宝が見える
+            chara.skills[3] = 1; //敵を留める
+            chara.skills[4] = 1; //立ち止まる
             chara.skills[5] = 0; //時間が減るのが遅くなる
-            chara.skill_Description = "アイテムの位置が分かる";
+            chara.skills[6] = 0; //走る
+            chara.skills[7] = 0; //敵と会いにくくなる
+            chara.skill_Description = "見えている敵を一掃する";
             chara.Max_gage = 25;
-            chara.Max_second = 10;
+            chara.Max_second = 1;
             chara.Action = Common.SE.Gun;
+            chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/Skill");
+            chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill-gun");
         }
         #endregion
         #region ID=4:女剣士
         else if (ID == 4)
         {
-            chara.Attack = 90;//+2*level;
-            chara.HP = 60;//+level;
-            chara.skills[0] = 10; //敵を早く倒す
+            chara.Attack = 100+2*level;
+            chara.HP = 60+level;
+            chara.skills[0] = 35; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
             chara.skills[3] = 0; //敵を留める
             chara.skills[4] = 0; //立ち止まる
             chara.skills[5] = 0; //時間が減るのが遅くなる
-            chara.skill_Description = "早く敵を倒すことが出来る";
+            chara.skills[6] = 5; //走る
+            chara.skills[7] = 0; //敵と会いにくくなる
+            chara.skill_Description = "いつもより速く駆ける";
             chara.Max_gage = 25;
-            chara.Max_second = 8;
+            chara.Max_second = 5;
             chara.Action = Common.SE.Sword;
+            chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Skill");
+            chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill");
         }
         #endregion
         #region ID=?:図鑑に入っていない場合（IDが考えられていない）

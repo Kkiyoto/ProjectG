@@ -33,6 +33,11 @@ public class Field : Functions
     {
         if(time)obj.GetComponent<SpriteRenderer>().sprite = Red_sprites[(int)img_type];
         else obj.GetComponent<SpriteRenderer>().sprite = sprites[(int)img_type];
+        if (img_type == Common.Direction.Down)
+        {
+            Layer(15);
+            Sprite().color = new Color(1,1,1,1);
+        }
     }
 
     public void Layer(int layer)

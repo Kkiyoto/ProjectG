@@ -12,21 +12,27 @@ using UnityEngine.SceneManagement;
 
 public class State_manage : Functions
 {
-    GameObject Back_anime, Front_anime, Pause_Menu, gage,
-        time_gage, skill_Icon;
+    public GameObject Back_anime, Front_anime,
+        time_gage, skill_Icon,Skill_Flame;
+    public RectTransform Pause_Menu,Needle;
+    public Image gage,Flame;
     public float width, height, time;
     float needle, time_delta, Max_Time;
-    RectTransform Needle; //時計盤の準備
     bool pause_bool, is_red;
     public bool timer_bool, bg_bool;
-    Text Time_text, Skill_text;
+    public Text Time_text, Skill_text;
     int Life_point;
     int Road_count, All_count;
     public float[] tresure = new float[2];
     public float road = 0;
     public Party[] Chara = new Party[3];
+<<<<<<< HEAD
     AudioClip[] SEs = new AudioClip[17];//音増えるごとに追加お願いします
     Main main;
+=======
+    AudioClip[] SEs = new AudioClip[16];//音増えるごとに追加お願いします
+    public Main main;
+>>>>>>> d97e10e2331264522a8f9cce08a6328876ad8222
     public AudioSource[] BGMs;
     private int last = 0;
     private bool battle_move = false, max_bool = false;
@@ -44,22 +50,22 @@ public class State_manage : Functions
     // Use this for initialization
     void Start()
     {
-        #region Find系
+        /*#region Find系
         main = GameObject.Find("Director").GetComponent<Main>();
         gage = GameObject.Find("Gage");
         time_gage = GameObject.Find("Time_gage");
         skill_Icon = GameObject.Find("Skill_Icon");
-        #endregion
+        Flame = GameObject.Find("Flame");
+        Skill_Flame = GameObject.Find("Skill_Flame");
+        #endregion*/
         width = Screen.width;
         height = Screen.height;
         #region アニメの背景1
-        Back_anime = GameObject.Find("Back_anime");
         Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg" + 0);
         Back_anime.GetComponent<RectTransform>().sizeDelta = new Vector2(height * 2.8f, height * 0.28f);
         Back_anime.GetComponent<RectTransform>().localPosition = new Vector3(0, height * 0.292f);
         #endregion
         #region アニメの背景2
-        Front_anime = GameObject.Find("Back_front");
         Front_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/Bg_front" + 0);
         Front_anime.GetComponent<RectTransform>().sizeDelta = new Vector2(height * 2.79f, height * 0.37f);
         Front_anime.GetComponent<RectTransform>().localPosition = new Vector3(0, height * 0.2986f);
@@ -70,8 +76,9 @@ public class State_manage : Functions
         {
             GameObject o = GameObject.Find("Chara" + i);
             int ID = PlayerPrefs.GetInt("Party" + i, i + 2);
+            int Level = PlayerPrefs.GetInt("Level" + i,0);
             Chara[i] = new Party(o, ID);
-            dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID);
+            dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID,Level);
             Chara[i].Pos = new Vector3(-width * 0.8f * (i + 1), height * 0.277f);
         }
         //Destroy(dictionary);
@@ -103,8 +110,6 @@ public class State_manage : Functions
         if (easy == 5) time *= 2f;
         needle = time;
         Max_Time = time / 2f;
-        Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();
-        Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
         //Battle_enemy = GameObject.Find("BattleEnemy");
         #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可 ★Dictionに移植
@@ -121,10 +126,9 @@ public class State_manage : Functions
         }
         #endregion
 
-
-        Pause_Menu = GameObject.Find("Pause_Menu");
-        Pause_Menu.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.95f * height);
-        Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5);
+        
+        Pause_Menu.sizeDelta = new Vector2(0.9f * width, 0.95f * height);
+        Pause_Menu.localPosition = new Vector3(0, height, -5);
         tresure[0] = 0;
         tresure[1] = 0;
 
@@ -164,6 +168,7 @@ public class State_manage : Functions
             if (is_Skill(5)) time += Time.deltaTime / 2f;
             time -= Time.deltaTime;
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
+            Flame.color -= new Color(0, 0, 0, 0.01f);
         }
         if (time < 0) //GameOver
         {
@@ -234,12 +239,16 @@ public class State_manage : Functions
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, (1 - skill_time / Chara[0].Max_second) * 0.66f) * width, 0.04f * height, 10));
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
-            float ran = Random.value;
-            pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f * Mathf.Cos(ran * 2*Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) +2f);
+            /*float ran = Random.value;
+            pos = _camera.ScreenToWorldPoint(new Vector3(0, 0, 10)) + new Vector3(1.4f * Mathf.Cos(ran * 2 * Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) + 2f);
             //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
             skillEffect.transform.position = pos;
-            skillEffect.Emit(1);
+            skillEffect.Emit(1);*/
+            Skill_Flame.GetComponent<Image>().color = new Color(1, 1, 1, (Chara[0].Max_second - skill_time)*3f);
+            Skill_Flame.GetComponent<RectTransform>().Translate(new Vector3(0,height/180f,0));
+            if (Skill_Flame.GetComponent<RectTransform>().localPosition.y > height * 1.5f) Skill_Flame.GetComponent<RectTransform>().localPosition = new Vector3(0, -height *1.5f, 0);
         }
+        else if (skill_time < Chara[0].Max_second + 0.1f) main.Set_Speed(90f);
         //if (Chara[0].walk_count >= Chara[0].Max_gage)
         if (Road_count >= Chara[0].Max_gage)
         {
@@ -260,22 +269,22 @@ public class State_manage : Functions
         }
         #endregion
         #region ポーズメニュー
-        Vector3 v = Pause_Menu.GetComponent<RectTransform>().localPosition;
+        Vector3 v = Pause_Menu.localPosition;
         if (pause_bool && v.z < 0)
         {
             float x = v.z * 11f;
             x++;
-            Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
-            if (Mathf.Abs(v.z) < 0.1f) Pause_Menu.GetComponent<RectTransform>().localPosition = Vector3.zero;
+            Pause_Menu.localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
+            if (Mathf.Abs(v.z) < 0.1f) Pause_Menu.localPosition = Vector3.zero;
         }
         else if (!pause_bool && v.z > -5)
         {
             float x = v.z * 11f;
             x--;
-            Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
+            Pause_Menu.localPosition = new Vector3(0, x * (x + 20) * 0.0005f * height, x / 11f);
             if (Mathf.Abs(v.z + 5) < 0.1f)
             {
-                Pause_Menu.GetComponent<RectTransform>().localPosition = new Vector3(0, height, -5.1f);
+                Pause_Menu.localPosition = new Vector3(0, height, -5.1f);
                 main.Pause_button_down(false);
             }
         }
@@ -299,8 +308,16 @@ public class State_manage : Functions
     {
         time -= minus;
         time_delta = -1;
-        if (minus > 0) time_gage.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
-        else time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
+        if (minus > 0)
+        {
+            time_gage.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
+            Flame.color = new Color(1, 0, 0, 1);
+        }
+        else
+        {
+            time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
+            Flame.color = new Color(1, 0, 0, 1);
+        }
     }
 
     public bool Damage()
@@ -498,8 +515,8 @@ public class State_manage : Functions
             float max = Chara[0].Max_gage;
             float child = Road_count;
             //float child = Chara[0].walk_count;
-            gage.GetComponent<Image>().color = new Color(1, 1, 1, 1);
-            gage.GetComponent<Image>().fillAmount = child / max;
+            gage.color = new Color(1, 1, 1, 1);
+            gage.fillAmount = child / max;
         }
     }
 
@@ -520,7 +537,7 @@ public class State_manage : Functions
             skill_time = -2;//秒
             Road_count = 0;
             //Chara[0].walk_count = 0;
-            gage.GetComponent<Image>().color = new Color(0, 1, 1, 1);
+            gage.color = new Color(0, 1, 1, 1);
             //main.Pause_button_down(true);
             pause_bool = false;
             bg_bool = false;
@@ -529,7 +546,9 @@ public class State_manage : Functions
             Anime(1, Common.Action.Stop);
             Anime(2, Common.Action.Stop);
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
-            SE_on(Common.SE.Skill);
+            GetComponent<AudioSource>().PlayOneShot(Chara[0].skill_SE);
+            if (Chara[0].skills[6] > 0) main.Set_Speed(40f);
+            Skill_Flame.GetComponent<Image>().sprite = Chara[0].skill_img;
         }
     }
 
@@ -555,6 +574,7 @@ public class State_manage : Functions
             skill_time = 20;
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+            main.Set_Speed(90f);
         }
     }
 
