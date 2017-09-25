@@ -86,7 +86,6 @@ public class State_manage : Functions
         PlayerPrefs.SetInt("enemy", 5);  //ここを使うとResultリセット*/
         #endregion
         #region スキル
-        Skill_text = GameObject.Find("Skill_Text").GetComponent<Text>();
         Road_count = 0;
         All_count = 0;
         skill_time = 20;
