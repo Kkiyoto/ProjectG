@@ -62,7 +62,6 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Help").GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*height-0.025f*width, -0.38f * height);
         GameObject.Find("Help").GetComponent<RectTransform>().sizeDelta = new Vector2(0.75f*width-0.1f*height, 0.1f * height);
 
-<<<<<<< HEAD
         GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, -0.05f * height);
         GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * width, 0.065f * height);
         GameObject.Find("Hikousen").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, 0.8f * height);
@@ -86,7 +85,6 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Skill_Icon_effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f * height, 0.2f * height);
         GameObject.Find("Skill_Icon_effect").GetComponent<RectTransform>().localPosition = new Vector2(-0.285f * width, -0.0015f * height);
 
-=======
         GameObject.Find("Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
         GameObject.Find("Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.94f * height);
         GameObject.Find("Skill_Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -height/2f);
@@ -96,7 +94,6 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Treasure_count").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * width, 0.045f * height);
         GameObject.Find("Count_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.05f*width, -0.015f * height);
         GameObject.Find("Count_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f * width, 0.05f * height);
->>>>>>> d97e10e2331264522a8f9cce08a6328876ad8222
 
         Destroy(this.gameObject, 1f);
     }

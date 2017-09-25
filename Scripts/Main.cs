@@ -221,13 +221,9 @@ public class Main : Functions
         // BGMを抑え気味で流し始める
         UIs.BGMs[1].volume = 0.0f;
         UIs.BGM_on(Common.BGM.tutorial); // ここで最初にBGM定義
-<<<<<<< HEAD
-
         //player_obj_color= GameObject.Find("Player");
         //player_obj_color.SetActive(false);
-=======
         treasure_count = 0;
->>>>>>> d97e10e2331264522a8f9cce08a6328876ad8222
     }
 
     void Update()

@@ -193,14 +193,10 @@ public class Home : MonoBehaviour
             PlayerPrefs.SetInt("Box_Party" + i, party_ID[i]);
             PlayerPrefs.SetInt("Level" + i, charas[party_ID[i] - 1].Level);
         }
-<<<<<<< HEAD
+        PlayerPrefs.SetInt("Easy",easy);
         //SceneManager.LoadScene("Tutorial");
         Fader.Instance.LoadScene("Tutorial", 3.0f);
         scene_fin = true;
-=======
-        PlayerPrefs.SetInt("Easy",easy);
-        SceneManager.LoadScene("Tutorial");
->>>>>>> d97e10e2331264522a8f9cce08a6328876ad8222
     }
     #endregion
     #region 1の関数

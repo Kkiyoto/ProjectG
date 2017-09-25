@@ -26,13 +26,8 @@ public class State_manage : Functions
     public float[] tresure = new float[2];
     public float road = 0;
     public Party[] Chara = new Party[3];
-<<<<<<< HEAD
     AudioClip[] SEs = new AudioClip[17];//音増えるごとに追加お願いします
-    Main main;
-=======
-    AudioClip[] SEs = new AudioClip[16];//音増えるごとに追加お願いします
     public Main main;
->>>>>>> d97e10e2331264522a8f9cce08a6328876ad8222
     public AudioSource[] BGMs;
     private int last = 0;
     private bool battle_move = false, max_bool = false;
