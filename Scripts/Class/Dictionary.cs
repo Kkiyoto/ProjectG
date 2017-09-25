@@ -62,6 +62,29 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Help").GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*height-0.025f*width, -0.38f * height);
         GameObject.Find("Help").GetComponent<RectTransform>().sizeDelta = new Vector2(0.75f*width-0.1f*height, 0.1f * height);
 
+        GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, -0.05f * height);
+        GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * width, 0.065f * height);
+        GameObject.Find("Hikousen").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, 0.8f * height);
+        GameObject.Find("Hikousen").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.225f * height); // original : 0.4f * width, 0.15f * height
+        GameObject.Find("FallChara").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.25f * height);
+
+        GameObject.Find("Battle_down_panel").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.35f * height);
+        GameObject.Find("Battle_down_panel").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f*width, 0.01f*height);
+        GameObject.Find("Skill_effect").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.18f * height);
+        GameObject.Find("Skill_effect").GetComponent<RectTransform>().sizeDelta = new Vector2( 1.05f*width,  0.65f*height);
+        GameObject.Find("BattleEnemy").GetComponent<RectTransform>().localPosition = new Vector3(0.35f*width, height * 0.25f);
+        GameObject.Find("BattleEnemy").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);
+        GameObject.Find("Attack_effect").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, height * 0.25f);
+        GameObject.Find("Attack_effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);
+
+        GameObject.Find("TakaraBako").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, height * 0.25f);
+        GameObject.Find("TakaraBako").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);
+        GameObject.Find("OtakaraGet").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0);
+        GameObject.Find("OtakaraGet").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.07f * height);
+
+        GameObject.Find("Skill_Icon_effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f * height, 0.2f * height);
+        GameObject.Find("Skill_Icon_effect").GetComponent<RectTransform>().localPosition = new Vector2(-0.285f * width, -0.0015f * height);
+
         GameObject.Find("Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
         GameObject.Find("Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.94f * height);
         GameObject.Find("Skill_Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -height/2f);

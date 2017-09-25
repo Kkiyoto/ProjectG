@@ -16,6 +16,7 @@ public class Title : Functions
     AudioClip[] SE = new AudioClip[2];
     public AudioSource[] BGM;
     private RectTransform hoge, hogehoge;
+    private float width, height;
 
     public float x, y, z;
     private bool isTouch = true, TouchFlag = false;
@@ -28,6 +29,17 @@ public class Title : Functions
         fader = GameObject.Find("FadeManager");
         SE[0] = Resources.Load<AudioClip>("Audio/SE/Select");
         SE[1] = Resources.Load<AudioClip>("Audio/SE/Tap");
+
+        width = Screen.width;
+        height = Screen.height;
+
+        GameObject.Find("Background").GetComponent<RectTransform>().localPosition = new Vector3(0,0);
+        GameObject.Find("Background").GetComponent<RectTransform>().sizeDelta = new Vector2(width,height);
+        GameObject.Find("FadePanel").GetComponent<RectTransform>().localPosition = new Vector3(0, 0);
+        GameObject.Find("FadePanel").GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+        GameObject.Find("TapStart").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.4f*height);
+        GameObject.Find("TapStart").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f*width, 0.06f * height);
+
     }
 
     void Update()
@@ -60,24 +72,9 @@ public class Title : Functions
         }
 
         if (TouchFlag)
-        {
-            // 飛行船をゆったり移動 ※現状は直線移動
-            //hoge = GameObject.Find("Hikousen").GetComponent<RectTransform>();
-            //pos_diff = (new Vector3(x, y, z) - hoge.localPosition) /div;
-            // シーン遷移,フェードのトリガー起動
-            if (!TouchFlag)
-            {
-                fader.GetComponent<AudioSource>().PlayOneShot(SE[0]);
-                FadePanel.GetComponent<Animator>().SetTrigger("FadeTrigger");
-                Invoke("SceneChanger", 2.5f); // 5.0->2.5に
-            }
-            else if (!isTouch)
-            {
-                //fader.GetComponent<AudioSource>().PlayOneShot(SE[1]);  // タッチSE 違和感
-                isTouch = true;
-            }
-            TouchFlag = true;
-        }
+            BGM[1].volume -= 0.003f;
+        
+
         //if (Mathf.Abs(pos_diff.x *div) > 0.7 && Mathf.Abs(pos_diff.y *div) > 0.7 && Mathf.Abs(pos_diff.z *div) > 0.7)
         //    hoge.localPosition += pos_diff;
         //else if(!Character.activeSelf)
@@ -87,12 +84,13 @@ public class Title : Functions
         //    hogehoge = GameObject.Find("Character").GetComponent<RectTransform>();
         //    down_diff = (chardown - hogehoge.localPosition.y) / 50;
         //    hogehoge.localPosition += new Vector3(0,down_diff,0);
-        BGM[1].volume -= 0.005f;
+
         //}
     }
 
     void SceneChanger()
     {
-        FadeManager.Instance.LoadScene("Tutorial", 3.0f);
+        FadeManager.Instance.LoadScene("Home", 3.0f);
+        //SceneManager.LoadScene("Home");
     }
 }

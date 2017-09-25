@@ -19,6 +19,8 @@ public class Home : MonoBehaviour
     float tap_second;
     int[] party_ID = new int[3];
     Vector3 out_vec;
+    bool volume_set = false, scene_fin=false;
+    float time_pass=0.0f;
 
     int in_flg;
     bool is_tap;
@@ -44,6 +46,16 @@ public class Home : MonoBehaviour
         home_img.sprite = charas[party_ID[0] - 1].Big_img;
         in_flg = 0;
         out_vec = new Vector3(0, height, 0);
+        Home_BGM = GameObject.Find("EventSystem").GetComponents<AudioSource>();
+
+        PlayerPrefs.SetInt("Box_ID1", 2);
+        PlayerPrefs.SetInt("Box_ID2", 3);
+        PlayerPrefs.SetInt("Box_ID3", 4);
+        PlayerPrefs.SetInt("Box_ID4", 2);
+        PlayerPrefs.SetInt("Box_ID5", 3);
+        PlayerPrefs.SetInt("Box_ID6", 3);
+        PlayerPrefs.SetInt("Box_ID7", 4);
+
     }
 
     // Update is called once per frame
@@ -130,6 +142,16 @@ public class Home : MonoBehaviour
 
         }
         #endregion
+
+        #region BGM関連
+        if (!volume_set) time_pass += Time.deltaTime;
+        if (time_pass <= 1.4) Home_BGM[1].volume = time_pass/2;
+        else volume_set = true;
+
+        if (scene_fin)  Home_BGM[1].volume -=0.003f;
+        
+
+        #endregion
     }
 
     #region 全部の関数
@@ -172,7 +194,9 @@ public class Home : MonoBehaviour
             PlayerPrefs.SetInt("Level" + i, charas[party_ID[i] - 1].Level);
         }
         PlayerPrefs.SetInt("Easy",easy);
-        SceneManager.LoadScene("Tutorial");
+        //SceneManager.LoadScene("Tutorial");
+        Fader.Instance.LoadScene("Tutorial", 3.0f);
+        scene_fin = true;
     }
     #endregion
     #region 1の関数

@@ -14,7 +14,7 @@ public class Result : Functions
 {
     float width, height;
     int flg, count, num, coin;
-    GameObject obj, o, Audio;
+    GameObject obj, o, Audio,Panel;
     float delta_time;
     int[] datas = new int[6]; //順にtime,Life,Enemy,Coin,treasure普通、レア
     Text text;
@@ -52,6 +52,7 @@ public class Result : Functions
         delta_time = 0;
         text = obj.GetComponent<Text>();
         Audio = GameObject.Find("EventSystem");
+        Panel = GameObject.Find("ScenePanel");
 
         Result_SE[0] = Resources.Load<AudioClip>("Audio/SE/Paper");
         Result_SE[1] = Resources.Load<AudioClip>("Audio/SE/Count");
@@ -367,5 +368,6 @@ public class Result : Functions
     public void Next()
     {
         FadeManager.Instance.LoadScene("start", 3.0f);
+        Panel.GetComponent<Animator>().SetTrigger("Fader");
     }
 }
