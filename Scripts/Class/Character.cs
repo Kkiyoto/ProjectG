@@ -34,6 +34,8 @@ public class Character : Functions
             //obj.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Images/Charactor/Enemy_sprite/Enemy" + (int)t+"_1");
             map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_enemy");
         }
+        speed = 1;
+        count = 0;
     }
 
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)
@@ -44,7 +46,9 @@ public class Character : Functions
 
     public void set_Speed(float Speed)//速さを変える
     {
+        float tmp = speed;
         speed = Speed;
+        count = Mathf.RoundToInt((float)count * speed / tmp);
     }
 
     public bool Move(Vector3 field_pos,bool move) //円状に曲がる

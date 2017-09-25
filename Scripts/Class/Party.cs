@@ -15,11 +15,12 @@ public class Party : MonoBehaviour
 
     #region ここからはPlayerPrefasとかDictionaryとかで設定
     public float Attack, HP;//Atack:バトルにかかる時間（一回あたりかな？全部ででも良い）HP:今は無意味、消されるかも...
-    public int[] skills = new int[6]; //20秒が最高で使える時間、詳しくはDictionaryで
+    public int[] skills = new int[8]; //20秒が最高で使える時間、詳しくはDictionaryで
     public string skill_Description;//どんなスキルなのか
     public int Max_gage;//何歩で?もしキャラごとにならそれぞれ変えられる。
     public float Max_second;//何秒分スキルある?青くする時間
     public Common.SE Action;//音のタイプ
+    public Sprite skill_img;
     //public float walk_count;
     #endregion
 

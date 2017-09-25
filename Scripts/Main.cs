@@ -23,6 +23,8 @@ public class Main : Functions
     Common.Condition Move_condition;
     Item[] treasure;
     GameObject[] arrows = new GameObject[4];
+    Text Count_Text;
+    int treasure_count;
     State_manage UIs;//UIのことはUIs.~にします。
 
 
@@ -71,6 +73,7 @@ public class Main : Functions
     {
         int easy = PlayerPrefs.GetInt("Easy", 2);
         UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
+        Count_Text = GameObject.Find("Count_Text").GetComponent<Text>();
         #region Pazzle_dataの設定と読み取り
         for (int i = 0; i < 11; i++)
         {
@@ -215,6 +218,7 @@ public class Main : Functions
         // BGMを抑え気味で流し始める
         UIs.BGMs[1].volume = 0.0f;
         UIs.BGM_on(Common.BGM.tutorial); // ここで最初にBGM定義
+        treasure_count = 0;
     }
 
     void Update()
@@ -275,7 +279,7 @@ public class Main : Functions
                                     //enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
                                     enemy[i].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
                                 }
-                                else if ((enemy[i].Pos - player.Pos).magnitude < 0.6f)  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
+                                else if ((enemy[i].Pos - player.Pos).magnitude < 0.6f||(UIs.is_Skill(7)&& (enemy[i].Pos - player.Pos).magnitude < 0.25f))  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
                                 {
                                     touch_ID = i;
                                     flg = 3;
@@ -437,7 +441,7 @@ public class Main : Functions
                             Field_direct = Common.Direction.None;
                             flg = 1;
                             UIs.timer_bool = true;
-
+                            if (L(player.x)==2&&L(player.y)==2) Pazzle_fields[4, 2].Sprite().color = Color.white;
                         }
                     }
                     #endregion
@@ -519,6 +523,11 @@ public class Main : Functions
                         isGet = false;
                         UIs.bg_bool = true;
                         timeElapsed = 0.0f;
+                        if (treasure[touch_ID].type == Common.Treasure.Coin || treasure[touch_ID].type == Common.Treasure.Item)
+                        {
+                            treasure_count++;
+                            Count_Text.text = "×" + treasure_count;
+                        }
                         flg = 1;
                     }
                     break;
@@ -591,7 +600,7 @@ public class Main : Functions
                         UIs.SE_on(Common.SE.Get);
                     Transform tra = GameObject.Find("Goal_ship").transform;
                     Vector3 vector = tra.position;
-                    if (vector.y < 50) tra.position = (16f * vector - new Vector3(10, 7.99f)) / 15f;
+                    if (vector.y < 50) tra.position = (16f * vector - new Vector3(10, 7.49f)) / 15f;
                     timeElapsed += Time.deltaTime;
                     if (UIs.To_goal())
                     {
@@ -728,9 +737,9 @@ public class Main : Functions
                 Pazzle_data[p, q].condition = Move_condition;
                 Pazzle_fields[(x - 1) % 3 + 1, (y - 1) % 3 + 1].Pos = new Vector3(x, y, 0);
                 Pazzle_fields[(p - 1) % 3 + 1, (q - 1) % 3 + 1].Pos = new Vector3(p, q, 0);
+                Pazzle_fields[(p - 1) % 3 + 1, (q - 1) % 3 + 1].Layer(10 - q);
                 Pazzle_fields[(x - 1) % 3 + 1, (y - 1) % 3 + 1].Set_img(Pazzle_data[x, y].type);
                 Pazzle_fields[(p - 1) % 3 + 1, (q - 1) % 3 + 1].Set_img(Pazzle_data[p, q].type);
-                Pazzle_fields[(p - 1) % 3 + 1, (q - 1) % 3 + 1].Layer(10 - q);
                 Move_X = -1; //バグ修正のため
                 if (Move_condition == Common.Condition.Player)
                 {
@@ -867,8 +876,8 @@ public class Main : Functions
                 {
                     Pazzle_fields[i, j].data_x = 3 * x + i;
                     Pazzle_fields[i, j].data_y = 3 * y + j;
-                    Pazzle_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     Pazzle_fields[i, j].Layer(10 - 3 * y - j);
+                    Pazzle_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     Pazzle_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
@@ -882,8 +891,8 @@ public class Main : Functions
                 {
                     move_fields[i, j].data_x = 3 * x + i;
                     move_fields[i, j].data_y = 3 * y + j;
-                    move_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     move_fields[i, j].Layer(10 - 3 * y - j);
+                    move_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     move_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                 }
             }
@@ -1036,6 +1045,11 @@ public class Main : Functions
         }
     }
 
+    public void Set_Speed(float s)
+    {
+        player.set_Speed(s);
+    }
+
     public void Goal(int goal)
     {
         if (goal == 0)
@@ -1100,8 +1114,8 @@ public class Main : Functions
             {
                 if (3 * x + i >= 0 && 3 * y + j >= 0 && 3 * x + i < 11 && 3 * y + j < 11)
                 {
-                    move_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     move_fields[i, j].Layer(10 - 3 * y - j);
+                    move_fields[i, j].Set_img(Pazzle_data[3 * x + i, 3 * y + j].type);
                     move_fields[i, j].Pos = new Vector3(3 * x + i, 3 * y + j);
                     move_fields[i, j].Sprite().color = new Color(1, 1, 1, 1);
                 }

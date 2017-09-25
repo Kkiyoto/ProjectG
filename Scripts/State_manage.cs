@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class State_manage : Functions
 {
     GameObject Back_anime, Front_anime, Pause_Menu, gage,
-        time_gage, skill_Icon;
+        time_gage, skill_Icon,Flame,Skill_Flame;
     public float width, height, time;
     float needle, time_delta, Max_Time;
     RectTransform Needle; //時計盤の準備
@@ -47,6 +47,8 @@ public class State_manage : Functions
         gage = GameObject.Find("Gage");
         time_gage = GameObject.Find("Time_gage");
         skill_Icon = GameObject.Find("Skill_Icon");
+        Flame = GameObject.Find("Flame");
+        Skill_Flame = GameObject.Find("Skill_Flame");
         #endregion
         width = Screen.width;
         height = Screen.height;
@@ -68,8 +70,9 @@ public class State_manage : Functions
         {
             GameObject o = GameObject.Find("Chara" + i);
             int ID = PlayerPrefs.GetInt("Party" + i, i + 2);
+            int Level = PlayerPrefs.GetInt("Level" + i,0);
             Chara[i] = new Party(o, ID);
-            dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID);
+            dictionary.GetComponent<Dictionary>().Set_Box(Chara[i], ID,Level);
             Chara[i].Pos = new Vector3(-width * 0.8f * (i + 1), height * 0.277f);
         }
         //Destroy(dictionary);
@@ -160,6 +163,7 @@ public class State_manage : Functions
             if (is_Skill(5)) time += Time.deltaTime / 2f;
             time -= Time.deltaTime;
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
+            Flame.GetComponent<Image>().color -= new Color(0, 0, 0, 0.01f);
         }
         if (time < 0) //GameOver
         {
@@ -222,12 +226,16 @@ public class State_manage : Functions
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, (1 - skill_time / Chara[0].Max_second) * 0.66f) * width, 0.04f * height, 10));
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
-            float ran = Random.value;
-            pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f * Mathf.Cos(ran * 2*Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) +2f);
+            /*float ran = Random.value;
+            pos = _camera.ScreenToWorldPoint(new Vector3(0, 0, 10)) + new Vector3(1.4f * Mathf.Cos(ran * 2 * Mathf.PI) + 1.7f, 1.4f * Mathf.Sin(ran * 2 * Mathf.PI) + 2f);
             //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
             skillEffect.transform.position = pos;
-            skillEffect.Emit(1);
+            skillEffect.Emit(1);*/
+            Skill_Flame.GetComponent<Image>().color = new Color(1, 1, 1, (Chara[0].Max_second - skill_time)*3f);
+            Skill_Flame.GetComponent<RectTransform>().Translate(new Vector3(0,height/180f,0));
+            if (Skill_Flame.GetComponent<RectTransform>().localPosition.y > height / 2f) Skill_Flame.GetComponent<RectTransform>().localPosition = new Vector3(0, -height / 2f, 0);
         }
+        else if (skill_time < Chara[0].Max_second + 0.1f) main.Set_Speed(90f);
         //if (Chara[0].walk_count >= Chara[0].Max_gage)
         if (Road_count >= Chara[0].Max_gage)
         {
@@ -279,8 +287,16 @@ public class State_manage : Functions
     {
         time -= minus;
         time_delta = -1;
-        if (minus > 0) time_gage.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
-        else time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
+        if (minus > 0)
+        {
+            time_gage.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f);
+            Flame.GetComponent<Image>().color = new Color(1, 0, 0, 1);
+        }
+        else
+        {
+            time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
+            Flame.GetComponent<Image>().color = new Color(1, 0, 0, 1);
+        }
     }
 
     public bool Damage()
@@ -510,6 +526,8 @@ public class State_manage : Functions
             Anime(2, Common.Action.Stop);
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             SE_on(Common.SE.Skill);
+            if (Chara[0].skills[6] > 0) main.Set_Speed(40f);
+            Skill_Flame.GetComponent<Image>().sprite = Chara[0].skill_img;
         }
     }
 
@@ -535,6 +553,7 @@ public class State_manage : Functions
             skill_time = 20;
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+            main.Set_Speed(90f);
         }
     }
 
