@@ -21,6 +21,7 @@ public class Party : MonoBehaviour
     public float Max_second;//何秒分スキルある?青くする時間
     public Common.SE Action;//音のタイプ
     public Sprite skill_img;
+    public AudioClip skill_SE;
     //public float walk_count;
     #endregion
 

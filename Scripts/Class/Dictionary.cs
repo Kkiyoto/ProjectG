@@ -124,6 +124,7 @@ public class Dictionary : MonoBehaviour
             chara.Max_second = 10;
             chara.Action = Common.SE.Fire;
             chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/2-Witch/Skill");
+            chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill-ice");
         }
         #endregion
         #region ID=3:海賊
@@ -144,6 +145,7 @@ public class Dictionary : MonoBehaviour
             chara.Max_second = 1;
             chara.Action = Common.SE.Gun;
             chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/3-Pirate/Skill");
+            chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill-gun");
         }
         #endregion
         #region ID=4:女剣士
@@ -164,6 +166,7 @@ public class Dictionary : MonoBehaviour
             chara.Max_second = 5;
             chara.Action = Common.SE.Sword;
             chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Skill");
+            chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill");
         }
         #endregion
         #region ID=?:図鑑に入っていない場合（IDが考えられていない）
