@@ -71,6 +71,7 @@ public class Common : MonoBehaviour
         Result,
         Retired,
         Skill,
+        Decision,
     }
 
 
