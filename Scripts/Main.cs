@@ -32,6 +32,9 @@ public class Main : Functions
                 //ここのやり方が分からなかったので真偽地で無理矢理止めています。時間があればいい感じに変えてください。
 
     #region Battle追加部分
+
+    public GameObject player_obj_color;
+
     GameObject time_minus;
     GameObject Battle_effect;
     GameObject Sentou_kaisi;
@@ -215,6 +218,9 @@ public class Main : Functions
         // BGMを抑え気味で流し始める
         UIs.BGMs[1].volume = 0.0f;
         UIs.BGM_on(Common.BGM.tutorial); // ここで最初にBGM定義
+
+        //player_obj_color= GameObject.Find("Player");
+        //player_obj_color.SetActive(false);
     }
 
     void Update()
@@ -459,9 +465,6 @@ public class Main : Functions
                             width = Screen.width;
                             height = Screen.height;
                             UIs.Anime(i, Common.Action.Battle);
-
-                            //UIs.Chara[i].Pos += new Vector3(width * 0.1f * (i + 1), -height * 0.08f);  // to back
-                            //UIs.Chara[i].Pos -= new Vector3(width * 0.1f * (i + 1), -height * 0.08f);  // to front
                         }
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
@@ -477,6 +480,7 @@ public class Main : Functions
                     #endregion
                     break;
                 case 4: //宝ゲット
+                    #region お宝Getの表示、アイテムによる処理
                     timeElapsed += Time.deltaTime;
                     if (!isGet)
                     {
@@ -488,21 +492,36 @@ public class Main : Functions
                         move_treasure_get = Get.GetComponent<RectTransform>();
                         move_treasure_get.localPosition = new Vector3(-90 + display_treasure_pos_x * 90, -120 + display_treasure_pos_y * 80, 0);
 
-                        if (treasure[touch_ID].type == Common.Treasure.Item)
+                        if (treasure[touch_ID].type == Common.Treasure.Item)      // 宝箱取得
                         {
-                            Hako.GetComponent<Animator>().SetBool("open", true);
-                            Get.GetComponent<Animator>().SetBool("Get", true);
+                            Hako.GetComponent<Animator>().SetInteger("Get_what",1);
+                            Get.GetComponent<Animator>().SetInteger("Get_Lost", 0);
                         }
-                        else if (treasure[touch_ID].type == Common.Treasure.Coin)
+                        else if (treasure[touch_ID].type == Common.Treasure.Coin) // ピンク色の宝箱取得
                         {
-                            Hako.GetComponent<Animator>().SetBool("open", true);
-                            Get.GetComponent<Animator>().SetBool("Get", true);
+                            Hako.GetComponent<Animator>().SetInteger("Get_what", 1);
+                            Get.GetComponent<Animator>().SetInteger("Get_Lost", 0);
+                        }
+                        else if (treasure[touch_ID].type == Common.Treasure.Time) // 時間取得
+                        {
+                            Hako.GetComponent<Animator>().SetInteger("Get_what", 2);
+                            Get.GetComponent<Animator>().SetInteger("Get_Lost", 1);
+                            UIs.Lose_Time(-60);
+                        }
+                        else if (treasure[touch_ID].type == Common.Treasure.Life) // 梯子取得
+                        {
+                            //Hako.GetComponent<Animator>().SetInteger("Get_what", 3); 
+                            Get.GetComponent<Animator>().SetInteger("Get_Lost", 1);
+                            UIs.Item_Life();
                         }
                         UIs.SE_on(Common.SE.Get);
                         coin += Random.Range(5, 9); // コイン取得
                         UIs.bg_bool = false;
                         isGet = true;
+                        Invoke("After_get", 1.5f);
                     }
+                    #endregion
+                    #region キャラのアニメーション、終了時の処理
                     for (int i = 0; i <= UIs.get_Life(); i++)
                         UIs.Anime(i, Common.Action.Happy);
 
@@ -513,7 +532,7 @@ public class Main : Functions
                             UIs.Anime(i, Common.Action.Walk);
                         treasure[touch_ID].Get_Item();
                         if ((int)treasure[touch_ID].type < 2) UIs.tresure[(int)treasure[touch_ID].type]++;
-                        Hako.GetComponent<Animator>().SetBool("Open", false);
+                        Hako.GetComponent<Animator>().SetInteger("Get_what", 0);
                         Get.GetComponent<Animator>().SetBool("Get", false);
 
                         isGet = false;
@@ -522,9 +541,20 @@ public class Main : Functions
                         flg = 1;
                     }
                     break;
+                    #endregion
                 case 5: //落下
                     if (timeElapsed == 0.0f)
                     {
+                        float treasure_x = player_pos_for_treasure.transform.position.x;
+                        float treasure_y = player_pos_for_treasure.transform.position.y;
+                        int display_treasure_pos_x = (int)(0.5f + treasure_x - 1) % 3;
+                        int display_treasure_pos_y = (int)(0.5f + treasure_y - 1) % 3;
+
+                        move_treasure_get = Get.GetComponent<RectTransform>();
+                        move_treasure_get.localPosition = new Vector3(-90 + display_treasure_pos_x * 90, -120 + display_treasure_pos_y * 80, 0);
+
+                        Get.GetComponent<Animator>().SetInteger("Get_Lost", 2);
+                        Invoke("After_get", 1.5f);
                         UIs.SE_on(Common.SE.Fall);
                         UIs.timer_bool = false;
                         UIs.bg_bool = false;
@@ -655,17 +685,17 @@ public class Main : Functions
             #region 飛行船のアニメーション
             if (!fstFlag)
             {
-                Invoke("After_hikousen", 5.0f);
+                Invoke("After_hikousen", 1.0f);
                 fstFlag = true;
                 for (int i = 0; i < 10; i++)
                     Invoke("BGM_fade_in", i * 0.5f); // BGM 疑似フェードイン              
             }
 
             Hikousen_pos = GameObject.Find("Hikousen").GetComponent<RectTransform>();
-            pos_diff = (new Vector3(-130, 50, 0) - Hikousen_pos.localPosition);
+            pos_diff = (new Vector3(-90, 50, 0) - Hikousen_pos.localPosition);
             //Debug.Log(pos_diff);
 
-            if (Mathf.Abs(pos_diff.x) < 10 && Mathf.Abs(pos_diff.z) < 10)
+            if (Mathf.Abs(pos_diff.x) < 5 && Mathf.Abs(pos_diff.z) < 5)
                 FallChara.GetComponent<Animator>().SetTrigger("FallTrigger");
             #endregion
             #region 探索開始!のアニメーション
@@ -681,13 +711,16 @@ public class Main : Functions
                 else if (Anim_start && mid_reach)
                 {
                     Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
-                    move_diff = (char_right + 700 - Start_and_End_anim.localPosition.x) / 50;
+                    move_diff = (char_right + Screen.width*2 - Start_and_End_anim.localPosition.x) / 50;
                     Start_and_End_anim.localPosition += new Vector3(move_diff, 0, 0);
+                    player_obj_color.SetActive(true);
                     if (move_diff < 0.1)
                     {
                         Anim_start = false;
                         mid_reach = false;
                         isAnim = false;
+                        //player_obj_color.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);
+                        //player_obj_color.SetActive(true);
                     }
                 }
             }
@@ -1191,7 +1224,6 @@ public class Main : Functions
 
         UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
-        //enemy[touch_ID].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
         enemy[touch_ID].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
         flg = 1;
     }
@@ -1204,7 +1236,7 @@ public class Main : Functions
         
         if(UIs.is_Skill(0)) UIs.Lose_Time(500 / UIs.Chara[0].Attack);
         else UIs.Lose_Time(900/UIs.Chara[0].Attack);
-        //UIs.SE_on(UIs.Chara[0].Action); //★Party.Action  音をChara[]に仕込みました、よかったらコメントアウト消してください
+        //UIs.SE_on(UIs.Chara[0].Action); //(Party.Action Chara[]内部に移行)
         if (UIs.Top_ID() == 1 || UIs.Top_ID() == 4)
         {
             UIs.SE_on(Common.SE.Sword);
@@ -1252,4 +1284,9 @@ public class Main : Functions
     }
 
     #endregion
+
+    private void After_get()
+    {
+        Get.GetComponent<Animator>().SetInteger("Get_Lost", 5);
+    }
 }

@@ -67,15 +67,26 @@ public class FadeManager : MonoBehaviour
         //シーン切替
         SceneManager.LoadScene (scene);
 
-		//明るく
-		time = 0;
-		while (time <= interval-1.0f) {
-			this.fadeAlpha = Mathf.Lerp (1f, 0f, time / (interval-1.0f));
-			time += Time.deltaTime;
-			yield return 0;
-		}
-		this.isFading = false;
-        Destroy(this.gameObject);
+
+        /*
+        if (scene == "start")
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+        */
+            //明るく
+            time = 0;
+            while (time <= interval - 1.0f)
+            {
+                this.fadeAlpha = Mathf.Lerp(1f, 0f, time / (interval - 1.0f));
+                time += Time.deltaTime;
+                yield return 0;
+            }
+            this.isFading = false;
+            Destroy(this.gameObject);
+        //}
     }
     
 }

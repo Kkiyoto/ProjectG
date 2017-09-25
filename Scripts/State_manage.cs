@@ -25,11 +25,11 @@ public class State_manage : Functions
     public float[] tresure = new float[2];
     public float road = 0;
     public Party[] Chara = new Party[3];
-    AudioClip[] SEs = new AudioClip[16];//音増えるごとに追加お願いします
+    AudioClip[] SEs = new AudioClip[17];//音増えるごとに追加お願いします
     Main main;
     public AudioSource[] BGMs;
     private int last = 0;
-    private bool battle_move = false;
+    private bool battle_move = false, max_bool = false;
 
     GameObject Battle_enemy;
     float skill_time;//後でキャラによって変更、多分配列化
@@ -38,6 +38,8 @@ public class State_manage : Functions
     Camera _camera;                // カメラの座標
     [SerializeField]
     ParticleSystem skillEffect;    // スキルの際のエフェクト
+    GameObject skill_effect_anim;
+    GameObject skill_icon_effect;
 
     // Use this for initialization
     void Start()
@@ -90,6 +92,8 @@ public class State_manage : Functions
         skill_time = 20;
         Skill_text.text = Chara[0].skill_Description;
         skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+
+        //skill_effect_anim = GameObject.Find("Skill_effect");
         #endregion
         pause_bool = false;
         timer_bool = false;
@@ -102,7 +106,7 @@ public class State_manage : Functions
         Needle = GameObject.Find("Time_needle").GetComponent<RectTransform>();
         Time_text = GameObject.Find("Time").GetComponent<Text>();
         Life_point = 2;
-        Battle_enemy = GameObject.Find("BattleEnemy");
+        //Battle_enemy = GameObject.Find("BattleEnemy");
         #region UIオブジェクトをheight,widthで整理します。（ずれないのなら）Mapのとこより下は消しても可 ★Dictionに移植
         for (int i = 0; i < 3; i++)
         {
@@ -206,6 +210,12 @@ public class State_manage : Functions
                 var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.12f, 0.88f) * width, Random.Range(0.13f, 0.6f) * height, 10));
                 skillEffect.transform.position = pos;
                 skillEffect.Emit(1);
+
+                skill_effect_anim.GetComponent<Animator>().SetInteger("Skill_int", Top_ID()); // スキルエフェクト 追加
+                max_bool = false;
+                skill_icon_effect.GetComponent<Animator>().SetBool("Icon_effect", false);
+
+                Debug.Log("Skill ok");
             }
             else
             {
@@ -215,6 +225,8 @@ public class State_manage : Functions
                 main.Pause_button_down(false);
                 bg_bool = true;
                 timer_bool = true;
+
+                skill_effect_anim.GetComponent<Animator>().SetInteger("Skill_int", 10); // スキルエフェクト 消去
             }
         }
         if (skill_time < Chara[0].Max_second)
@@ -231,6 +243,14 @@ public class State_manage : Functions
         //if (Chara[0].walk_count >= Chara[0].Max_gage)
         if (Road_count >= Chara[0].Max_gage)
         {
+
+            if (!max_bool)
+            {
+                SE_on(Common.SE.Decision);  // 追加SE
+                skill_icon_effect.GetComponent<Animator>().SetBool("Icon_effect", true);
+                max_bool = true;
+            }
+
             var pos = _camera.ScreenToWorldPoint(new Vector3(Random.Range(0.18f, 0.66f) * width, 0.04f * height, 10));
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);
@@ -620,12 +640,18 @@ public class State_manage : Functions
         SEs[13] = Resources.Load<AudioClip>("Audio/SE/Result");
         SEs[14] = Resources.Load<AudioClip>("Audio/SE/Retired");
         SEs[15] = Resources.Load<AudioClip>("Audio/SE/Skill");
+        SEs[16]= Resources.Load<AudioClip>("Audio/SE/Decision");
 
         #endregion
 
         #region BGMの設定
         BGMs = GameObject.Find("State_manager").GetComponents<AudioSource>();
         #endregion
+
+        skill_icon_effect= GameObject.Find("Skill_Icon_effect");
+        skill_effect_anim = GameObject.Find("Skill_effect");
+        Battle_enemy = GameObject.Find("BattleEnemy");
+
     }
     #region　バトルのアニメーション関連 // 書き直し必須
 
