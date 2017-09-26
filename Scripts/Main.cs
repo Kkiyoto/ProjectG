@@ -43,6 +43,7 @@ public class Main : Functions
     GameObject Sentou_kaisi;
     GameObject Battle_down_panel;
     GameObject Hako, Get;
+    GameObject Enemy;
     private RectTransform move_treasure_get;
     GameObject player_pos_for_treasure;
     float timeElapsed, timeOut = 3.0f;
@@ -63,8 +64,9 @@ public class Main : Functions
     private Color Faller;
     private Vector3 pos_diff;
     private RectTransform Hikousen_pos, FallChara_pos;
-    private RectTransform Start_and_End_anim;
+    private GameObject Start_and_End_anim;
     public GameObject FallChara, FadePanel, Hikousen;
+    private GameObject player_obj;
 
     private float move_diff, char_right = 0;
     private float down_diff, chardown = -450, div = 50;
@@ -127,7 +129,7 @@ public class Main : Functions
         set_block(0, 1, 1);
         #endregion
         #region playerの設定
-        GameObject player_obj = GameObject.Find("Player");
+        player_obj = GameObject.Find("Player");
         player = new Character(player_obj, Common.Type.Player);
         player.x = 5;
         player.y = 4;
@@ -209,8 +211,10 @@ public class Main : Functions
         Hako = GameObject.Find("TakaraBako");
         Get = GameObject.Find("OtakaraGet");
         player_pos_for_treasure = GameObject.Find("Player");
+        Enemy= GameObject.Find("BattleEnemy");
         #endregion
         #region 初期エフェクト追記
+        Start_and_End_anim = GameObject.Find("Start_and_End_anim");
         pause_bool = !pause_bool;
         UIs.timer_bool = false;
         UIs.bg_bool = false;
@@ -460,19 +464,28 @@ public class Main : Functions
                         UIs.timer_bool = false;
                         UIs.bg_bool = false;
                         UIs.BGM_on(Common.BGM.battle); // ここで戦闘BGM定義
-                        UIs.Battle_move_anim(1);
+                        //UIs.Battle_move_anim(1);
 
                         for (int i = 0; i <= UIs.get_Life(); i++)
                         {
                             width = Screen.width;
                             height = Screen.height;
-                            UIs.Anime(i, Common.Action.Battle);
+                            UIs.Anime(i, Common.Action.Stop);
                         }
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
                         Sentou_kaisi.GetComponent<Animator>().SetBool("Sentou_effect", true);
                         Invoke("Battle_setup", 2.0f);
                     }
+
+
+                    Vector3 vecEne = Enemy.GetComponent<RectTransform>().localPosition; 
+                    if ((vecEne - new Vector3(width * 0.35f, height * 0.25f)).magnitude < 0.01f)
+                        Enemy.GetComponent<RectTransform>().localPosition = new Vector3(width * 0.35f, height * 0.25f);
+                    else
+                        Enemy.GetComponent<RectTransform>().localPosition = (39f * vecEne + new Vector3(width * 0.35f, height * 0.25f)) / 40f;
+
+
                     if (timeElapsed <= 0.7)
                         Battle_down_panel.GetComponent<Image>().color = new Color(0, 0, 0, timeElapsed);
 
@@ -637,8 +650,10 @@ public class Main : Functions
                     }
                     break;
                 case 8: //Game Over
-                    if (timeElapsed == 0.0f)
+                    if (timeElapsed == 0.0f) { 
                         UIs.BGM_on(Common.BGM.gameover); // ここでゲームオーバーBGM定義
+                        After_Gameover();
+                     }
                     timeElapsed += Time.deltaTime;
                     if (UIs.To_result(0))
                     {
@@ -707,6 +722,7 @@ public class Main : Functions
             #region 探索開始!のアニメーション
             if (HikousenFin)
             {
+                /*
                 if (Anim_start && !mid_reach)
                 {
                     Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
@@ -729,6 +745,12 @@ public class Main : Functions
                         //player_obj_color.SetActive(true);
                     }
                 }
+                */
+                Start_and_End_anim.GetComponent<Animator>().SetBool("moveBool", true);
+                isAnim = false;
+
+                
+                player_obj.GetComponent<Transform>().localScale=new Vector3(0,0,0);
             }
             #endregion
         }
@@ -1200,7 +1222,7 @@ public class Main : Functions
     }
 
     public void Revival()
-    {
+    {   
         UIs.Effect(0);
         UIs.Retry();
         flg = 1;
@@ -1273,6 +1295,7 @@ public class Main : Functions
 
         coin += Random.Range(10, 20); // コイン取得
 
+        Enemy.GetComponent<RectTransform>().localPosition=new Vector3(2.0f * width, height * 0.25f);
 
         UIs.Battle_move_anim(2);
 
@@ -1285,9 +1308,11 @@ public class Main : Functions
 
     public void Battle_time_loss()
     {
+        UIs.Anime(0, Common.Action.Battle);
+
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
-        UIs.Battle_move_anim(3);
+        //UIs.Battle_move_anim(3);
         
         if(UIs.is_Skill(0)) UIs.Lose_Time(500 / UIs.Chara[0].Attack);
         else UIs.Lose_Time(900/UIs.Chara[0].Attack);
@@ -1343,5 +1368,18 @@ public class Main : Functions
     private void After_get()
     {
         Get.GetComponent<Animator>().SetInteger("Get_Lost", 5);
+    }
+    private void After_Gameover()
+    {
+        for (int i = 0; i <= UIs.get_Life(); i++)
+            UIs.Anime(i, Common.Action.Sad);
+
+        Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", 10);
+        timeElapsed = 0.0f;
+        isBattle = false;
+        UIs.Enemy_Anime(false, enemy[touch_ID].type);
+        UIs.Battle_move_anim(2);
+        UIs.bg_bool = true;
+        enemy[touch_ID].act = Common.Action.Sad;
     }
 }
