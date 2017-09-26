@@ -240,9 +240,15 @@ public class State_manage : Functions
             //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);*/
+            
+
+            /* ここを消しても */
             Skill_Flame.GetComponent<Image>().color = new Color(1, 1, 1, (Chara[0].Max_second - skill_time) * 3f);
             Skill_Flame.GetComponent<RectTransform>().Translate(new Vector3(0, height / 180f, 0));
             if (Skill_Flame.GetComponent<RectTransform>().localPosition.y > height * 1.5f) Skill_Flame.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 1.5f, 0);
+            /* Skill_Flame 止められません...。*/
+
+
         }
         else if (skill_time < Chara[0].Max_second + 0.1f)
         {
@@ -554,7 +560,11 @@ public class State_manage : Functions
             GetComponent<AudioSource>().PlayOneShot(Chara[0].skill_SE);
             if (Chara[0].skills[6] > 0) main.Set_Speed(55f);
             if (Chara[0].skills[8] > 0) main.Back();
+
+            /* ここを消しても */
             Skill_Flame.GetComponent<Image>().sprite = Chara[0].skill_img;
+            /* Skill_Flame 止められません...。*/
+
         }
     }
 
@@ -624,9 +634,13 @@ public class State_manage : Functions
             for (int i = 0; i < 8; i++)
                 Invoke("SE_volume_set", 0.2f * i);
         }
+        else if (last == 2 && (int)music == 2)
+        {              // 戦闘 → 戦闘への遷移時
+            BGMs[last].Stop();
+            BGMs[(int)music].Play();
+        }
         else if (last == 2)
         {              // 戦闘 → 通常への遷移時 この時だけフェードイン
-            Debug.Log("set");
             BGMs[last].Stop();
             BGMs[(int)music].volume = 0.1f;
             BGMs[(int)music].UnPause();
