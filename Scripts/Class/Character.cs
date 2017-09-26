@@ -114,14 +114,30 @@ public class Character : Functions
         obj.GetComponent<Animator>().SetInteger("Move_Int", (int)action);
     }
 
-    public void OutScreen()
+    public void OutScreen(bool b)
     {
-        obj.GetComponent<Animator>().SetTrigger("Out_Trigger");
+        obj.GetComponent<Animator>().SetBool("Out_Bool",b);
     }
 
     public bool Wait_chara()
     {
         bool check = obj.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("change");
         return check;
+    }
+
+    public void back()
+    {
+        Debug.Log("back");
+        Common.Direction tmp = move_from;
+        move_from = move_to;
+        move_to = tmp;
+        count = (int)speed - count;
+    }
+
+    public void Revival(Common.Type t)
+    {
+        type = t;
+        obj.GetComponent<Animator>().SetInteger("Chara_Int", -1);
+        obj.GetComponent<Animator>().SetBool("Out_Bool",true);
     }
 }
