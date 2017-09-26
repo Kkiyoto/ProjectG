@@ -128,6 +128,8 @@ public class State_manage : Functions
         read_sounds();
         is_red = false;
 
+        GameObject.Find("Map_Goal").GetComponent<RectTransform>().localPosition = new Vector3(0.1f * width, 0.066f * width);
+        GameObject.Find("Map_Goal").GetComponent<RectTransform>().sizeDelta = new Vector2(0.03f * width, 0.066f * width);
     }
 
     // Update is called once per frame
@@ -318,7 +320,7 @@ public class State_manage : Functions
         }
         else
         {
-            time = Mathf.Min(time, Max_Time);
+            time = Mathf.Min(time, Max_Time*2f);
             time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
             Flame.color = new Color(1, 1, 0, 1);
         }
@@ -445,9 +447,9 @@ public class State_manage : Functions
         o.GetComponent<Animator>().SetInteger("Change_Bool", s);
         if (s == 3)
         {
-            GameObject.Find("Start_and_End_anim").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
-            GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f * height);
-            GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector3(0.8f * width, 0.13f * height);
+            GameObject.Find("Time_base").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
+            GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f * height);
+            GameObject.Find("Time_base").GetComponent<RectTransform>().sizeDelta = new Vector3(0.8f * width, 0.13f * height);
             o = GameObject.Find("GameOver_text");
             o.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0, 0);
             o.GetComponent<Animator>().SetTrigger("Goal_Trigger");
@@ -496,8 +498,8 @@ public class State_manage : Functions
         float x = rect.localPosition.x / width;
         rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
         rect.sizeDelta = new Vector2((x + 0.7f) * width, (x + 0.7f) * width) / 2f;
-        if (x < 0) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, 0.3f * height));
-        else if (x > 0.5f) GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 4, 0.3f * height));
+        if (x < 0) GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, -0.2f * height));
+        else if (x > 0.5f) GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 4, -0.2f * height));
         return x > 1;
     }
 

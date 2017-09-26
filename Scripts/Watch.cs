@@ -71,6 +71,9 @@ public class Watch : MonoBehaviour
             texts[n].GetComponent<RectTransform>().sizeDelta = new Vector2(0.23f * width, 0.14f * height);
             //texts[n].GetComponent<RectTransform>().localPosition = new Vector3(0,  - 0.1f  * height);
         }
+        //GameObject.Find("box_C0").GetComponent<RectTransform>().sizeDelta = new Vector2(0.25f * width, 0.15f * height);
+        //GameObject.Find("box_C1").GetComponent<RectTransform>().sizeDelta = new Vector2(0.25f * width, 0.15f * height);
+        //GameObject.Find("box_C2").GetComponent<RectTransform>().sizeDelta = new Vector2(0.25f * width, 0.15f * height);
         party_Chara[0].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.25f * height);
         party_Chara[0].GetComponent<RectTransform>().localPosition = new Vector3(0.33f * width, 0.26f * height);
         party_Chara[1].GetComponent<RectTransform>().sizeDelta = new Vector2(0.33f * width, 0.25f * height);
@@ -154,6 +157,14 @@ public class Watch : MonoBehaviour
             chara.skill_walk = 25;
             chara.skill_time = 8;
         }
+        else if (ID == 5)
+        {
+            chara.Small_img = Resources.Load<Sprite>("Images/Home/C1");
+        }
+        else if (ID == 6)
+        {
+            chara.Small_img = Resources.Load<Sprite>("Images/Home/C2");
+        }
         else//データなし
         {
             chara.Big_img = Resources.Load<Sprite>("Images/GameScene/Road0");
@@ -170,14 +181,22 @@ public class Watch : MonoBehaviour
     public Box_Chara[] get_Chara(int num)
     {
         Box_Chara[] chara = new Box_Chara[num];
-        int[] ids = { 2, 3, 4, 2, 3, 3, 4, 2, 2, 4, 0, 0 };
-        int[] levels = { 0, 0, 0, 3, 12, 6, 4, 5, 14, 10, 0, 0 };
+        int[] ids = { 2, 3, 4, 2, 3, 3, 4, 5, 5, 6, 0, 0 };
+        int[] levels = { 0, 0, 0, 6, 12, 2, 8, 5, 1, 3, -1, -1 };
         for (int i = 0; i < num; i++)
         {
             chara[i] = new Box_Chara(box_Chara[i], i + 1);
             in_data(chara[i], ids[i], levels[i]);
             chara[i].img.sprite = chara[i].Small_img;
-            if(ids[i]!=0) texts[i].GetComponent<Text>().text = "Lv." + (levels[i] + 1);
+            if(levels[i]!=-1) texts[i].GetComponent<Text>().text = "Lv." + (levels[i] + 1);
+        }
+        for (int i = num; i < 12; i++)
+        {
+            //chara[i] = new Box_Chara(box_Chara[i], i + 1);
+            Box_Chara cha = new Box_Chara(box_Chara[i], i + 1);
+            in_data(cha,7, levels[i]);
+            cha.img.sprite = cha.Small_img;
+            if (levels[i] != -1) texts[i].GetComponent<Text>().text = "Lv." + (levels[i] + 1);
         }
         return chara;
     }

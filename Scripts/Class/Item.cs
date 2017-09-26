@@ -15,8 +15,9 @@ public class Item : Functions
     public bool get,find;
     public Common.Treasure type; 
     Color col=Color.white;
+    float delta, scale;
 
-    public Item(int pos_x,int pos_y,GameObject o,Common.Treasure t)
+    public Item(int pos_x,int pos_y,GameObject o,Common.Treasure t,float map_num,float sc)
     {
         x = pos_x;
         y = pos_y;
@@ -28,6 +29,8 @@ public class Item : Functions
         map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_coin");
         type = t;
         obj.GetComponent<Animator>().SetInteger("Item_Int" , (int)type);
+        delta = map_num;
+        scale = sc;
     }
 
     public void Get_Item()
@@ -56,9 +59,8 @@ public class Item : Functions
     {
         if ((skill||(show&&find))&&!get)
         {
-            float delta = Screen.width * 0.022f;
             map.GetComponent<Image>().color = col;
-            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
+            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - scale) * delta, (Pos.y - scale) * delta);
         }
         else map.GetComponent<Image>().color = Color.clear;
     }

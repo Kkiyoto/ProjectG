@@ -12,7 +12,7 @@ public class Home : MonoBehaviour
     public Image home_img, Big_img,title,menu;
     public Sprite[] Menu_img = new Sprite[5], Title_img = new Sprite[5];
     public Text[] Ptext = new Text[3];
-    Box_Chara[] charas = new Box_Chara[12];
+    Box_Chara[] charas = new Box_Chara[7];
     public Image[] party_chara = new Image[3];
     int pos_num, tap_num, target_num;//pos:カメラの位置, tap:触ったやつ, target:tapに対して何するか
     Vector3[] Camera_Pos = new Vector3[5];
@@ -35,7 +35,7 @@ public class Home : MonoBehaviour
         width = Screen.width;
         height = Screen.height;
         Watch watch = GameObject.Find("Watch").GetComponent<Watch>();
-        charas = watch.get_Chara(12);
+        charas = watch.get_Chara(7);
         pos_num = 0;
         for (int i = 0; i < 5; i++) Camera_Pos[i] = new Vector3((2 - i) * width, 0, 0);
         is_tap = false;
@@ -50,7 +50,7 @@ public class Home : MonoBehaviour
         in_flg = 0;
         out_vec = new Vector3(0, height, 0);
         Home_BGM = GameObject.Find("EventSystem").GetComponents<AudioSource>();
-        HP.text = "HP合計(制限時間): " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
+        HP.text = "HP合計（制限時間）: " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
         hikousen_vec = new Vector3(-width, 0, 0);
     }
 

@@ -64,7 +64,6 @@ public class Result : Functions
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("flg=" + flg);
         if (Input.GetKeyDown(KeyCode.Return)) Next();
         #region flg=-1:  イメージ画像のアニメ
         if (flg < 0)

@@ -20,8 +20,9 @@ public class Character : Functions
     public Common.Action act;
     public Common.Type type;
     Color col = Color.white;
+    float delta,scale;
 
-    public Character(GameObject Image_obj,Common.Type t)
+    public Character(GameObject Image_obj,Common.Type t, float map_num,float sc)
     {
         obj = Image_obj;
         act = Common.Action.Walk;
@@ -36,6 +37,8 @@ public class Character : Functions
         }
         speed = 1;
         count = 0;
+        delta = map_num;
+        scale = sc;
     }
 
     public void set_position(int X,int Y,Common.Direction entrance,Common.Direction exit)
@@ -81,8 +84,7 @@ public class Character : Functions
     {
         if (show)
         {
-            float delta = Screen.width * 0.022f;
-            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x - 5) * delta, (Pos.y - 5) * delta);
+            map.GetComponent<RectTransform>().localPosition = new Vector3((Pos.x -scale) * delta, (Pos.y - scale) * delta);
             map.GetComponent<Image>().color = col;
         }
         else map.GetComponent<Image>().color = new Color(0, 0, 0, 0);
