@@ -16,11 +16,12 @@ public class State_manage : Functions
         time_gage, skill_Icon,Skill_Flame;
     public RectTransform Pause_Menu,Needle;
     public Image gage,Flame, Background;
+    public Animator Player;
     public float width, height, time;
     float needle, time_delta, Max_Time;
     bool pause_bool, is_red;
     public bool timer_bool, bg_bool;
-    public Text Time_text, Skill_text;
+    public Text Time_text, Skill_text,Degital_Time;
     int Life_point;
     int Road_count, All_count;
     public float[] tresure = new float[2];
@@ -100,8 +101,6 @@ public class State_manage : Functions
         timer_bool = false;
         bg_bool = false;
         time = Chara[0].HP + Chara[1].HP + Chara[2].HP;
-        int easy = PlayerPrefs.GetInt("Easy", 2);
-        if (easy == 5) time *= 2f;
         needle = time;
         Max_Time = time / 2f;
         Life_point = 2;
@@ -159,8 +158,11 @@ public class State_manage : Functions
         #region 時間表示
         if (!pause_bool && timer_bool)
         {
-            if (is_Skill(5)) time += Time.deltaTime / 2f;
+            if (is_Skill(5)) time += Time.deltaTime / 3f;
             time -= Time.deltaTime;
+            int m = Mathf.FloorToInt(time / 60f);
+            int s = Mathf.FloorToInt(time % 60f);
+            Degital_Time.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
             Flame.color -= new Color(0, 0, 0, 0.01f);
         }
@@ -176,7 +178,7 @@ public class State_manage : Functions
             if (!pause_bool && timer_bool)
             {
                 if (time_delta < 0) time_delta += Time.deltaTime;
-                else needle -= 0.5f;
+                else needle -= 0.7f;
             }
         }
         else
@@ -186,7 +188,7 @@ public class State_manage : Functions
             if (!pause_bool && timer_bool)
             {
                 if (time_delta < 0) time_delta += Time.deltaTime;
-                else needle += 0.5f;
+                else needle += 0.7f;
             }
         }
         if (needle < 80 && !is_red)
@@ -238,11 +240,20 @@ public class State_manage : Functions
             //pos = _camera.ScreenToWorldPoint(new Vector3(0,0,10)) + new Vector3(1.4f*skill_time * Mathf.Cos(skill_time*16) + 1.7f, 1.4f*skill_time * Mathf.Sin(skill_time*16) +2f);
             skillEffect.transform.position = pos;
             skillEffect.Emit(1);*/
-            Skill_Flame.GetComponent<Image>().color = new Color(1, 1, 1, (Chara[0].Max_second - skill_time)*3f);
-            Skill_Flame.GetComponent<RectTransform>().Translate(new Vector3(0,height/180f,0));
-            if (Skill_Flame.GetComponent<RectTransform>().localPosition.y > height * 1.5f) Skill_Flame.GetComponent<RectTransform>().localPosition = new Vector3(0, -height *1.5f, 0);
+            
+
+            /* ここを消しても */
+            Skill_Flame.GetComponent<Image>().color = new Color(1, 1, 1, (Chara[0].Max_second - skill_time) * 3f);
+            Skill_Flame.GetComponent<RectTransform>().Translate(new Vector3(0, height / 180f, 0));
+            if (Skill_Flame.GetComponent<RectTransform>().localPosition.y > height * 1.5f) Skill_Flame.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 1.5f, 0);
+            /* Skill_Flame 止められません...。*/
+
+
         }
-        else if (skill_time < Chara[0].Max_second + 0.1f) main.Set_Speed(90f);
+        else if (skill_time < Chara[0].Max_second + 0.1f)
+        {
+            if (Chara[0].skills[6] < 30) main.Set_Speed(90f);
+        }
         //if (Chara[0].walk_count >= Chara[0].Max_gage)
         if (Road_count >= Chara[0].Max_gage)
         {
@@ -311,7 +322,7 @@ public class State_manage : Functions
         {
             time = Mathf.Min(time, Max_Time);
             time_gage.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
-            Flame.color = new Color(1, 0, 0, 1);
+            Flame.color = new Color(1, 1, 0, 1);
         }
     }
 
@@ -320,6 +331,8 @@ public class State_manage : Functions
         Chara[0].Anime().SetBool("Out_Bool", true);
         Life_point--;
         skill_time = 20;
+        if (Chara[1].skills[6] > 30) main.Set_Speed(55);
+        else main.Set_Speed(90f);
         skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
         Skill_Flame.GetComponent<Image>().color = Color.clear;
         if (Life_point < 0)//GameOver
@@ -391,6 +404,7 @@ public class State_manage : Functions
             Life_point++;
             Chara[Life_point].Pos = new Vector3(-width * 2f , height * 0.277f);
             Chara[Life_point].Anime().SetBool("Out_Bool", false);
+            Flame.color = new Color(1, 1, 0, 1);
             Anime(Life_point, Common.Action.Walk);
         }
     }
@@ -544,8 +558,13 @@ public class State_manage : Functions
             Anime(2, Common.Action.Stop);
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             GetComponent<AudioSource>().PlayOneShot(Chara[0].skill_SE);
-            if (Chara[0].skills[6] > 0) main.Set_Speed(40f);
+            if (Chara[0].skills[6] > 0) main.Set_Speed(55f);
+            if (Chara[0].skills[8] > 0) main.Back();
+
+            /* ここを消しても */
             Skill_Flame.GetComponent<Image>().sprite = Chara[0].skill_img;
+            /* Skill_Flame 止められません...。*/
+
         }
     }
 
@@ -566,13 +585,14 @@ public class State_manage : Functions
             }
             Chara[Life_point] = tmp;
             Chara[Life_point].Index = 3;
-            GameObject.Find("Player").GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
+            Player.SetInteger("Chara_Int", Top_ID());
             Skill_text.text = Chara[0].skill_Description;
             skill_time = 20;
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
             Skill_Flame.GetComponent<Image>().color = Color.clear;
-            main.Set_Speed(90f);
+            if (Chara[0].skills[6] > 30) main.Set_Speed(55f);
+            else main.Set_Speed(90f);
         }
     }
 
@@ -614,9 +634,13 @@ public class State_manage : Functions
             for (int i = 0; i < 8; i++)
                 Invoke("SE_volume_set", 0.2f * i);
         }
+        else if (last == 2 && (int)music == 2)
+        {              // 戦闘 → 戦闘への遷移時
+            BGMs[last].Stop();
+            BGMs[(int)music].Play();
+        }
         else if (last == 2)
         {              // 戦闘 → 通常への遷移時 この時だけフェードイン
-            Debug.Log("set");
             BGMs[last].Stop();
             BGMs[(int)music].volume = 0.1f;
             BGMs[(int)music].UnPause();

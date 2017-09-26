@@ -12,6 +12,7 @@ using UnityEngine.UI;
 
 public class Main : Functions
 {
+    public GameObject game_camera;
     Data_box[,] Pazzle_data = new Data_box[11, 11];//[左から,下から]の順、下から見て0:None,1:Straight,2:Right,3:Left
     Field[,] Pazzle_fields = new Field[5, 5]; //触る方
     Field[,] move_fields = new Field[5, 5]; //動くため
@@ -28,7 +29,7 @@ public class Main : Functions
     State_manage UIs;//UIのことはUIs.~にします。
 
 
-
+    float revive_time=0;
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
     int flg = 0;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
                 //ここのやり方が分からなかったので真偽地で無理矢理止めています。時間があればいい感じに変えてください。
@@ -42,6 +43,7 @@ public class Main : Functions
     GameObject Sentou_kaisi;
     GameObject Battle_down_panel;
     GameObject Hako, Get;
+    GameObject Enemy;
     private RectTransform move_treasure_get;
     GameObject player_pos_for_treasure;
     float timeElapsed, timeOut = 3.0f;
@@ -62,7 +64,7 @@ public class Main : Functions
     private Color Faller;
     private Vector3 pos_diff;
     private RectTransform Hikousen_pos, FallChara_pos;
-    private RectTransform Start_and_End_anim;
+    private GameObject Start_and_End_anim;
     public GameObject FallChara, FadePanel, Hikousen;
 
     private float move_diff, char_right = 0;
@@ -74,7 +76,6 @@ public class Main : Functions
     // Use this for initialization
     void Start()
     {
-        int easy = PlayerPrefs.GetInt("Easy", 2);
         UIs = GameObject.Find("State_manager").GetComponent<State_manage>();
         Count_Text = GameObject.Find("Count_Text").GetComponent<Text>();
         #region Pazzle_dataの設定と読み取り
@@ -101,28 +102,28 @@ public class Main : Functions
         for (int i = 1; i < 10; i++)
         {
             int random = Random.Range(0, 5);
-            if (random < easy) { Pazzle_data[0, i].type = Common.Direction.Up; Pazzle_data[0, i].condition = Common.Condition.Normal; }
+            if (random < 2) { Pazzle_data[0, i].type = Common.Direction.Up; Pazzle_data[0, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[0, i].type = Common.Direction.None; Pazzle_data[0, i].condition = Common.Condition.Hole; }
             random = Random.Range(0, 5);
-            if (random < easy) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
+            if (random < 2) { Pazzle_data[10, i].type = Common.Direction.Up; Pazzle_data[10, i].condition = Common.Condition.Normal; }
             else { Pazzle_data[10, i].type = Common.Direction.None; Pazzle_data[10, i].condition = Common.Condition.Hole; }
             random = Random.Range(0, 5);
-            if (random < easy) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
+            if (random < 2) { Pazzle_data[i, 0].type = Common.Direction.Up; Pazzle_data[i, 0].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 0].type = Common.Direction.None; Pazzle_data[i, 0].condition = Common.Condition.Hole; }
             random = Random.Range(0, 5);
-            if (random < easy) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
+            if (random < 2) { Pazzle_data[i, 10].type = Common.Direction.Up; Pazzle_data[i, 10].condition = Common.Condition.Normal; }
             else { Pazzle_data[i, 10].type = Common.Direction.None; Pazzle_data[i, 10].condition = Common.Condition.Hole; }
             Pazzle_data[0, 0].type = Common.Direction.None; Pazzle_data[0, 0].condition = Common.Condition.Hole;
             Pazzle_data[0, 10].type = Common.Direction.None; Pazzle_data[0, 10].condition = Common.Condition.Hole;
             Pazzle_data[10, 0].type = Common.Direction.None; Pazzle_data[10, 0].condition = Common.Condition.Hole;
             Pazzle_data[10, 10].type = Common.Direction.None; Pazzle_data[10, 10].condition = Common.Condition.Hole;
         }
-        Pazzle_data[10, 9].type = Common.Direction.Up;
-        Pazzle_data[10, 9].condition = Common.Condition.Normal;//ゴール右上、右側
+        Pazzle_data[10, 9].type = Common.Direction.Down;
+        Pazzle_data[10, 9].condition = Common.Condition.Player;//ゴール右上、右側
         Pazzle_data[10, 8].type = Common.Direction.Down;
         Pazzle_data[10, 8].condition = Common.Condition.Player;//ゴール右上、右側
-        Pazzle_data[10, 7].type = Common.Direction.Up;
-        Pazzle_data[10, 7].condition = Common.Condition.Normal;//ゴール右上、右側
+        Pazzle_data[10, 7].type = Common.Direction.Down;
+        Pazzle_data[10, 7].condition = Common.Condition.Player;//ゴール右上、右側
         #endregion
         set_block(0, 1, 1);
         #endregion
@@ -131,8 +132,9 @@ public class Main : Functions
         player = new Character(player_obj, Common.Type.Player);
         player.x = 5;
         player.y = 4;
-        player.set_position(5, 4, Common.Direction.Down, Pazzle_data[5, 4].Exit_direction(Common.Direction.Down));
-        player.set_Speed(90f);
+        //player.set_position(5, 4, Common.Direction.Down, Pazzle_data[5, 4].Exit_direction(Common.Direction.Down));
+        if(UIs.is_Skill(6))player.set_Speed(55f);
+        else player.set_Speed(90f);
         Pazzle_data[5, 4].condition = Common.Condition.Player;
         player.Set_Chara(UIs.Top_ID());
         #endregion
@@ -162,9 +164,7 @@ public class Main : Functions
         treasure[5] = new Item(ran[0], ran[1], Treasure, Common.Treasure.Life);
         #endregion
         #region enemyの設定
-        int ene_num = 8;
-        if (easy == 5) ene_num = 6;
-        enemy = new Character[ene_num];//ここで敵の数
+        enemy = new Character[8];//ここで敵の数
         Common.Type[] types = { Common.Type.Walk, Common.Type.Stop, Common.Type.Fly };
         for (int i = 0; i < enemy.Length; i++)
         {
@@ -210,8 +210,10 @@ public class Main : Functions
         Hako = GameObject.Find("TakaraBako");
         Get = GameObject.Find("OtakaraGet");
         player_pos_for_treasure = GameObject.Find("Player");
+        Enemy= GameObject.Find("BattleEnemy");
         #endregion
         #region 初期エフェクト追記
+        Start_and_End_anim = GameObject.Find("Start_and_End_anim");
         pause_bool = !pause_bool;
         UIs.timer_bool = false;
         UIs.bg_bool = false;
@@ -247,7 +249,7 @@ public class Main : Functions
                     #region 敵の動き
                     for (int i = 0; i < enemy.Length; i++)
                     {
-                        if (enemy[i].act != Common.Action.Sad)
+                        if (revive_time>=0&&enemy[i].act != Common.Action.Sad)
                         {
                             if (UIs.is_Skill(3)) enemy[i].Sprite().color = new Color(0, 0.5f, 1, 1);
                             Vector3 v = new Vector3(enemy[i].x, enemy[i].y, 0);
@@ -283,7 +285,7 @@ public class Main : Functions
                                 {
                                     enemy[i].act = Common.Action.Sad;//★強制送還。コインゲット等のアクションをバトルに入れた場合、ここにもお願いします
                                     //enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
-                                    enemy[i].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
+                                    enemy[i].OutScreen(false);//ここもアニメーションになるっぽい（アイコンになるなら）
                                 }
                                 else if (!UIs.is_Skill(7)&&(enemy[i].Pos - player.Pos).magnitude < 0.6f)  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
                                 {
@@ -295,7 +297,8 @@ public class Main : Functions
                     }
                     #endregion
                     #region プレイヤーの動き
-                    if (player.Move(Pazzle_fields[(player.x - 1) % 3 + 1, (player.y - 1) % 3 + 1].Pos,UIs.is_Skill(4))) //動き終えたらtrue 
+                    if (revive_time < 0) revive_time += Time.deltaTime;
+                    else if (player.Move(Pazzle_fields[(player.x - 1) % 3 + 1, (player.y - 1) % 3 + 1].Pos,UIs.is_Skill(4))) //動き終えたらtrue 
                     {
                         if (Pazzle_data[player.x, player.y].walk)
                         {
@@ -425,16 +428,15 @@ public class Main : Functions
                     break;
                 case 2: //盤変更
                     #region カメラの位置
-                    GameObject camera = GameObject.Find("Main Camera");
-                    Vector3 vec = camera.transform.position;
-                    camera.transform.position = (vec * 13f + (Pazzle_fields[2, 2].Pos + new Vector3(0, 0.8f, -10))) / 14f;
-                    Set_color(camera.transform.position - new Vector3(0, 0.8f, 0));
+                    Vector3 vec = game_camera.transform.position;
+                    game_camera.transform.position = (vec * 13f + (Pazzle_fields[2, 2].Pos + new Vector3(0, 0.8f, -10))) / 14f;
+                    Set_color(game_camera.transform.position - new Vector3(0, 0.8f, 0));
                     Arrow_show(false);
                     #endregion
                     #region 動き終わった後
-                    if ((camera.transform.position - new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10)).magnitude < 0.015f)
+                    if ((game_camera.transform.position - new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10)).magnitude < 0.015f)
                     {
-                        camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
+                        game_camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
                         player.set_position(player.x, player.y, Field_direct, Pazzle_data[player.x, player.y].Exit_direction(Field_direct));
                         OutScreen();
                         if (Pazzle_data[player.x, player.y].condition == Common.Condition.Hole)
@@ -447,7 +449,6 @@ public class Main : Functions
                             Field_direct = Common.Direction.None;
                             flg = 1;
                             UIs.timer_bool = true;
-                            if (L(player.x)==2&&L(player.y)==2) Pazzle_fields[4, 2].Sprite().color = Color.white;
                         }
                     }
                     #endregion
@@ -462,19 +463,28 @@ public class Main : Functions
                         UIs.timer_bool = false;
                         UIs.bg_bool = false;
                         UIs.BGM_on(Common.BGM.battle); // ここで戦闘BGM定義
-                        UIs.Battle_move_anim(1);
+                        //UIs.Battle_move_anim(1);
 
                         for (int i = 0; i <= UIs.get_Life(); i++)
                         {
                             width = Screen.width;
                             height = Screen.height;
-                            UIs.Anime(i, Common.Action.Battle);
+                            UIs.Anime(i, Common.Action.Stop);
                         }
 
                         UIs.Enemy_Anime(true, enemy[touch_ID].type);
                         Sentou_kaisi.GetComponent<Animator>().SetBool("Sentou_effect", true);
                         Invoke("Battle_setup", 2.0f);
                     }
+
+
+                    Vector3 vecEne = Enemy.GetComponent<RectTransform>().localPosition; 
+                    if ((vecEne - new Vector3(width * 0.35f, height * 0.25f)).magnitude < 0.01f)
+                        Enemy.GetComponent<RectTransform>().localPosition = new Vector3(width * 0.35f, height * 0.25f);
+                    else
+                        Enemy.GetComponent<RectTransform>().localPosition = (39f * vecEne + new Vector3(width * 0.35f, height * 0.25f)) / 40f;
+
+
                     if (timeElapsed <= 0.7)
                         Battle_down_panel.GetComponent<Image>().color = new Color(0, 0, 0, timeElapsed);
 
@@ -569,7 +579,7 @@ public class Main : Functions
                         UIs.bg_bool = false;
                     }
                     timeElapsed += Time.deltaTime;
-                    if (timeElapsed > 0.1f && timeElapsed < 0.2f) player.Set_Chara(0);
+                    if (timeElapsed > 0.1f && timeElapsed < 0.2f) { player.Set_Chara(0); player.OutScreen(false); }
                     if (player.Wait_chara())
                     {
                         flg = 1;
@@ -587,13 +597,12 @@ public class Main : Functions
                     break;
                 case 6: //外へ
                     #region カメラの位置
-                    camera = GameObject.Find("Main Camera");
-                    vec = camera.transform.position;
-                    camera.transform.position = (vec * 15f + (Pazzle_fields[2, 2].Pos - Dire_to_Vec(reverse(Field_direct)) + new Vector3(0, 0.8f, -10))) / 16f;
+                    vec = game_camera.transform.position;
+                    game_camera.transform.position = (vec * 15f + (Pazzle_fields[2, 2].Pos - Dire_to_Vec(reverse(Field_direct)) + new Vector3(0, 0.8f, -10))) / 16f;
                     Arrow_show(false);
                     #endregion
                     #region 動き終わった後
-                    if (Field_direct != Common.Direction.Straight && (camera.transform.position - (2f * Pazzle_fields[2, 2].Pos + new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 4.4f, -30)) / 3f).magnitude < 0.015f)
+                    if (Field_direct != Common.Direction.Straight && (game_camera.transform.position - (2f * Pazzle_fields[2, 2].Pos + new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 4.4f, -30)) / 3f).magnitude < 0.015f)
                     {
                         int pre_x = player.pre_x;
                         int pre_y = player.pre_y;
@@ -615,9 +624,9 @@ public class Main : Functions
                             Goal(0);
                         }
                     }
-                    else if ((camera.transform.position - Pazzle_fields[2, 2].Pos - new Vector3(0, 0.8f, -10)).magnitude < 0.015f)//引き返し後
+                    else if ((game_camera.transform.position - Pazzle_fields[2, 2].Pos - new Vector3(0, 0.8f, -10)).magnitude < 0.015f)//引き返し後
                     {
-                        camera.transform.position = Pazzle_fields[2, 2].Pos + new Vector3(0, 0.8f, -10);
+                        game_camera.transform.position = Pazzle_fields[2, 2].Pos + new Vector3(0, 0.8f, -10);
                         Pazzle_data[player.x, player.y].condition = Common.Condition.Player;
                         Field_direct = Common.Direction.None;
                         flg = 1;
@@ -630,7 +639,7 @@ public class Main : Functions
                         UIs.SE_on(Common.SE.Get);
                     Transform tra = GameObject.Find("Goal_ship").transform;
                     Vector3 vector = tra.position;
-                    if (vector.y < 50) tra.position = (16f * vector - new Vector3(10, 7.49f)) / 15f;
+                    if (vector.y < 50) tra.position = (16f * vector - new Vector3(10, 7.99f)) / 15f;
                     timeElapsed += Time.deltaTime;
                     if (UIs.To_goal())
                     {
@@ -640,8 +649,10 @@ public class Main : Functions
                     }
                     break;
                 case 8: //Game Over
-                    if (timeElapsed == 0.0f)
+                    if (timeElapsed == 0.0f) { 
                         UIs.BGM_on(Common.BGM.gameover); // ここでゲームオーバーBGM定義
+                        After_Gameover();
+                     }
                     timeElapsed += Time.deltaTime;
                     if (UIs.To_result(0))
                     {
@@ -710,6 +721,7 @@ public class Main : Functions
             #region 探索開始!のアニメーション
             if (HikousenFin)
             {
+                /*
                 if (Anim_start && !mid_reach)
                 {
                     Start_and_End_anim = GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>();
@@ -732,11 +744,14 @@ public class Main : Functions
                         //player_obj_color.SetActive(true);
                     }
                 }
+                */
+                Start_and_End_anim.GetComponent<Animator>().SetBool("moveBool", true);
+                isAnim = false;
             }
             #endregion
         }
         #endregion
-
+        Debug.Log(flg + "  " + player.x + "  " + player.y + "  " + player.move_from);
     }
 
     public bool Move(int x, int y, Common.Direction direct, float speed)//動かしたいものの座標、0~8、x:左から,y:下から、speed小さい方が早い
@@ -933,6 +948,39 @@ public class Main : Functions
         }
     }
 
+    public void Plus_enemy()
+    {
+        int num = -1;
+        for (int i = 0; i < enemy.Length; i++)
+        {
+            if (enemy[i].act == Common.Action.Sad)
+            {
+                num = i;
+                break;
+            }
+        }
+        if (num != -1)
+        {
+            Common.Type[] types = { Common.Type.Walk, Common.Type.Stop, Common.Type.Fly };
+            int type_num = Random.Range(0, 3);
+            enemy[num].Revival(types[type_num]); //typesをランダム化
+            Common.Direction dire = Common.Direction.None;
+            if (types[type_num] != Common.Type.Stop) dire = Random_direct();
+            int[] ran = Random_position();
+            for (int j = 0; j < enemy.Length; j++)
+            {
+                if (j != num && enemy[j].x == ran[0] && enemy[j].y == ran[1])
+                {
+                    ran = Random_position();
+                    j = -1;
+                }
+            }
+            enemy[num].x = ran[0];
+            enemy[num].y = ran[1];
+            enemy[num].set_position(ran[0], ran[1], dire, Get_exit(enemy[num], dire));
+        }
+    }
+
     public void change_block(Common.Direction entrance)//キャラの座標、0~8、x:左から,y:下から
     {
         if (Move_X != -1) //バグ修正のため
@@ -952,7 +1000,7 @@ public class Main : Functions
 
     public void Fall(Common.Condition con) //is_Skill(n7)
     {
-        player.OutScreen();
+        player.OutScreen(true);
         //player.Set_Chara(0); //アニメーション交換
         UIs.Anime(0, Common.Action.Sad);
         //UIs.SE_on(Common.SE.Fall);
@@ -1021,6 +1069,12 @@ public class Main : Functions
                 move_fields[i, j].Sprite().color = new Color(1, 1, 1, 2.5f - d_infty(move_fields[i, j].Pos, vec));
             }
         }
+        if (L(player.x) == 2 && L(player.y) == 2)
+        {
+            Pazzle_fields[4, 1].Sprite().color = Color.white;
+            Pazzle_fields[4, 2].Sprite().color = Color.white;
+            Pazzle_fields[4, 3].Sprite().color = Color.white;
+        }
         for (int i = 0; i < treasure.Length; i++) treasure[i].Sprite().color = new Color(1, 1, 1, 2f - d_infty(new Vector3(treasure[i].x, treasure[i].y, 0), vec));
         for (int i = 0; i < enemy.Length; i++) if (enemy[i].act != Common.Action.Sad) enemy[i].Sprite().color = new Color(1, 1, 1, 6.3f - 4 * d_infty(enemy[i].Pos, vec));
     }
@@ -1082,6 +1136,10 @@ public class Main : Functions
     {
         player.set_Speed(s);
     }
+    public void Back()
+    {
+        player.back();
+    }
 
     public void Goal(int goal)
     {
@@ -1128,7 +1186,7 @@ public class Main : Functions
             if (enemy[i].act == Common.Action.Sad) Destroy++;
         }
         PlayerPrefs.SetInt("enemy", Destroy);
-        //PlayerPrefs.SetInt("Coin", coin);
+        PlayerPrefs.SetInt("Coin", coin);
     }
 
     public void change_Mount(Common.Direction entrance, int x, int y)//キャラの座標、0~8、x:左から,y:下から
@@ -1160,12 +1218,12 @@ public class Main : Functions
     }
 
     public void Revival()
-    {
+    {   
         UIs.Effect(0);
         UIs.Retry();
         flg = 1;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
-        GameObject.Find("Main Camera").transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
+        game_camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
     }
 
     public void To_Red(bool time)
@@ -1198,6 +1256,7 @@ public class Main : Functions
         }
         player.map_color(color_a);
         GameObject.Find("Map_base").GetComponent<Image>().color = new Color(1, 1, 1, color_a);
+        GameObject.Find("Map_Goal").GetComponent<Image>().color = new Color(1, 1, 1, color_a);
         for (int i = 0; i < 3; i++)
         {
             for (int j = 0; j < 3; j++)
@@ -1232,21 +1291,24 @@ public class Main : Functions
 
         coin += Random.Range(10, 20); // コイン取得
 
+        Enemy.GetComponent<RectTransform>().localPosition=new Vector3(2.0f * width, height * 0.25f);
 
         UIs.Battle_move_anim(2);
 
 
         UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
-        enemy[touch_ID].OutScreen();//ここもアニメーションになるっぽい（アイコンになるなら）
+        enemy[touch_ID].OutScreen(true);//ここもアニメーションになるっぽい（アイコンになるなら）
         flg = 1;
     }
 
     public void Battle_time_loss()
     {
+        UIs.Anime(0, Common.Action.Battle);
+
         time_minus.GetComponent<Animator>().SetTrigger("LossTime");
         Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", UIs.Top_ID());
-        UIs.Battle_move_anim(3);
+        //UIs.Battle_move_anim(3);
         
         if(UIs.is_Skill(0)) UIs.Lose_Time(500 / UIs.Chara[0].Attack);
         else UIs.Lose_Time(900/UIs.Chara[0].Attack);
@@ -1288,6 +1350,7 @@ public class Main : Functions
         pause_bool = !pause_bool;
         UIs.timer_bool = true;
         UIs.bg_bool = true;
+        player.set_position(5, 4, Common.Direction.Down, Pazzle_data[5, 4].Exit_direction(Common.Direction.Down));//From135
         flg = 1;
 
         is1stAnim = false;
@@ -1302,5 +1365,18 @@ public class Main : Functions
     private void After_get()
     {
         Get.GetComponent<Animator>().SetInteger("Get_Lost", 5);
+    }
+    private void After_Gameover()
+    {
+        for (int i = 0; i <= UIs.get_Life(); i++)
+            UIs.Anime(i, Common.Action.Sad);
+
+        Battle_effect.GetComponent<Animator>().SetInteger("Battle_effect", 10);
+        timeElapsed = 0.0f;
+        isBattle = false;
+        UIs.Enemy_Anime(false, enemy[touch_ID].type);
+        UIs.Battle_move_anim(2);
+        UIs.bg_bool = true;
+        enemy[touch_ID].act = Common.Action.Sad;
     }
 }

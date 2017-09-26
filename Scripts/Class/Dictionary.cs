@@ -13,6 +13,8 @@ public class Dictionary : MonoBehaviour
     float width, height;
     //なるべく同じ名前にします。consoleから入れるのお願いします。
     public GameObject Sentou_kaisi;
+    public RectTransform Map_base, Image, Time_base, Time_needle, Time_gage, Time_text, Pause, Skill, Skill_Text, Gage, Skill_Icon, Outer, Change, Time, Item_coin
+        , Item_weapon, Walk_F, Walk, To_Game, To_Menu, Option, Help, Start_and_End_anim, Hikousen, Skill_effect, Battle_down_panel;
 
     private void Start()
     {
@@ -22,57 +24,59 @@ public class Dictionary : MonoBehaviour
         Sentou_kaisi.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.04f * height);
         Sentou_kaisi.GetComponent<RectTransform>().sizeDelta = new Vector2(0.76f * width, 0.248f * width);
 
-        GameObject.Find("Map_base").GetComponent<RectTransform>().localPosition = new Vector3(0.395f * width, 0.5f * height - 0.105f * width);
-        GameObject.Find("Map_base").GetComponent<RectTransform>().sizeDelta = new Vector2(0.21f * width, 0.21f * width);
-        GameObject.Find("Image").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.24f * height);
-        GameObject.Find("Time_base").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.24f * height);
-        GameObject.Find("Time_needle").GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f*height, 0.25f * height);
-        GameObject.Find("Time_needle").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.013f * height);
-        GameObject.Find("Time_gage").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.013f * height);
-        GameObject.Find("Time_gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f*height, 0.2f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().localPosition = new Vector3( - 0.42f * width, 0.462f * height);
-        GameObject.Find("Pause").GetComponent<RectTransform>().sizeDelta = new Vector2(0.14f *width, 0.064f * height);
-        GameObject.Find("Skill").GetComponent<RectTransform>().localPosition = new Vector3(-0.13f * width, -0.46f * height);
-        GameObject.Find("Skill").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.044f * width, 0.02f * height);
-        GameObject.Find("Skill_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.528f * width, 0.06f * height);
-        GameObject.Find("Gage").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
-        GameObject.Find("Skill_Icon").GetComponent<RectTransform>().localPosition = new Vector2(-0.285f * width,-0.0015f*height);
-        GameObject.Find("Outer").GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        GameObject.Find("Change").GetComponent<RectTransform>().localPosition = new Vector3(0.48f * width - 0.04f * height, -0.46f * height);
-        GameObject.Find("Change").GetComponent<RectTransform>().sizeDelta = new Vector2(0.07f * height, 0.07f * height);
+        Map_base.localPosition = new Vector3(0.395f * width, 0.5f * height - 0.105f * width);
+        Map_base.sizeDelta = new Vector2(0.21f * width, 0.21f * width);
+        Image.sizeDelta = new Vector2(width, 0.24f * height);
+        Time_base.sizeDelta = new Vector2(width, 0.24f * height);
+        Time_needle.sizeDelta = new Vector2(0.3f*height, 0.25f * height);
+        Time_needle.localPosition = new Vector3(0, -0.013f * height);
+        Time_gage.localPosition = new Vector3(0, -0.013f * height);
+        Time_gage.sizeDelta = new Vector2(0.2f*height, 0.2f * height);
+        Time_text.localPosition = new Vector3(0, -0.05f * height);
+        Time_text.sizeDelta = new Vector2(0.2f * width, 0.1f * height);
+        Pause.localPosition = new Vector3( - 0.42f * width, 0.462f * height);
+        Pause.sizeDelta = new Vector2(0.14f *width, 0.064f * height);
+        Skill.localPosition = new Vector3(-0.13f * width, -0.46f * height);
+        Skill.sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        Skill_Text.localPosition = new Vector3(0.044f * width, 0.02f * height);
+        Skill_Text.sizeDelta = new Vector2(0.528f * width, 0.06f * height);
+        Gage.sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        Skill_Icon.sizeDelta = new Vector2(0.055f * height, 0.055f * height);
+        Skill_Icon.localPosition = new Vector2(-0.285f * width,-0.0015f*height);
+        Outer.sizeDelta = new Vector2(0.7f * width, 0.08f * height);
+        Change.localPosition = new Vector3(0.48f * width - 0.04f * height, -0.46f * height);
+        Change.sizeDelta = new Vector2(0.07f * height, 0.07f * height);
 
-        GameObject.Find("Time").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.42f * height);
-        GameObject.Find("Time").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f * height);
-        GameObject.Find("Item_coin").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.3f * height);
-        GameObject.Find("Item_coin").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f*height, 0.15f * height);
-        GameObject.Find("Item_weapon").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.15f * height);
-        GameObject.Find("Item_weapon").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * height, 0.15f * height);
-        GameObject.Find("Walk_F").GetComponent<RectTransform>().localPosition = new Vector3(0, 0.03f * height);
-        GameObject.Find("Walk_F").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.08f * height);
-        GameObject.Find("Walk").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.03f * height);
-        GameObject.Find("Walk").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f*width, 0.08f * height);
-        GameObject.Find("To_Game").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.12f * height);
-        GameObject.Find("To_Game").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f * height);
-        GameObject.Find("To_Menu").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.25f * height);
-        GameObject.Find("To_Menu").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.1f * height);
-        GameObject.Find("Option").GetComponent<RectTransform>().localPosition = new Vector3(0.4f*width-0.05f*height, -0.38f * height);
-        GameObject.Find("Option").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f*height, 0.1f * height);
-        GameObject.Find("Help").GetComponent<RectTransform>().localPosition = new Vector3(-0.05f*height-0.025f*width, -0.38f * height);
-        GameObject.Find("Help").GetComponent<RectTransform>().sizeDelta = new Vector2(0.75f*width-0.1f*height, 0.1f * height);
+        Time.localPosition = new Vector3(0, 0.42f * height);
+        Time.sizeDelta = new Vector2(0.6f * width, 0.1f * height);
+        Item_coin.localPosition = new Vector3(0, 0.3f * height);
+        Item_coin.sizeDelta = new Vector2(0.45f*height, 0.15f * height);
+        Item_weapon.localPosition = new Vector3(0, 0.15f * height);
+        Item_weapon.sizeDelta = new Vector2(0.45f * height, 0.15f * height);
+        Walk_F.localPosition = new Vector3(0, 0.03f * height);
+        Walk_F.sizeDelta = new Vector2(0.8f * width, 0.08f * height);
+        Walk.localPosition = new Vector3(0, -0.03f * height);
+        Walk.sizeDelta = new Vector2(0.8f*width, 0.08f * height);
+        To_Game.localPosition = new Vector3(0, -0.12f * height);
+        To_Game.sizeDelta = new Vector2(0.6f * width, 0.1f * height);
+        To_Menu.localPosition = new Vector3(0, -0.25f * height);
+        To_Menu.sizeDelta = new Vector2(0.8f * width, 0.1f * height);
+        Option.localPosition = new Vector3(0.4f*width-0.05f*height, -0.38f * height);
+        Option.sizeDelta = new Vector2(0.1f*height, 0.1f * height);
+        Help.localPosition = new Vector3(-0.05f*height-0.025f*width, -0.38f * height);
+        Help.sizeDelta = new Vector2(0.75f*width-0.1f*height, 0.1f * height);
 
-        GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, -0.05f * height);
-        GameObject.Find("Start_and_End_anim").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f * width, 0.065f * height);
-        GameObject.Find("Hikousen").GetComponent<RectTransform>().localPosition = new Vector3(-1 * width, 0.8f * height);
-        GameObject.Find("Hikousen").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.225f * height); // original : 0.4f * width, 0.15f * height
+        Start_and_End_anim.localPosition = new Vector3(-1 * width, -0.05f * height);
+        Start_and_End_anim.sizeDelta = new Vector2(0.45f * width, 0.065f * height);
+        Hikousen.localPosition = new Vector3(-1 * width, 0.8f * height);
+        Hikousen.sizeDelta = new Vector2(0.6f * width, 0.225f * height); // original : 0.4f * width, 0.15f * height
         GameObject.Find("FallChara").GetComponent<RectTransform>().sizeDelta = new Vector2(0.8f * width, 0.25f * height);
 
-        GameObject.Find("Battle_down_panel").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.35f * height);
-        GameObject.Find("Battle_down_panel").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f*width, 0.01f*height);
-        GameObject.Find("Skill_effect").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.18f * height);
-        GameObject.Find("Skill_effect").GetComponent<RectTransform>().sizeDelta = new Vector2( 1.05f*width,  0.65f*height);
-        GameObject.Find("BattleEnemy").GetComponent<RectTransform>().localPosition = new Vector3(0.35f*width, height * 0.25f);
+        Battle_down_panel.localPosition = new Vector3(0, -0.35f * height);
+        Battle_down_panel.sizeDelta = new Vector2(0.1f*width, 0.01f*height);
+        Skill_effect.localPosition = new Vector3(0, -0.18f * height);
+        Skill_effect.sizeDelta = new Vector2( 1.05f*width,  0.65f*height);
+        GameObject.Find("BattleEnemy").GetComponent<RectTransform>().localPosition = new Vector3(2.0f*width, height * 0.25f);  // 0.35f*width, height * 0.25f
         GameObject.Find("BattleEnemy").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);
         GameObject.Find("Attack_effect").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, height * 0.25f);
         GameObject.Find("Attack_effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);
@@ -89,6 +93,8 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.94f * height);
         GameObject.Find("Skill_Flame").GetComponent<RectTransform>().localPosition = new Vector3(0, -height);
         GameObject.Find("Skill_Flame").GetComponent<RectTransform>().sizeDelta = new Vector2(1.2f*width, 4f * height);
+        GameObject.Find("Map_Goal").GetComponent<RectTransform>().localPosition = new Vector3(0.1f * width, 0.066f * width);
+        GameObject.Find("Map_Goal").GetComponent<RectTransform>().sizeDelta = new Vector2(0.03f * width, 0.066f * width);
 
         GameObject.Find("Treasure_count").GetComponent<RectTransform>().localPosition = new Vector3(-0.3f * width, 0.47f * height);
         GameObject.Find("Treasure_count").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * width, 0.045f * height);
@@ -106,14 +112,15 @@ public class Dictionary : MonoBehaviour
         {
             chara.Attack = 95+2*level;
             chara.HP = 50+level;
-            chara.skills[0] = 35; //敵を早く倒す 
+            chara.skills[0] = 0; //敵を早く倒す 
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
             chara.skills[3] = 0; //敵を留める
-            chara.skills[4] = 0; //立ち止まる
+            chara.skills[4] = 1; //立ち止まる
             chara.skills[5] = 0; //時間が減るのが遅くなる
-            chara.skills[6] = 5; //走る
-            chara.skills[7] = 0; //敵と会いにくくなる
+            chara.skills[6] = 35; //走る
+            chara.skills[7] = 0; //敵と会わなくなる
+            chara.skills[8] = 1; //振り返る
             /*chara.skills[n0] = 0; //敵が見える
             chara.skills[n1] = 0; //敵と会いにくくなる
             chara.skills[n5] = 0; //敵に完全に合わなくなる（n3,n4と組み合わせで道を自由に)単体だと強すぎる気もする
@@ -141,7 +148,8 @@ public class Dictionary : MonoBehaviour
             chara.skills[4] = 0; //立ち止まる
             chara.skills[5] = 35; //時間が減るのが遅くなる
             chara.skills[6] = 0; //走る
-            chara.skills[7] = 10; //敵と会いにくくなる
+            chara.skills[7] = 10; //敵と会わなくなる
+            chara.skills[8] = 0; //振り返る
             chara.skill_Description = "敵の動きを留める";
             chara.Max_gage = 25;
             chara.Max_second = 10;
@@ -162,7 +170,8 @@ public class Dictionary : MonoBehaviour
             chara.skills[4] = 1; //立ち止まる
             chara.skills[5] = 0; //時間が減るのが遅くなる
             chara.skills[6] = 0; //走る
-            chara.skills[7] = 0; //敵と会いにくくなる
+            chara.skills[7] = 0; //敵と会わなくなる
+            chara.skills[8] = 0; //振り返る
             chara.skill_Description = "見えている敵を一掃する";
             chara.Max_gage = 25;
             chara.Max_second = 1;
@@ -176,17 +185,18 @@ public class Dictionary : MonoBehaviour
         {
             chara.Attack = 100+2*level;
             chara.HP = 60+level;
-            chara.skills[0] = 35; //敵を早く倒す
+            chara.skills[0] = 0; //敵を早く倒す
             chara.skills[1] = 0; //その場の敵を一掃
             chara.skills[2] = 0; //宝が見える
             chara.skills[3] = 0; //敵を留める
             chara.skills[4] = 0; //立ち止まる
             chara.skills[5] = 0; //時間が減るのが遅くなる
-            chara.skills[6] = 5; //走る
-            chara.skills[7] = 0; //敵と会いにくくなる
-            chara.skill_Description = "いつもより速く駆ける";
+            chara.skills[6] = 35; //走る
+            chara.skills[7] = 0; //敵と会わなくなる 
+            chara.skills[8] = 1; //振り返る
+            chara.skill_Description = "引き返すことが出来る";
             chara.Max_gage = 25;
-            chara.Max_second = 5;
+            chara.Max_second = 1;
             chara.Action = Common.SE.Sword;
             chara.skill_img = Resources.Load<Sprite>("Images/Charactor/Chara_sprite/4-WSoldier/Skill");
             chara.skill_SE = Resources.Load<AudioClip>("Audio/SE/Skill");
