@@ -76,7 +76,7 @@ public class Dictionary : MonoBehaviour
         Battle_down_panel.sizeDelta = new Vector2(0.1f*width, 0.01f*height);
         Skill_effect.localPosition = new Vector3(0, -0.18f * height);
         Skill_effect.sizeDelta = new Vector2( 1.05f*width,  0.65f*height);
-        GameObject.Find("BattleEnemy").GetComponent<RectTransform>().localPosition = new Vector3(2.0f*width, height * 0.25f);  // 0.35f*width, height * 0.25f
+        GameObject.Find("BattleEnemy").GetComponent<RectTransform>().localPosition = new Vector3(0.35f*width, height * 0.25f); //2.0f*width, height * 0.25f
         GameObject.Find("BattleEnemy").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);
         GameObject.Find("Attack_effect").GetComponent<RectTransform>().localPosition = new Vector3(0.35f * width, height * 0.25f);
         GameObject.Find("Attack_effect").GetComponent<RectTransform>().sizeDelta = new Vector2(0.27f * width, 0.15f * height);

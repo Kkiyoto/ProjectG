@@ -13,7 +13,7 @@ using UnityEngine.SceneManagement;
 public class State_manage : Functions
 {
     public GameObject Back_anime, Front_anime,
-        time_gage, skill_Icon,Skill_Flame;
+        time_gage, skill_Icon;//,Skill_Flame;
     public RectTransform Pause_Menu,Needle;
     public Image gage,Flame, Background;
     public Animator Player;
@@ -160,8 +160,8 @@ public class State_manage : Functions
         {
             if (is_Skill(5)) time += Time.deltaTime / 3f;
             time -= Time.deltaTime;
-            int m = Mathf.FloorToInt(time / 60f);
-            int s = Mathf.FloorToInt(time % 60f);
+            int m = Mathf.FloorToInt(needle / 60f);
+            int s = Mathf.FloorToInt(needle % 60f);
             Degital_Time.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
             Flame.color -= new Color(0, 0, 0, 0.01f);
@@ -242,13 +242,11 @@ public class State_manage : Functions
             skillEffect.Emit(1);*/
             
 
-            /* ここを消しても */
+            /* ここを消しても 
             Skill_Flame.GetComponent<Image>().color = new Color(1, 1, 1, (Chara[0].Max_second - skill_time) * 3f);
             Skill_Flame.GetComponent<RectTransform>().Translate(new Vector3(0, height / 180f, 0));
             if (Skill_Flame.GetComponent<RectTransform>().localPosition.y > height * 1.5f) Skill_Flame.GetComponent<RectTransform>().localPosition = new Vector3(0, -height * 1.5f, 0);
-            /* Skill_Flame 止められません...。*/
-
-
+            Skill_Flame 止められません...。*/
         }
         else if (skill_time < Chara[0].Max_second + 0.1f)
         {
@@ -334,7 +332,7 @@ public class State_manage : Functions
         if (Chara[1].skills[6] > 30) main.Set_Speed(55);
         else main.Set_Speed(90f);
         skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
-        Skill_Flame.GetComponent<Image>().color = Color.clear;
+        //Skill_Flame.GetComponent<Image>().color = Color.clear;
         if (Life_point < 0)//GameOver
         {
             Skill_text.text = "";
@@ -503,6 +501,12 @@ public class State_manage : Functions
         return x > 1;
     }
 
+    public float score()
+    {
+        float s = 1000f * (Life_point + 1) + 5 * time + 3 * road + All_count * All_count;
+        return s;
+    }
+
     public void To_Menu()
     {
         SceneManager.LoadScene("Home");
@@ -561,9 +565,9 @@ public class State_manage : Functions
             if (Chara[0].skills[6] > 0) main.Set_Speed(55f);
             if (Chara[0].skills[8] > 0) main.Back();
 
-            /* ここを消しても */
+            /* ここを消しても 
             Skill_Flame.GetComponent<Image>().sprite = Chara[0].skill_img;
-            /* Skill_Flame 止められません...。*/
+            Skill_Flame 止められません...。*/
 
         }
     }
@@ -590,7 +594,7 @@ public class State_manage : Functions
             skill_time = 20;
             skill_Icon.GetComponent<RectTransform>().sizeDelta = new Vector2(0.055f * height, 0.055f * height);
             skill_Icon.GetComponent<Animator>().SetInteger("Chara_Int", Top_ID());
-            Skill_Flame.GetComponent<Image>().color = Color.clear;
+            //Skill_Flame.GetComponent<Image>().color = Color.clear;
             if (Chara[0].skills[6] > 30) main.Set_Speed(55f);
             else main.Set_Speed(90f);
         }

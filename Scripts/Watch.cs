@@ -32,7 +32,7 @@ public class Watch : MonoBehaviour
         stage2.GetComponent<RectTransform>().sizeDelta = new Vector2(0.50f * width, 0.3f * height);
         stage1.GetComponent<RectTransform>().localPosition = new Vector3(0.23f * width, -0.1f * height, 0);
         stage1.GetComponent<RectTransform>().sizeDelta = new Vector2(0.48f * width, 0.2f * height);
-        stage0.GetComponent<RectTransform>().localPosition = new Vector3(-0.22f*width, -0.3f * height, 0);
+        stage0.GetComponent<RectTransform>().localPosition = new Vector3(-0.22f * width, -0.3f * height, 0);
         stage0.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.17f * height);
 
         detail.GetComponent<RectTransform>().localPosition = max_vec;

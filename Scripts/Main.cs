@@ -28,7 +28,7 @@ public class Main : Functions
     int treasure_count;
     State_manage UIs;//UIのことはUIs.~にします。
 
-
+    float score = 0,retry=0;
     float revive_time=0;
     bool pause_bool = false; //ポーズボタン、止め方が分からないのでとりあえず止めるためのもの
     int flg = 0;//Playerのとこ、止め方が分からないのでとりあえず止めるためのもの、0:ポーズ、1:動く,2:盤変更
@@ -1174,9 +1174,10 @@ public class Main : Functions
         PlayerPrefs.SetInt("Time", Mathf.RoundToInt(UIs.get_Time()));
         PlayerPrefs.SetInt("Life", UIs.get_Life() + 1);
         int[] get_treasure = { 0, 0 };
+        float score_p = 1;
         for (int i = 0; i < treasure.Length; i++)
         {
-            if (treasure[i].get && (int)treasure[i].type < 2) get_treasure[(int)treasure[i].type]++;
+            if (treasure[i].get && (int)treasure[i].type < 2) { get_treasure[(int)treasure[i].type]++; score_p *= 4; }
         }
         PlayerPrefs.SetInt("treasure0", get_treasure[0]);
         PlayerPrefs.SetInt("treasure1", get_treasure[1]);
@@ -1187,6 +1188,9 @@ public class Main : Functions
         }
         PlayerPrefs.SetInt("enemy", Destroy);
         PlayerPrefs.SetInt("Coin", coin);
+        score = score * score * 3.5f + score_p + coin + UIs.score() - 1000 * retry;
+        PlayerPrefs.SetInt("Score", Mathf.RoundToInt(score));
+
     }
 
     public void change_Mount(Common.Direction entrance, int x, int y)//キャラの座標、0~8、x:左から,y:下から
@@ -1221,6 +1225,7 @@ public class Main : Functions
     {   
         UIs.Effect(0);
         UIs.Retry();
+        retry++;
         flg = 1;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
         game_camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
@@ -1295,7 +1300,7 @@ public class Main : Functions
 
         UIs.Battle_move_anim(2);
 
-
+        score++;
         UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
         enemy[touch_ID].OutScreen(true);//ここもアニメーションになるっぽい（アイコンになるなら）
