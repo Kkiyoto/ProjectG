@@ -26,14 +26,14 @@ public class Watch : MonoBehaviour
         select.GetComponent<RectTransform>().sizeDelta = max_vec;
         back_home.GetComponent<RectTransform>().localPosition = new Vector3(-0.34f*width, -0.46f * height, 0);
         back_home.GetComponent<RectTransform>().sizeDelta = new Vector2(0.3f*width, 0.06f * height);
-        stage3.GetComponent<RectTransform>().localPosition = new Vector3(0.12f * width, 0.3f * height, 0);
-        stage3.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.35f * height);
-        stage2.GetComponent<RectTransform>().localPosition = new Vector3(-0.2f * width, 0.05f * height, 0);
-        stage2.GetComponent<RectTransform>().sizeDelta = new Vector2(0.48f * width, 0.3f * height);
-        stage1.GetComponent<RectTransform>().localPosition = new Vector3(0.2f * width, -0.13f * height, 0);
+        stage3.GetComponent<RectTransform>().localPosition = new Vector3(0.17f * width, 0.36f * height, 0);
+        stage3.GetComponent<RectTransform>().sizeDelta = new Vector2(0.52f * width, 0.35f * height);
+        stage2.GetComponent<RectTransform>().localPosition = new Vector3(-0.22f * width, 0.07f * height, 0);
+        stage2.GetComponent<RectTransform>().sizeDelta = new Vector2(0.50f * width, 0.3f * height);
+        stage1.GetComponent<RectTransform>().localPosition = new Vector3(0.23f * width, -0.1f * height, 0);
         stage1.GetComponent<RectTransform>().sizeDelta = new Vector2(0.48f * width, 0.2f * height);
-        stage0.GetComponent<RectTransform>().localPosition = new Vector3(-0.2f*width, -0.28f * height, 0);
-        stage0.GetComponent<RectTransform>().sizeDelta = new Vector2(0.35f * width, 0.13f * height);
+        stage0.GetComponent<RectTransform>().localPosition = new Vector3(-0.22f*width, -0.3f * height, 0);
+        stage0.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.17f * height);
 
         detail.GetComponent<RectTransform>().localPosition = max_vec;
         detail.GetComponent<RectTransform>().sizeDelta = max_vec;
