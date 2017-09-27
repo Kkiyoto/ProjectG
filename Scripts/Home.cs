@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 public class Home : MonoBehaviour
 {
     public GameObject select,Audio;
-    public RectTransform BG,detail,Ready,Hikousen;
+    public RectTransform BG,detail,Ready,Hikousen,stage0,stage1,stage2,stage3;
     public Text  text,Dtitle,HP;
     public Image home_img, Big_img,title,menu;
     public Sprite[] Menu_img = new Sprite[5], Title_img = new Sprite[5];
     public Text[] Ptext = new Text[3];
-    Box_Chara[] charas = new Box_Chara[7];
+    Box_Chara[] charas = new Box_Chara[12];
     public Image[] party_chara = new Image[3];
     int pos_num, tap_num, target_num;//pos:カメラの位置, tap:触ったやつ, target:tapに対して何するか
     Vector3[] Camera_Pos = new Vector3[5];
@@ -21,7 +21,7 @@ public class Home : MonoBehaviour
     int[] party_ID = new int[3];
     Vector3 out_vec;
     bool volume_set = false, scene_fin=false;
-    float time_pass=0.0f;
+    float time_pass=0.0f,select_time=0f;
 
     Vector3 hikousen_vec;
     int in_flg;
@@ -77,11 +77,16 @@ public class Home : MonoBehaviour
         #region 0 :キャラ鑑賞 & Select
         if (pos_num == 0)
         {
-            if (in_flg == 1)
-            {
-                //if (Input.GetMouseButtonDown(0)) {select.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);in_flg=0;}
-                //if (Input.GetMouseButtonDown(0)) Game_Start();
-            }
+            select_time += Time.deltaTime;
+
+            stage3.GetComponent<RectTransform>().localPosition = new Vector3(0.17f * width, 0.35f * height, 0) + 0.02f*width*new Vector3(Mathf.Cos(select_time / 1.7f), Mathf.Sin(select_time * 1.3f));
+            stage3.GetComponent<RectTransform>().sizeDelta = new Vector2(0.52f * width, 0.35f * height) *(1 + 0.05f  * Mathf.Cos(select_time));
+            stage2.GetComponent<RectTransform>().localPosition = new Vector3(-0.22f * width, 0.07f * height, 0) + 0.02f * width * new Vector3(Mathf.Cos(select_time/1.4f), Mathf.Sin(select_time*1.2f));
+            stage2.GetComponent<RectTransform>().sizeDelta = new Vector2(0.50f * width, 0.3f * height) * (1 + 0.05f  * Mathf.Cos(select_time*1.05f));
+            stage1.GetComponent<RectTransform>().localPosition = new Vector3(0.23f * width, -0.1f * height, 0) + 0.02f * width * new Vector3(Mathf.Cos(select_time/1.6f), Mathf.Sin(select_time*1.1f));
+            stage1.GetComponent<RectTransform>().sizeDelta = new Vector2(0.48f * width, 0.2f * height) * (1 + 0.05f*Mathf.Cos(select_time*0.97f));
+            stage0.GetComponent<RectTransform>().localPosition = new Vector3(-0.22f * width, -0.3f * height, 0) + 0.02f * width * new Vector3(Mathf.Cos(select_time/1.5f), Mathf.Sin(select_time*1.4f));
+            stage0.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.17f * height) * (1 + 0.05f  * Mathf.Cos(select_time*1.07f));
         }
         #endregion
         #region 1 :キャラ強化
@@ -191,9 +196,17 @@ public class Home : MonoBehaviour
             PlayerPrefs.SetInt("Box_Party" + i, party_ID[i]);
             PlayerPrefs.SetInt("Level" + i, charas[party_ID[i] - 1].Level);
         }
-        PlayerPrefs.SetInt("Easy",easy);
         //SceneManager.LoadScene("Tutorial");
-        Fader.Instance.LoadScene("Tutorial", 3.0f);
+        if (easy == 0)
+        {
+            hikousen_vec = new Vector3(-0.22f * width, -0.3f * height, 0);
+            Fader.Instance.LoadScene("Mini", 3.0f);
+        }
+        else
+        {
+            hikousen_vec = new Vector3(0.23f * width, -0.1f * height, 0);
+            Fader.Instance.LoadScene("Tutorial", 3.0f);
+        }
         scene_fin = true;
     }
     #endregion

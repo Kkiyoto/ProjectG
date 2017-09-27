@@ -351,6 +351,11 @@ public class Small_Game : Functions
             time -= Time.deltaTime;
             int m = Mathf.FloorToInt(time / 60f);
             int s = Mathf.FloorToInt(time % 60f);
+            if (Mathf.Abs(time - needle) > 1.5f)
+            {
+                m = Mathf.FloorToInt(needle / 60f);
+                s = Mathf.FloorToInt(needle % 60f);
+            }
             Degital_Time.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
             Flame.color -= new Color(0, 0, 0, 0.01f);
@@ -830,12 +835,13 @@ public class Small_Game : Functions
                         bg_bool = false;
                     }
                     timeElapsed += Time.deltaTime;
-                    if (timeElapsed > 0.1f && timeElapsed < 0.2f) { player.Set_Chara(0); player.OutScreen(false); }
+                    //if (timeElapsed > 0.1f && timeElapsed < 0.2f) { player.Set_Chara(0); player.OutScreen(false); }
                     if (player.Wait_chara())
                     {
                         flg = 1;
                         timer_bool = true;
                         bg_bool = true;
+                        revive_time = -0.5f;
                         timeElapsed = 0.0f;
                         if (Field_direct == Common.Direction.Straight) flg = 6;
                         else if (Field_direct != Common.Direction.None) change_block(reverse(Field_direct));
@@ -1249,7 +1255,8 @@ public class Small_Game : Functions
         //player.Set_Chara(0); //アニメーション交換
         Anime(0, Common.Action.Sad);
         //UIs.SE_on(Common.SE.Fall);
-        flg = 5;
+        flg = 5; ;
+        Invoke("After_Fall", 0.1f);
         timer_bool = false;
         bg_bool = false;
         if (con == Common.Condition.Hole) //ただ穴に落ちた
@@ -1449,7 +1456,9 @@ public class Small_Game : Functions
         }
         PlayerPrefs.SetInt("enemy", Destroy);
         PlayerPrefs.SetInt("Coin", coin);
-        score = score * score * 3.5f + score_p + coin + 1000f * (Life_point + 1) + 5 * time + 3 * road + All_count * All_count - 1000 * retry;
+        Debug.Log(" s " + score);
+        score = score * score*3f  + score_p + coin + 1000f * (Life_point + 1) + 3 * time + 10 * road + All_count * All_count*1.5f;
+        score = Mathf.Max(score, 1200 * retry) - 1200 * retry;
         PlayerPrefs.SetInt("Score", Mathf.RoundToInt(score));
 
     }
@@ -1491,6 +1500,7 @@ public class Small_Game : Functions
         GameObject.Find("GameOver_text").GetComponent<Image>().color = new Color(1, 1, 1, 0);
         GameObject.Find("Game_over").GetComponent<Image>().color = new Color(1, 1, 1, 0);
         GameObject.Find("Retry").GetComponent<Image>().color = new Color(1, 1, 1, 0);
+        revive_time = -0.5f;
         time = 300;
         needle = 300;
         Life_point = 2;
@@ -1634,6 +1644,7 @@ public class Small_Game : Functions
         player.set_position(2,1, Common.Direction.Down, Pazzle_data[2,1].Exit_direction(Common.Direction.Down));//From135
         flg = 1;
 
+        revive_time = -0.5f;
         is1stAnim = false;
 
         FadePanel.SetActive(false);
@@ -2029,6 +2040,12 @@ public class Small_Game : Functions
         }
 
 
+    }
+
+    void After_Fall()
+    {
+        player.Set_Chara(0);
+        player.OutScreen(false);
     }
     #endregion
 

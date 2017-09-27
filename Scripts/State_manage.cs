@@ -162,8 +162,13 @@ public class State_manage : Functions
         {
             if (is_Skill(5)) time += Time.deltaTime / 3f;
             time -= Time.deltaTime;
-            int m = Mathf.FloorToInt(needle / 60f);
-            int s = Mathf.FloorToInt(needle % 60f);
+            int m = Mathf.FloorToInt(time / 60f);
+            int s = Mathf.FloorToInt(time % 60f);
+            if (Mathf.Abs(time - needle) > 1.5f)
+            {
+                m = Mathf.FloorToInt(needle / 60f);
+                s = Mathf.FloorToInt(needle % 60f);
+            }
             Degital_Time.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
             Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
             Flame.color -= new Color(0, 0, 0, 0.01f);
@@ -447,9 +452,12 @@ public class State_manage : Functions
         o.GetComponent<Animator>().SetInteger("Change_Bool", s);
         if (s == 3)
         {
-            GameObject.Find("Time_base").GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
-            GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f * height);
-            GameObject.Find("Time_base").GetComponent<RectTransform>().sizeDelta = new Vector3(0.8f * width, 0.13f * height);
+            o = GameObject.Find("Time_base");
+            o.transform.parent = GameObject.Find("Canvas").transform;
+            o.transform.SetAsLastSibling();
+            o.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/end");
+            o.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0.3f * height);
+            o.GetComponent<RectTransform>().sizeDelta = new Vector3(0.8f * width, 0.13f * height);
             o = GameObject.Find("GameOver_text");
             o.GetComponent<RectTransform>().localPosition = new Vector3(-width, 0, 0);
             o.GetComponent<Animator>().SetTrigger("Goal_Trigger");
@@ -498,14 +506,14 @@ public class State_manage : Functions
         float x = rect.localPosition.x / width;
         rect.localPosition = new Vector3((x + 0.005f) * width, (x * x - 0.2f) * height);
         rect.sizeDelta = new Vector2((x + 0.7f) * width, (x + 0.7f) * width) / 2f;
-        if (x < 0) GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, -0.2f * height));
-        else if (x > 0.5f) GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 4, -0.2f * height));
+        if (x < 0) GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = (new Vector3(width * x * 2, 0.3f * height));
+        else if (x > 0.5f) GameObject.Find("Time_base").GetComponent<RectTransform>().localPosition = (new Vector3(width * (x - 0.5f) * 4, 0.3f * height));
         return x > 1;
     }
 
     public float score()
     {
-        float s = 1000f * (Life_point + 1) + 5 * time + 3 * road + All_count * All_count;
+        float s = 1000f * (Life_point + 1) + 3 * time + 10 * road + All_count * All_count;
         return s;
     }
 

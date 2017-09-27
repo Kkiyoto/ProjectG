@@ -160,10 +160,12 @@ public class Watch : MonoBehaviour
         else if (ID == 5)
         {
             chara.Small_img = Resources.Load<Sprite>("Images/Home/C1");
+        chara.chara_ID = 0;
         }
         else if (ID == 6)
         {
             chara.Small_img = Resources.Load<Sprite>("Images/Home/C2");
+        chara.chara_ID = 0;
         }
         else//データなし
         {
@@ -180,8 +182,8 @@ public class Watch : MonoBehaviour
 
     public Box_Chara[] get_Chara(int num)
     {
-        Box_Chara[] chara = new Box_Chara[num];
-        int[] ids = { 2, 3, 4, 2, 3, 3, 4, 5, 5, 6, 0, 0 };
+        Box_Chara[] chara = new Box_Chara[12];
+        int[] ids = { 2, 4,3, 2, 3, 3, 4, 5, 5, 6, 0, 0 };
         int[] levels = { 0, 0, 0, 6, 12, 2, 8, 5, 1, 3, -1, -1 };
         for (int i = 0; i < num; i++)
         {
@@ -192,10 +194,10 @@ public class Watch : MonoBehaviour
         }
         for (int i = num; i < 12; i++)
         {
-            //chara[i] = new Box_Chara(box_Chara[i], i + 1);
-            Box_Chara cha = new Box_Chara(box_Chara[i], i + 1);
-            in_data(cha,7, levels[i]);
-            cha.img.sprite = cha.Small_img;
+            chara[i] = new Box_Chara(box_Chara[i], i + 1);
+            //Box_Chara cha = new Box_Chara(box_Chara[i], i + 1);
+            in_data(chara[i],ids[i], levels[i]);
+            chara[i].img.sprite = chara[i].Small_img;
             if (levels[i] != -1) texts[i].GetComponent<Text>().text = "Lv." + (levels[i] + 1);
         }
         return chara;

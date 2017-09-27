@@ -16,7 +16,7 @@ public class Result : Functions
     int flg, count, num, coin;
     GameObject obj, o, Audio,Panel;
     float delta_time;
-    int[] datas = new int[6]; //順にtime,Life,Enemy,Coin,treasure普通、レア
+    int[] datas = new int[7]; //順にtime,Life,Enemy,Coin,treasure普通、レア
     Text text;
 
     public AudioSource[] Result_BGM;
@@ -43,6 +43,7 @@ public class Result : Functions
         datas[3] = PlayerPrefs.GetInt("Coin", 0);
         datas[4] = PlayerPrefs.GetInt("treasure1", 0);
         datas[5] = PlayerPrefs.GetInt("treasure0", 0);
+        datas[6] = PlayerPrefs.GetInt("Score", 0);
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
@@ -64,6 +65,7 @@ public class Result : Functions
     // Update is called once per frame
     void Update()
     {
+
         if (Input.GetKeyDown(KeyCode.Return)) Next();
         #region flg=-1:  イメージ画像のアニメ
         if (flg < 0)
@@ -128,7 +130,7 @@ public class Result : Functions
         else if (flg == 2)
         {
             //if (delta_time == 0)
-                //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
+            //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
             delta_time += Time.deltaTime;
             if (delta_time > 1)
             {
@@ -167,6 +169,7 @@ public class Result : Functions
                 o = GameObject.Find("Coin_Plus");
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
                 coin = Random.Range(100, 200);
+                datas[6] += coin;
                 o.GetComponent<Text>().text = coin.ToString();
             }
         }
@@ -228,6 +231,7 @@ public class Result : Functions
                                     obj.GetComponent<Animator>().SetBool("Open_Bool", false);
                                     obj.GetComponent<RectTransform>().localPosition = new Vector3(width, -0.37f * height);
                                     coin = Random.Range(100, 200);
+                                    datas[6] += coin;
                                     o.GetComponent<Text>().text = coin.ToString();
                                     count = 0;
                                     o.GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
@@ -293,7 +297,7 @@ public class Result : Functions
                             }
                             else
                             {
-                                obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(3,3);
+                                obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(3, 3);
                             }
                             if (count == 40)
                             {
@@ -302,13 +306,13 @@ public class Result : Functions
                         }
                         else
                         {
-                            obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(3,3);
+                            obj.GetComponent<RectTransform>().sizeDelta -= new Vector2(3, 3);
                             GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = obj.GetComponent<RectTransform>().sizeDelta;
                             if (obj.GetComponent<RectTransform>().sizeDelta.x < 1)
                             {
                                 o.transform.parent = GameObject.Find("BackCanvas").transform;
                                 o.GetComponent<RectTransform>().localPosition = new Vector3(0.27f * (num - 1) * width, -0.125f * height);
-                                o.GetComponent<RectTransform>().localScale = new Vector3(0.5f, 0.5f,0.5f);
+                                o.GetComponent<RectTransform>().localScale = new Vector3(0.5f, 0.5f, 0.5f);
                                 num++;
                                 obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
                                 obj.GetComponent<Animator>().SetBool("Open_Bool", false);
@@ -324,17 +328,45 @@ public class Result : Functions
             {
                 flg++;
                 count = 0;
-                GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
-                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
-                o = GameObject.Find("Button");
-                o.GetComponent<RectTransform>().localPosition = new Vector3(0.25f*width, -0.45f*height);
-                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f*width, 0.09f*height);
+                //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
+                obj = GameObject.Find("Score");
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(-0.3f * width, -0.4f * height);
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.2f * height);
+                text = obj.GetComponent<Text>();
             }
         }
         #endregion
-        #region flg=6:  次へ
+        #region flg=6:  SCORE
         else if (flg == 6)
         {
+            if (count < datas[6]) count += Random.Range(40, 80);
+            else if (count > datas[6]) count--;
+            text.text = "Score\n"+(count.ToString());//.PadLeft(5, '0'));
+            if (count == datas[6])
+            {
+                delta_time = 0;
+                GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
+                //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
+                o = GameObject.Find("Button");
+                o.GetComponent<RectTransform>().localPosition = new Vector3(0.25f * width, -0.45f * height);
+                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.09f * height);
+                flg++;
+            }
+        }
+        #endregion
+        #region flg=7:  次へ
+        else if (flg == 7)
+        {
+            delta_time += Time.deltaTime;
+            if (delta_time > 1)
+            {
+                Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
+                flg++;
+                obj = GameObject.Find("Coin");
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, 0.065f * height);
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
+                text = obj.GetComponent<Text>();
+            }
         }
         #endregion
 
@@ -363,6 +395,7 @@ public class Result : Functions
         // 使用する際はSub_cameraとTouch_particleオブジェクトを追加してください
         #endregion
     }
+    
 
     public void Next()
     {

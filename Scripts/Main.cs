@@ -580,10 +580,10 @@ public class Main : Functions
                         UIs.bg_bool = false;
                     }
                     timeElapsed += Time.deltaTime;
-                    if (timeElapsed > 0.1f && timeElapsed < 0.2f) { player.Set_Chara(0); player.OutScreen(false); }
                     if (player.Wait_chara())
                     {
                         flg = 1;
+                        revive_time = -0.5f;
                         UIs.timer_bool = true;
                         UIs.bg_bool = true;
                         timeElapsed = 0.0f;
@@ -1005,6 +1005,7 @@ public class Main : Functions
         UIs.Anime(0, Common.Action.Sad);
         //UIs.SE_on(Common.SE.Fall);
         flg = 5;
+        Invoke("After_Fall", 0.1f);
         UIs.timer_bool = false;
         UIs.bg_bool = false;
         if (con == Common.Condition.Hole) //ただ穴に落ちた
@@ -1188,7 +1189,8 @@ public class Main : Functions
         }
         PlayerPrefs.SetInt("enemy", Destroy);
         PlayerPrefs.SetInt("Coin", coin);
-        score = score * score * 3.5f + score_p + coin + UIs.score() - 1000 * retry;
+        score = score * score * 3f + score_p + coin + UIs.score();
+        score = Mathf.Max(score, 1200 * retry) - 1200 * retry;
         PlayerPrefs.SetInt("Score", Mathf.RoundToInt(score));
 
     }
@@ -1227,6 +1229,7 @@ public class Main : Functions
         UIs.Retry();
         retry++;
         flg = 1;
+        revive_time = -0.5f;
         player.Set_Chara(UIs.Top_ID());//UIsで変更
         game_camera.transform.position = new Vector3(3 * L(player.x) + 2, 3 * L(player.y) + 2.8f, -10);
     }
@@ -1357,7 +1360,7 @@ public class Main : Functions
         UIs.bg_bool = true;
         player.set_position(5, 4, Common.Direction.Down, Pazzle_data[5, 4].Exit_direction(Common.Direction.Down));//From135
         flg = 1;
-
+        revive_time = -0.5f;
         is1stAnim = false;
 
         FadePanel.SetActive(false);
@@ -1383,5 +1386,11 @@ public class Main : Functions
         UIs.Battle_move_anim(2);
         UIs.bg_bool = true;
         enemy[touch_ID].act = Common.Action.Sad;
+    }
+
+    void After_Fall()
+    {
+        player.Set_Chara(0);
+        player.OutScreen(false);
     }
 }
