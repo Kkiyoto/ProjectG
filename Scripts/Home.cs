@@ -35,7 +35,7 @@ public class Home : MonoBehaviour
         width = Screen.width;
         height = Screen.height;
         Watch watch = GameObject.Find("Watch").GetComponent<Watch>();
-        charas = watch.get_Chara(7);
+        charas = watch.get_Chara(6);
         pos_num = 0;
         for (int i = 0; i < 5; i++) Camera_Pos[i] = new Vector3((2 - i) * width, 0, 0);
         is_tap = false;
@@ -173,7 +173,7 @@ public class Home : MonoBehaviour
         menu.sprite = Menu_img[num];
         detail.localPosition = out_vec;
         select.GetComponent<RectTransform>().localPosition = out_vec;
-        if (num == 0) Ready.localPosition = new Vector3(0.34f * width, -0.3f * height);
+        if (num == 0) Ready.localPosition = new Vector3(0.3f * width, -0.26f * height);
         else Ready.localPosition = out_vec;
     }
 
@@ -258,7 +258,7 @@ public class Home : MonoBehaviour
                     charas[tap_num - 1].img.color = Color.gray;
                     party_ID[target_num - 1] = tap_num;
                     party_chara[target_num - 1].sprite = charas[tap_num - 1].Middle_img;
-                    home_img.sprite = charas[party_ID[0] - 1].Big_img;
+                    home_img.sprite = charas[party_ID[0] - 1].Home_img;
                     Ptext[target_num-1].text = "Lv." + (charas[party_ID[target_num-1] - 1].Level + 1);
                     HP.text = "HP合計(制限時間): " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
                     tap_num = 0;
@@ -305,7 +305,7 @@ public class Home : MonoBehaviour
                 charas[party_ID[target_num - 1] - 1].img.color = Color.white;
                 charas[tap_num - 1].img.color = Color.gray;
                 party_ID[target_num - 1] = tap_num;
-                home_img.sprite = charas[party_ID[0] - 1].Big_img;
+                home_img.sprite = charas[party_ID[0] - 1].Home_img;
                     Ptext[target_num-1].text = "Lv." + (charas[party_ID[target_num-1] - 1].Level + 1);
         HP.text = "HP合計(制限時間): " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
                 party_chara[target_num - 1].sprite = charas[tap_num - 1].Middle_img;

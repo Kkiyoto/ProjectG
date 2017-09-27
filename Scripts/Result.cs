@@ -44,9 +44,11 @@ public class Result : Functions
         datas[4] = PlayerPrefs.GetInt("treasure1", 0);
         datas[5] = PlayerPrefs.GetInt("treasure0", 0);
         datas[6] = PlayerPrefs.GetInt("Score", 0);
+        datas[5] = 2;
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
+        obj.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.04f * height);
         flg = -1;
         count = 0;
         num = 0;
@@ -140,6 +142,7 @@ public class Result : Functions
                 obj.GetComponent<RectTransform>().localPosition = new Vector3(0.13f * width, 0.065f * height);
                 obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
                 text = obj.GetComponent<Text>();
+                text.fontSize = Mathf.RoundToInt(0.07f * height);
             }
         }
         #endregion
@@ -171,6 +174,7 @@ public class Result : Functions
                 coin = Random.Range(100, 200);
                 datas[6] += coin;
                 o.GetComponent<Text>().text = coin.ToString();
+                o.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.07f * height);
             }
         }
         #endregion
@@ -310,8 +314,12 @@ public class Result : Functions
                             GameObject.Find("Box").GetComponent<RectTransform>().sizeDelta = obj.GetComponent<RectTransform>().sizeDelta;
                             if (obj.GetComponent<RectTransform>().sizeDelta.x < 1)
                             {
-                                o.transform.parent = GameObject.Find("BackCanvas").transform;
-                                o.GetComponent<RectTransform>().localPosition = new Vector3(0.27f * (num - 1) * width, -0.125f * height);
+                                GameObject waku = Instantiate(Resources.Load<GameObject>("Prefab/box_C")) as GameObject;
+                                waku.transform.parent= GameObject.Find("BackCanvas").transform;
+                                waku.GetComponent<RectTransform>().localPosition = new Vector3(0.27f * (num - 1) * width, -0.125f * height);
+                                waku.GetComponent<RectTransform>().localScale = new Vector3(0.8f,0.8f,0.8f);
+                                o.transform.parent = waku.transform;
+                                o.GetComponent<RectTransform>().localPosition = Vector3.zero;
                                 o.GetComponent<RectTransform>().localScale = new Vector3(0.5f, 0.5f, 0.5f);
                                 num++;
                                 obj.GetComponent<RectTransform>().sizeDelta = new Vector3(0.45f * width, 0.45f * width);
@@ -330,8 +338,9 @@ public class Result : Functions
                 count = 0;
                 //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
                 obj = GameObject.Find("Score");
-                obj.GetComponent<RectTransform>().localPosition = new Vector3(-0.3f * width, -0.4f * height);
-                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.2f * height);
+                obj.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.38f * height);
+                obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f*width, 0.2f * height);
+                obj.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.06f * height);
                 text = obj.GetComponent<Text>();
             }
         }
@@ -341,15 +350,15 @@ public class Result : Functions
         {
             if (count < datas[6]) count += Random.Range(40, 80);
             else if (count > datas[6]) count--;
-            text.text = "Score\n"+(count.ToString());//.PadLeft(5, '0'));
+            text.text = "Score："+(count.ToString().PadLeft(5, '0'));
             if (count == datas[6])
             {
                 delta_time = 0;
                 GameObject.Find("End").GetComponent<Animator>().SetInteger("Stamp_Int", -10);
                 //Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[2]); // ドン！
                 o = GameObject.Find("Button");
-                o.GetComponent<RectTransform>().localPosition = new Vector3(0.25f * width, -0.45f * height);
-                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.09f * height);
+                o.GetComponent<RectTransform>().localPosition = new Vector3(0.25f * width, -0.46f * height);
+                o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.08f * height);
                 flg++;
             }
         }
