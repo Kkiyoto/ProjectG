@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /* Dictionary
  * Dictionaryにアタッチするけど速攻Destroy
@@ -12,8 +13,8 @@ public class Dictionary : MonoBehaviour
 {
     float width, height;
     //なるべく同じ名前にします。consoleから入れるのお願いします。
-    public GameObject Sentou_kaisi;
-    public RectTransform Map_base, Image, Time_base, Time_needle, Time_gage, Time_text, Pause, Skill, Skill_Text, Gage, Skill_Icon, Outer, Change, Time, Item_coin
+    public GameObject Sentou_kaisi, Time_text, Skill_Text;
+    public RectTransform Map_base, Image, Time_base, Time_needle, Time_gage, Pause, Skill, Gage, Skill_Icon, Outer, Change, Time, Item_coin
         , Item_weapon, Walk_F, Walk, To_Game, To_Menu, Option, Help, Start_and_End_anim, Hikousen, Skill_effect, Battle_down_panel;
 
     private void Start()
@@ -32,14 +33,16 @@ public class Dictionary : MonoBehaviour
         Time_needle.localPosition = new Vector3(0, -0.013f * height);
         Time_gage.localPosition = new Vector3(0, -0.013f * height);
         Time_gage.sizeDelta = new Vector2(0.2f*height, 0.2f * height);
-        Time_text.localPosition = new Vector3(0, -0.05f * height);
-        Time_text.sizeDelta = new Vector2(0.2f * width, 0.1f * height);
+        Time_text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.05f * height);
+        Time_text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.2f * width, 0.1f * height);
+        Time_text.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.035f * height);
         Pause.localPosition = new Vector3( - 0.42f * width, 0.462f * height);
         Pause.sizeDelta = new Vector2(0.14f *width, 0.064f * height);
         Skill.localPosition = new Vector3(-0.13f * width, -0.46f * height);
         Skill.sizeDelta = new Vector2(0.7f * width, 0.08f * height);
-        Skill_Text.localPosition = new Vector3(0.044f * width, 0.02f * height);
-        Skill_Text.sizeDelta = new Vector2(0.528f * width, 0.06f * height);
+        Skill_Text.GetComponent<RectTransform>().localPosition = new Vector3(0.044f * width, 0.02f * height);
+        Skill_Text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.528f * width, 0.06f * height);
+        Skill_Text.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.025f * height);
         Gage.sizeDelta = new Vector2(0.7f * width, 0.08f * height);
         Skill_Icon.sizeDelta = new Vector2(0.055f * height, 0.055f * height);
         Skill_Icon.localPosition = new Vector2(-0.285f * width,-0.0015f*height);
@@ -98,6 +101,14 @@ public class Dictionary : MonoBehaviour
         GameObject.Find("Treasure_count").GetComponent<RectTransform>().sizeDelta = new Vector2(0.08f * width, 0.045f * height);
         GameObject.Find("Count_Text").GetComponent<RectTransform>().localPosition = new Vector3(0.05f*width, -0.015f * height);
         GameObject.Find("Count_Text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.1f * width, 0.05f * height);
+        GameObject.Find("Count_Text").GetComponent<Text>().fontSize = Mathf.RoundToInt(0.022f * height);
+
+        GameObject.Find("GameOver_text").GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.08f * height);
+        GameObject.Find("GameOver_text").GetComponent<RectTransform>().localPosition = new Vector2(width, 0);
+        GameObject.Find("Game_over").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.08f * height);
+        GameObject.Find("Game_over").GetComponent<RectTransform>().localPosition = new Vector2(width, 0);
+        GameObject.Find("Retry").GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.08f * height);
+        GameObject.Find("Retry").GetComponent<RectTransform>().localPosition = new Vector2(width, 0);
 
         Destroy(this.gameObject, 1f);
     }

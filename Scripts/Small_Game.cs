@@ -349,16 +349,6 @@ public class Small_Game : Functions
         {
             if (is_Skill(5)) time += Time.deltaTime / 3f;
             time -= Time.deltaTime;
-            int m = Mathf.FloorToInt(time / 60f);
-            int s = Mathf.FloorToInt(time % 60f);
-            if (Mathf.Abs(time - needle) > 1.5f)
-            {
-                m = Mathf.FloorToInt(needle / 60f);
-                s = Mathf.FloorToInt(needle % 60f);
-            }
-            Degital_Time.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
-            Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
-            Flame.color -= new Color(0, 0, 0, 0.01f);
         }
         if (time < 0) //GameOver
         {
@@ -385,6 +375,24 @@ public class Small_Game : Functions
                 else needle += 0.7f;
             }
         }
+        int m = Mathf.FloorToInt(time / 60f);
+        int s = Mathf.FloorToInt(time % 60f);
+        if (time - needle > 1.5f)
+        {
+            m = Mathf.FloorToInt(needle / 60f);
+            s = Mathf.FloorToInt(needle % 60f);
+            Degital_Time.color = Color.green;
+        }
+        else if (time - needle < -1.5f)
+        {
+            m = Mathf.FloorToInt(needle / 60f);
+            s = Mathf.FloorToInt(needle % 60f);
+            Degital_Time.color = Color.red;
+        }
+        else Degital_Time.color = Color.white;
+        Degital_Time.text = (m.ToString().PadLeft(2, '0') + " : " + s.ToString().PadLeft(2, '0'));
+        Needle.localRotation = new Quaternion(0, 0, 1, 1 - needle / Max_Time);
+        Flame.color -= new Color(0, 0, 0, 0.01f);
         if (needle < 80 && !is_red)
         {
             Back_anime.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/Background/BG_red" + (int)Common.Thema.Sky);
@@ -1457,7 +1465,7 @@ public class Small_Game : Functions
         PlayerPrefs.SetInt("enemy", Destroy);
         PlayerPrefs.SetInt("Coin", coin);
         Debug.Log(" s " + score);
-        score = score * score*3f  + score_p + coin + 1000f * (Life_point + 1) + 3 * time + 10 * road + All_count * All_count*1.5f;
+        score = score * score*3f  + score_p + coin + 1000f * (Life_point + 1) + 2 * time + All_count * All_count*1.5f;
         score = Mathf.Max(score, 1200 * retry) - 1200 * retry;
         PlayerPrefs.SetInt("Score", Mathf.RoundToInt(score));
 
