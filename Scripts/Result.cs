@@ -44,7 +44,6 @@ public class Result : Functions
         datas[4] = PlayerPrefs.GetInt("treasure1", 0);
         datas[5] = PlayerPrefs.GetInt("treasure0", 0);
         datas[6] = PlayerPrefs.GetInt("Score", 0);
-        datas[5] = 2;
         obj = GameObject.Find("Time");
         obj.GetComponent<RectTransform>().localPosition = new Vector3(0.18f * width, 0.34f * height);
         obj.GetComponent<RectTransform>().sizeDelta = new Vector2(0.4f * width, 0.1f * height);
@@ -62,6 +61,11 @@ public class Result : Functions
         Result_SE[2] = Resources.Load<AudioClip>("Audio/SE/Stamp");
         Result_SE[3] = Resources.Load<AudioClip>("Audio/SE/Tap");
         Audio.GetComponent<AudioSource>().PlayOneShot(Result_SE[0]); // ペラッ
+        GameObject.Find("Score").GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+        GameObject.Find("Coin").GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+        GameObject.Find("Treasure").GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+        GameObject.Find("Coin_Plus").GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
+        GameObject.Find("Button").GetComponent<RectTransform>().localPosition = new Vector3(width, 0, 0);
     }
 
     // Update is called once per frame
@@ -359,6 +363,7 @@ public class Result : Functions
                 o = GameObject.Find("Button");
                 o.GetComponent<RectTransform>().localPosition = new Vector3(0.25f * width, -0.46f * height);
                 o.GetComponent<RectTransform>().sizeDelta = new Vector2(0.5f * width, 0.08f * height);
+                o.transform.SetAsLastSibling();
                 flg++;
             }
         }

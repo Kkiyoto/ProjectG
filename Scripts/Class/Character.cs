@@ -29,6 +29,7 @@ public class Character : Functions
         type = t;
         map = Instantiate(Resources.Load<GameObject>("Prefab/Icon")) as GameObject;
         map.transform.parent = GameObject.Find("Map_base").transform;
+        map.GetComponent<RectTransform>().sizeDelta = new Vector2(map_num, map_num);
         if (t != Common.Type.Player)
         {
             Set_Chara((int)t);

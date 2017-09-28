@@ -27,6 +27,7 @@ public class Item : Functions
         map = Instantiate(Resources.Load<GameObject>("Prefab/Icon")) as GameObject;
         map.transform.parent = GameObject.Find("Map_base").transform;
         map.GetComponent<Image>().sprite = Resources.Load<Sprite>("Images/GameScene/Small_coin");
+        map.GetComponent<RectTransform>().sizeDelta = new Vector2(map_num, map_num);
         type = t;
         obj.GetComponent<Animator>().SetInteger("Item_Int" , (int)type);
         delta = map_num;

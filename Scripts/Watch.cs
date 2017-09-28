@@ -53,7 +53,7 @@ public class Watch : MonoBehaviour
         BG.GetComponent<RectTransform>().localPosition = new Vector2(2f * width, 0);
         HP.GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f*height);
         HP.GetComponent<RectTransform>().localPosition = new Vector3(0.2f*width,0.12f*height);
-        home_img.GetComponent<RectTransform>().sizeDelta = new Vector2(1.3f*width, 1.05f*height);
+        home_img.GetComponent<RectTransform>().sizeDelta = new Vector2(1.35f*width, 1.25f*height);
         home_img.GetComponent<RectTransform>().localPosition = new Vector2(-2.1f * width, -0.1f*height);
 
         Ready.sizeDelta = new Vector2(0.34f * width, 0.2f * height);
@@ -216,7 +216,7 @@ public class Watch : MonoBehaviour
             //Box_Chara cha = new Box_Chara(box_Chara[i], i + 1);
             in_data(chara[i],ids[i], levels[i]);
             chara[i].img.sprite = chara[i].Small_img;
-            if (levels[i] != -1) texts[i].GetComponent<Text>().text = "Lv." + (levels[i] + 1);
+            if (levels[i] != -1) { texts[i].GetComponent<Text>().text = "Lv." + (levels[i] + 1); texts[i].GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1); }
         }
         return chara;
     }

@@ -46,7 +46,7 @@ public class Home : MonoBehaviour
             charas[party_ID[i] - 1].img.color = Color.gray;
             Ptext[i].text = "Lv."+(charas[party_ID[i] - 1].Level+1);
         }
-        home_img.sprite = charas[party_ID[0] - 1].Big_img;
+        home_img.sprite = charas[party_ID[0] - 1].Home_img;
         in_flg = 0;
         out_vec = new Vector3(0, height, 0);
         Home_BGM = GameObject.Find("EventSystem").GetComponents<AudioSource>();
@@ -220,7 +220,7 @@ public class Home : MonoBehaviour
             pos_num = -2;
             detail.localPosition = Vector3.zero;
             Big_img.sprite = charas[x].Big_img;
-            Dtitle.text = charas[x].name + "\nLv." + (charas[x].Level + 1);
+            Dtitle.text = charas[x].Name + "\nLv." + (charas[x].Level + 1);
             text.text = "攻撃力：" + charas[x].attack + "   HP：" + charas[x].HP
                 + "\n\nリーダー：" + charas[x].leader_Description
                 + "\nスキル：" + charas[x].skill_time + "秒　発動：" + charas[x].skill_walk
@@ -260,7 +260,7 @@ public class Home : MonoBehaviour
                     party_chara[target_num - 1].sprite = charas[tap_num - 1].Middle_img;
                     home_img.sprite = charas[party_ID[0] - 1].Home_img;
                     Ptext[target_num-1].text = "Lv." + (charas[party_ID[target_num-1] - 1].Level + 1);
-                    HP.text = "HP合計(制限時間): " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
+                    HP.text = "HP合計（制限時間）: " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
                     tap_num = 0;
                 }
                 target_num = 0;
@@ -307,7 +307,7 @@ public class Home : MonoBehaviour
                 party_ID[target_num - 1] = tap_num;
                 home_img.sprite = charas[party_ID[0] - 1].Home_img;
                     Ptext[target_num-1].text = "Lv." + (charas[party_ID[target_num-1] - 1].Level + 1);
-        HP.text = "HP合計(制限時間): " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
+        HP.text = "HP合計（制限時間）: " + (charas[party_ID[0] - 1].HP + charas[party_ID[1] - 1].HP + charas[party_ID[2] - 1].HP);
                 party_chara[target_num - 1].sprite = charas[tap_num - 1].Middle_img;
                 target_num = 0;
             }

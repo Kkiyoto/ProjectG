@@ -39,6 +39,8 @@ public class Title : Functions
         //GameObject.Find("FadePanel").GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
         GameObject.Find("TapStart").GetComponent<RectTransform>().localPosition = new Vector3(0, -0.4f*height);
         GameObject.Find("TapStart").GetComponent<RectTransform>().sizeDelta = new Vector2(0.45f*width, 0.06f * height);
+        GameObject.Find("Logo").GetComponent<RectTransform>().localPosition = new Vector3(-0.12f * width, 0.24f * height);//0.0f*width, 0.23f * height
+        GameObject.Find("Logo").GetComponent<RectTransform>().sizeDelta = new Vector2(0.77f * width, 0.43f * height); //0.63f * width, 0.4f * height
 
     }
 

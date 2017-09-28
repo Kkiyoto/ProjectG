@@ -552,7 +552,7 @@ public class Small_Game : Functions
                                 {
                                     enemy[i].act = Common.Action.Sad;//★強制送還。コインゲット等のアクションをバトルに入れた場合、ここにもお願いします
                                     //enemy[i].Sprite().color = Color.clear;//ここもアニメーションになるっぽい（アイコンになるなら）
-                                    enemy[i].OutScreen(false);//ここもアニメーションになるっぽい（アイコンになるなら）
+                                    enemy[i].OutScreen(true);//ここもアニメーションになるっぽい（アイコンになるなら）
                                 }
                                 else if (!is_Skill(7)&&(enemy[i].Pos - player.Pos).magnitude < 0.6f)  //ここに当たった時の。is_Skill(n1),is_Skill(n5)
                                 {
