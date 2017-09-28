@@ -41,8 +41,10 @@ public class Watch : MonoBehaviour
         Big.GetComponent<RectTransform>().sizeDelta = new Vector2(0.95f*width, 1.3f*width);
         Dtitle.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.4f * height, 0);
         Dtitle.GetComponent<RectTransform>().sizeDelta = new Vector2(0.95f * width, 0.2f * width);
+        Dtitle.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.08f * width);
         text.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.28f * height, 0);
         text.GetComponent<RectTransform>().sizeDelta = new Vector2(0.9f * width, 0.25f * height);
+        text.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.03f * height);
 
         Title.GetComponent<RectTransform>().localPosition = new Vector3(0, 0.451f * height, 0);
         Title.GetComponent<RectTransform>().sizeDelta = new Vector2(width, 0.11f * height);
@@ -51,9 +53,10 @@ public class Watch : MonoBehaviour
 
         BG.GetComponent<RectTransform>().sizeDelta = new Vector2(5f * width, height);
         BG.GetComponent<RectTransform>().localPosition = new Vector2(2f * width, 0);
-        HP.GetComponent<RectTransform>().sizeDelta = new Vector2(0.6f * width, 0.1f*height);
-        HP.GetComponent<RectTransform>().localPosition = new Vector3(0.2f*width,0.12f*height);
-        home_img.GetComponent<RectTransform>().sizeDelta = new Vector2(1.35f*width, 1.25f*height);
+        HP.GetComponent<RectTransform>().sizeDelta = new Vector2(0.7f * width, 0.1f*height);
+        HP.GetComponent<RectTransform>().localPosition = new Vector3(0.15f*width,0.12f*height);
+        HP.GetComponent<Text>().fontSize = Mathf.RoundToInt(0.03f * height);
+        home_img.GetComponent<RectTransform>().sizeDelta = new Vector2(1.35f*width, 1.25f* height);
         home_img.GetComponent<RectTransform>().localPosition = new Vector2(-2.1f * width, -0.1f*height);
 
         Ready.sizeDelta = new Vector2(0.34f * width, 0.2f * height);
